@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fdsim/enums"
 	"fdsim/models"
 	"fdsim/utils"
 	"testing"
@@ -9,9 +10,10 @@ import (
 )
 
 func TestBuildingPlayer(t *testing.T) {
-	p := models.NewPlayer("Name", "Surname", 30, models.GK)
+	p := models.NewPlayer("Name", "Surname", 30, enums.EN, models.GK)
 	assert.Equal(t, "Name", p.Name)
 	assert.Equal(t, "Surname", p.Surname)
+	assert.Equal(t, "English", p.Country.Nationality())
 	assert.Equal(t, 30, p.Age)
 	assert.Equal(t, "Goalkeeper", p.Role.String())
 
@@ -20,7 +22,7 @@ func TestBuildingPlayer(t *testing.T) {
 }
 
 func TestPlayerIsSkillable(t *testing.T) {
-	p := models.NewPlayer("Mario", "Rossi", 17, models.ST)
+	p := models.NewPlayer("Mario", "Rossi", 17, enums.DE, models.ST)
 
 	assert.IsType(t, utils.Perc{}, p.Skill)
 	assert.IsType(t, utils.Perc{}, p.Morale)

@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fdsim/enums"
 	"fdsim/models"
 	"fdsim/utils"
 	"testing"
@@ -9,9 +10,10 @@ import (
 )
 
 func TestBuildingCoach(t *testing.T) {
-	c := models.NewCoach("Name", "Surname", 45, models.M433)
+	c := models.NewCoach("Name", "Surname", 45, enums.ES, models.M433)
 	assert.Equal(t, "Name", c.Name)
 	assert.Equal(t, "Surname", c.Surname)
+	assert.Equal(t, "Spanish", c.Country.Nationality())
 	assert.Equal(t, 45, c.Age)
 	assert.Equal(t, "4-3-3", c.Module.String())
 
@@ -20,7 +22,7 @@ func TestBuildingCoach(t *testing.T) {
 }
 
 func TestCoachIsSkillable(t *testing.T) {
-	c := models.NewCoach("Name", "Surname", 45, models.M433)
+	c := models.NewCoach("Name", "Surname", 45, enums.DE, models.M433)
 
 	assert.IsType(t, utils.Perc{}, c.Skill)
 	assert.IsType(t, utils.Perc{}, c.Morale)

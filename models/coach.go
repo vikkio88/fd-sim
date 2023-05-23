@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/enums"
 	"fmt"
 
 	"github.com/oklog/ulid/v2"
@@ -19,13 +20,14 @@ type Coach struct {
 	skillable
 }
 
-func NewCoach(name, surname string, age int, module Module) Coach {
+func NewCoach(name, surname string, age int, country enums.Country, module Module) Coach {
 	return Coach{
 		idable: NewIdable(coachIdGenerator()),
 		Person: Person{
 			Name:    name,
 			Surname: surname,
 			Age:     age,
+			Country: country,
 		},
 		Module: module,
 	}
