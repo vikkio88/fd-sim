@@ -6,18 +6,28 @@ type Perc struct {
 	val int
 }
 
+func cap(val, min, max int) int {
+	if val < min {
+		val = min
+	}
+
+	if val > max {
+		val = max
+	}
+
+	return val
+}
+
 func NewPerc(val int) Perc {
-	if val < 0 {
-		val = 0
-	}
-
-	if val > 100 {
-		val = 100
-	}
-
+	val = cap(val, 0, 100)
 	return Perc{val}
 }
 
+func (p *Perc) SetVal(val int) {
+	val = cap(val, 0, 100)
+	p.val = val
+
+}
 func (p *Perc) Val() int {
 	return p.val
 }
