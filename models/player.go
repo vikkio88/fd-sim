@@ -1,17 +1,18 @@
 package models
 
 type Player struct {
-	Name    string
-	Surname string
-	Age     int
-	Role    Role
+	Person
+	Role Role
+	skillable
 }
 
 func NewPlayer(name, surname string, age int, role Role) Player {
 	return Player{
-		name,
-		surname,
-		age,
-		role,
+		Person: Person{
+			Name:    name,
+			Surname: surname,
+			Age:     age,
+		},
+		Role: role,
 	}
 }

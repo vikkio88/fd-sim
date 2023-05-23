@@ -15,10 +15,10 @@ const (
 	mf = "Midfielder"
 	st = "Striker"
 
-	invalid = "INVALID_ROAD"
+	invalid_role = "INVALID_ROAD"
 )
 
-func getMapping() map[Role]string {
+func getRoleMapping() map[Role]string {
 	return map[Role]string{
 		GK: gk,
 		DF: df,
@@ -27,20 +27,11 @@ func getMapping() map[Role]string {
 	}
 }
 
-func getReverseMapping() map[string]Role {
-	return map[string]Role{
-		gk: GK,
-		df: DF,
-		mf: MF,
-		st: ST,
-	}
-}
-
 func (r Role) String() string {
-	mapping := getMapping()
+	mapping := getRoleMapping()
 	if val, ok := mapping[r]; ok {
 		return val
 	}
 
-	return invalid
+	return invalid_role
 }
