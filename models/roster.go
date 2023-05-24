@@ -14,8 +14,8 @@ type Roster struct {
 	indexByRole map[Role]string
 }
 
-func NewRoster() Roster {
-	return Roster{
+func NewRoster() *Roster {
+	return &Roster{
 		players:     map[string]*Player{},
 		cache:       map[string]interface{}{},
 		indexByRole: map[Role]string{},

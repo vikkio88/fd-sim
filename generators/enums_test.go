@@ -1,6 +1,7 @@
 package generators_test
 
 import (
+	"fdsim/enums"
 	"fdsim/generators"
 	"testing"
 
@@ -8,8 +9,6 @@ import (
 )
 
 func TestEnumsBuilder(t *testing.T) {
-	generators.NewEnumsGen(generatorsTestSeed)
-	assert.Equal(t, true, true)
-
-	//TODO: add tests
+	g := generators.NewEnumsGen(generatorsTestSeed)
+	assert.Equal(t, enums.ES, g.Country())
 }

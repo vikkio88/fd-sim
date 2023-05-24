@@ -13,6 +13,6 @@ func TestTeamBuilder(t *testing.T) {
 	assert.Equal(t, "Juventus", team.Name)
 	assert.Equal(t, "Torino", team.City)
 	assert.Equal(t, "Italian", team.Country.Nationality())
-	assert.Nil(t, team.Roster)
 	assert.Nil(t, team.Coach)
+	assert.NotNil(t, team.Roster)
 }

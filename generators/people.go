@@ -11,10 +11,16 @@ import (
 
 type PeopleGen struct {
 	rng        *libs.Rng
-	mGen       *ModelsGen
 	eGen       *EnumsGen
+	mGen       *ModelsGen
 	plAgeRange utils.IntRange
 	cAgeRange  utils.IntRange
+}
+
+func NewPeopleGenNested(rng *libs.Rng, enGen *EnumsGen) *PeopleGen {
+	p := NewPeopleGenSeeded(rng)
+	p.eGen = enGen
+	return p
 }
 
 func NewPeopleGenSeeded(rng *libs.Rng) *PeopleGen {
