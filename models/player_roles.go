@@ -35,3 +35,12 @@ func (r Role) String() string {
 
 	return invalid_role
 }
+
+func AllPlayerRoles() []Role {
+	return []Role{
+		GK,
+		DF,
+		MF,
+		ST,
+	}
+}

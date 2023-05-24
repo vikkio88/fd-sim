@@ -57,3 +57,13 @@ func (r Country) Nationality() string {
 
 	return invalid
 }
+
+func AllCountries() []Country {
+	return []Country{
+		IT,
+		EN,
+		FR,
+		DE,
+		ES,
+	}
+}

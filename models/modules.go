@@ -38,3 +38,13 @@ func (r Module) String() string {
 
 	return invalid_module
 }
+
+func AllModules() []Module {
+	return []Module{
+		M442,
+		M433,
+		M343,
+		M352,
+		M532,
+	}
+}
