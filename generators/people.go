@@ -67,7 +67,7 @@ func (p *PeopleGen) getSurname(country enums.Country) string {
 }
 
 func (p *PeopleGen) getSkill() int {
-	return p.rng.UInt(50, 100)
+	return p.rng.NormPercVal()
 }
 
 func (p *PeopleGen) getMorale() int {
@@ -75,7 +75,22 @@ func (p *PeopleGen) getMorale() int {
 }
 
 func (p *PeopleGen) getFame(skill int) int {
-	return p.rng.UInt((skill - 10), 100)
+	return p.rng.UInt(skill+p.rng.PlusMinusVal(10, 50), 100)
+}
+
+func (p *PeopleGen) Champion(country enums.Country) *models.Player {
+	name := p.getName(country)
+	surname := p.getSurname(country)
+	age := p.rng.UInt(p.plAgeRange.Min, p.plAgeRange.Max)
+	pl := models.NewPlayer(name, surname, age, country, p.mGen.Role())
+
+	skill := p.rng.UInt(85, 100)
+	morale := p.getMorale()
+	fame := p.getFame(skill)
+
+	pl.SetVals(skill, morale, fame)
+
+	return &pl
 }
 
 func (p *PeopleGen) PlayerWithRole(country enums.Country, role models.Role) *models.Player {
