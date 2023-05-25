@@ -30,6 +30,22 @@ func getModuleMapping() map[Module]string {
 	}
 }
 
+func (r Module) Conf() map[Role]int {
+	switch r {
+	case M442:
+		return NewRoleCounter(1, 4, 4, 2)
+	case M433:
+		return NewRoleCounter(1, 4, 3, 3)
+	case M343:
+		return NewRoleCounter(1, 3, 4, 3)
+	case M352:
+		return NewRoleCounter(1, 3, 5, 2)
+	case M532:
+		return NewRoleCounter(1, 5, 3, 2)
+	}
+
+	return NewEmptyRoleCounter()
+}
 func (r Module) String() string {
 	mapping := getModuleMapping()
 	if val, ok := mapping[r]; ok {

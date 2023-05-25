@@ -20,6 +20,8 @@ type Team struct {
 	Country enums.Country
 	Roster  *Roster
 	Coach   *Coach
+
+	//TODO: add familiarity with a module
 }
 
 func NewTeam(name, city string, country enums.Country) Team {

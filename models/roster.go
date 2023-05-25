@@ -1,18 +1,6 @@
 package models
 
-type playerStats struct {
-	Id     string
-	Skill  int
-	morale int
-}
-
-func newPsFromPlayer(p *Player) playerStats {
-	return playerStats{
-		p.Id,
-		p.Skill.Val(),
-		p.Morale.Val(),
-	}
-}
+import "sort"
 
 // Roster Cache Keys
 const (
@@ -25,14 +13,14 @@ const (
 type Roster struct {
 	players     map[string]*Player
 	cache       map[string]interface{}
-	indexByRole map[Role][]playerStats
+	indexByRole map[Role][]PPH
 }
 
 func NewRoster() *Roster {
 	return &Roster{
 		players:     map[string]*Player{},
 		cache:       map[string]interface{}{},
-		indexByRole: map[Role][]playerStats{},
+		indexByRole: NewRolePPHMap(),
 	}
 }
 
@@ -64,8 +52,18 @@ func (r *Roster) AvgSkill() float64 {
 
 func (r *Roster) add(player *Player) {
 	r.players[player.Id] = player
-	ps := newPsFromPlayer(player)
+	ps := player.PH()
 	r.indexByRole[player.Role] = append(r.indexByRole[player.Role], ps)
+
+	// Sorting players by Skill and Morale on insert
+	sort.Slice(r.indexByRole[player.Role],
+		func(i, j int) bool {
+			if r.indexByRole[player.Role][i].Skill == r.indexByRole[player.Role][j].Skill {
+				return r.indexByRole[player.Role][i].Morale > r.indexByRole[player.Role][j].Morale
+			}
+
+			return r.indexByRole[player.Role][i].Skill > r.indexByRole[player.Role][j].Skill
+		})
 }
 
 func (r *Roster) AddPlayer(player *Player) {
@@ -83,4 +81,46 @@ func (r *Roster) AddPlayers(players []*Player) {
 
 func (r *Roster) Len() int {
 	return len(r.players)
+}
+
+func (r *Roster) IdsInRole(role Role) []string {
+	if v, ok := r.indexByRole[role]; ok {
+		players := make([]string, len(v))
+		for i, pph := range v {
+			players[i] = pph.Id
+		}
+
+		return players
+	}
+	return []string{}
+}
+
+func (r *Roster) InRole(role Role) []*Player {
+	if v, ok := r.indexByRole[role]; ok {
+		players := make([]*Player, len(v))
+		for i, pph := range v {
+			players[i] = r.players[pph.Id]
+		}
+
+		return players
+	}
+	return []*Player{}
+}
+
+func (r *Roster) Lineup(module Module) Lineup {
+	conf := module.Conf()
+	lineup := NewRolePPHMap()
+	//bench := NewRolePPHMap()
+	missing := NewEmptyRoleCounter()
+	for role, count := range conf {
+		pRoleInRoster := len(r.indexByRole[role])
+		if pRoleInRoster >= count {
+			lineup[role] = r.indexByRole[role][0:count]
+		} else {
+			missing[role] = count - pRoleInRoster
+			lineup[role] = r.indexByRole[role][0:pRoleInRoster]
+		}
+	}
+
+	return NewLineup(module, lineup)
 }

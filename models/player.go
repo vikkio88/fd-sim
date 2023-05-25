@@ -30,5 +30,29 @@ func NewPlayer(name, surname string, age int, country enums.Country, role Role) 
 			Country: country,
 		},
 		Role: role,
+		//TODO: add familiarity with a module
 	}
+}
+
+// get placeholder
+func (p *Player) PH() PPH {
+	return PPH{
+		Id:  p.Id,
+		sPH: p.skillable.PH(),
+	}
+}
+
+type PPH struct {
+	sPH
+	Id string
+	// TODO: track injuries so we know whether can be choose or not for lineup
+}
+
+func NewRolePPHMap() map[Role][]PPH {
+	result := map[Role][]PPH{}
+	for _, role := range AllPlayerRoles() {
+		result[role] = []PPH{}
+	}
+
+	return result
 }

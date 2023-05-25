@@ -44,3 +44,21 @@ func AllPlayerRoles() []Role {
 		ST,
 	}
 }
+
+func NewEmptyRoleCounter() map[Role]int {
+	return map[Role]int{
+		GK: 0,
+		DF: 0,
+		MF: 0,
+		ST: 0,
+	}
+}
+
+func NewRoleCounter(gk, df, mf, st int) map[Role]int {
+	return map[Role]int{
+		GK: gk,
+		DF: df,
+		MF: mf,
+		ST: st,
+	}
+}
