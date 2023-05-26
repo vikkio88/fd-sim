@@ -124,3 +124,8 @@ func (r *Roster) Lineup(module Module) Lineup {
 
 	return NewLineup(module, lineup)
 }
+
+func (r *Roster) Player(id string) (*Player, bool) {
+	p, ok := r.players[id]
+	return p, ok
+}

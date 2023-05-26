@@ -3,6 +3,7 @@ package models_test
 import (
 	"fdsim/enums"
 	"fdsim/generators"
+	"fdsim/libs"
 	"fdsim/models"
 	"testing"
 
@@ -48,6 +49,25 @@ func TestLineupGeneration(t *testing.T) {
 	lineup = team.Roster.Lineup(models.M343)
 	count = countPlayersInLineup(lineup)
 	assert.Equal(t, 11, count)
+}
+
+func TestLineupGetScorer(t *testing.T) {
+
+	tg := generators.NewTeamGen(0)
+
+	team := tg.Team(enums.IT)
+
+	lineup := team.Roster.Lineup(models.M442)
+	rng := libs.NewRng(0)
+	c := models.NewEmptyRoleCounter()
+	for i := 0; i < 1000; i++ {
+		scorerId := lineup.Scorer(rng)
+		p, _ := team.Roster.Player(scorerId)
+		c[p.Role]++
+	}
+	assert.Equal(t, 0, c[models.GK])
+	assert.Greater(t, c[models.ST], c[models.MF])
+	assert.Greater(t, c[models.MF], c[models.DF])
 }
 
 func countPlayersInLineup(lineup models.Lineup) int {
