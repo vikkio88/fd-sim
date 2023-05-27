@@ -14,8 +14,9 @@ func matchIdGenerator() string {
 
 type Match struct {
 	idable
-	Home TPH
-	Away TPH
+	Home   TPH
+	Away   TPH
+	result *Result
 }
 
 func NewMatch(home, away *Team) *Match {
@@ -24,4 +25,16 @@ func NewMatch(home, away *Team) *Match {
 		Home:   home.PH(),
 		Away:   away.PH(),
 	}
+}
+
+func (m *Match) Simulate() {
+	m.result = NewResult(0, 0, []string{}, []string{})
+}
+
+func (m *Match) Result() (*Result, bool) {
+	if m.result == nil {
+		return nil, false
+	}
+
+	return m.result, true
 }
