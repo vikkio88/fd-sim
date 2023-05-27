@@ -79,10 +79,11 @@ func (p *PeopleGen) getFame(skill int) int {
 }
 
 func (p *PeopleGen) Champion(country enums.Country) *models.Player {
+	mGen := p.getModelsGen()
 	name := p.getName(country)
 	surname := p.getSurname(country)
 	age := p.rng.UInt(p.plAgeRange.Min, p.plAgeRange.Max)
-	pl := models.NewPlayer(name, surname, age, country, p.mGen.Role())
+	pl := models.NewPlayer(name, surname, age, country, mGen.Role())
 
 	skill := p.rng.UInt(85, 100)
 	morale := p.getMorale()
