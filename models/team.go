@@ -24,6 +24,11 @@ type Team struct {
 	//TODO: add familiarity with a module
 }
 
+type TPH struct {
+	Id   string
+	Name string
+}
+
 func NewTeam(name, city string, country enums.Country) Team {
 	return Team{
 		idable:  NewIdable(teamIdGenerator()),
@@ -31,5 +36,12 @@ func NewTeam(name, city string, country enums.Country) Team {
 		City:    city,
 		Country: country,
 		Roster:  NewRoster(),
+	}
+}
+
+func (t *Team) PH() TPH {
+	return TPH{
+		Id:   t.Id,
+		Name: t.Name,
 	}
 }

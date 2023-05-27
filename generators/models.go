@@ -26,7 +26,6 @@ func NewModelsGenSeeded(rng *libs.Rng) *ModelsGen {
 
 func (m *ModelsGen) Role() models.Role {
 	idx := m.rng.Index(len(m.roles))
-
 	return m.roles[idx]
 }
 
