@@ -72,7 +72,7 @@ func TestLineupGetScorer(t *testing.T) {
 	assert.Greater(t, c[models.MF], c[models.DF])
 }
 
-func countPlayersInLineup(lineup models.Lineup) int {
+func countPlayersInLineup(lineup *models.Lineup) int {
 	count := 0
 	for _, p := range lineup.Starting {
 		count += len(p)

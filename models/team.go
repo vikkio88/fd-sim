@@ -39,6 +39,10 @@ func NewTeam(name, city string, country enums.Country) Team {
 	}
 }
 
+func (t *Team) Lineup() *Lineup {
+	return t.Roster.Lineup(t.Coach.Module)
+}
+
 func (t *Team) PH() TPH {
 	return TPH{
 		Id:   t.Id,

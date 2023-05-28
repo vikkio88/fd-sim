@@ -3,16 +3,19 @@ package models
 import "fdsim/libs"
 
 type Lineup struct {
-	Module   Module
-	Starting map[Role][]PPH
+	Module    Module
+	Starting  map[Role][]PPH
+	teamStats TeamStats
 	// Bench    map[Role][]PPH
 	//TODO: track substitutions
 }
 
-func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) Lineup {
-	return Lineup{
-		Module:   module,
-		Starting: starting,
+func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup {
+	return &Lineup{
+		Module:    module,
+		Starting:  starting,
+		teamStats: stats,
+		//TODO: calculate also starting skillsAvg
 
 		// TODO: model issues like missing players in role or similar
 		// Bench:    bench,

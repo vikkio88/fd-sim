@@ -66,6 +66,16 @@ func (r *Roster) AvgAge() float64 {
 	return v
 }
 
+func (r *Roster) AvgMorale() float64 {
+	if val, ok := r.cache[rCK_PAM]; ok {
+		return val.(float64)
+	}
+
+	_, v, _ := r.calculateAvgs()
+
+	return v
+}
+
 func (r *Roster) add(player *Player) {
 	r.players[player.Id] = player
 	ps := player.PH()
@@ -123,7 +133,7 @@ func (r *Roster) InRole(role Role) []*Player {
 	return []*Player{}
 }
 
-func (r *Roster) Lineup(module Module) Lineup {
+func (r *Roster) Lineup(module Module) *Lineup {
 	conf := module.Conf()
 	lineup := NewRolePPHMap()
 	//bench := NewRolePPHMap()
@@ -138,7 +148,7 @@ func (r *Roster) Lineup(module Module) Lineup {
 		}
 	}
 
-	return NewLineup(module, lineup, TeamStats{})
+	return NewLineup(module, lineup, TeamStats{r.AvgSkill(), r.AvgMorale(), r.AvgAge()})
 }
 
 func (r *Roster) Player(id string) (*Player, bool) {
