@@ -8,6 +8,8 @@ const (
 	rCK_PAS = "rck:plsAvgSkill"
 	// RosterCacheKey Players Avg Morale
 	rCK_PAM = "rck:plsAvgMorale"
+	// RosterCacheKey Players Avg Age
+	rCK_PAA = "rck:plsAvgAge"
 )
 
 type Roster struct {
@@ -24,20 +26,24 @@ func NewRoster() *Roster {
 	}
 }
 
-func (r *Roster) calculateAvgs() (float64, float64) {
+func (r *Roster) calculateAvgs() (float64, float64, float64) {
 	totS := 0
 	totM := 0
+	totA := 0
 	for _, p := range r.players {
 		totS += p.Skill.Val()
 		totM += p.Morale.Val()
+		totA += p.Age
 	}
 
 	valS := float64(totS) / float64(r.Len())
 	r.cache[rCK_PAS] = valS
 	valM := float64(totM) / float64(r.Len())
 	r.cache[rCK_PAM] = valM
+	valA := float64(totA) / float64(r.Len())
+	r.cache[rCK_PAA] = valA
 
-	return valS, valM
+	return valS, valM, valA
 }
 
 func (r *Roster) AvgSkill() float64 {
@@ -45,7 +51,17 @@ func (r *Roster) AvgSkill() float64 {
 		return val.(float64)
 	}
 
-	v, _ := r.calculateAvgs()
+	v, _, _ := r.calculateAvgs()
+
+	return v
+}
+
+func (r *Roster) AvgAge() float64 {
+	if val, ok := r.cache[rCK_PAA]; ok {
+		return val.(float64)
+	}
+
+	_, _, v := r.calculateAvgs()
 
 	return v
 }
@@ -122,10 +138,16 @@ func (r *Roster) Lineup(module Module) Lineup {
 		}
 	}
 
-	return NewLineup(module, lineup)
+	return NewLineup(module, lineup, TeamStats{})
 }
 
 func (r *Roster) Player(id string) (*Player, bool) {
 	p, ok := r.players[id]
 	return p, ok
+}
+
+type TeamStats struct {
+	Skill  float64
+	Morale float64
+	Age    float64
 }

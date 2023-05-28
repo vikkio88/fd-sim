@@ -9,7 +9,7 @@ type Lineup struct {
 	//TODO: track substitutions
 }
 
-func NewLineup(module Module, starting map[Role][]PPH) Lineup {
+func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) Lineup {
 	return Lineup{
 		Module:   module,
 		Starting: starting,
