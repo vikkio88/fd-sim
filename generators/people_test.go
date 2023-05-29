@@ -32,9 +32,9 @@ func TestPeopleGenBuilderCoachGenerator(t *testing.T) {
 }
 
 func TestGenerateManyPlayers(t *testing.T) {
-	t.Skip("Long Test")
+	// t.Skip("Long Test")
 	g := generators.NewPeopleGen(generatorsTestSeed)
 	for i := 0; i < 7000; i++ {
-		fmt.Println(g.Player(enums.EN))
+		fmt.Println(g.Player(enums.IT))
 	}
 }

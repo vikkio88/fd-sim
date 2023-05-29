@@ -59,11 +59,15 @@ func (p *PeopleGen) getEnumsGen() *EnumsGen {
 }
 
 func (p *PeopleGen) getName(country enums.Country) string {
-	return data.GetNames(country)[0]
+	names := data.GetNames(country)
+	idx := p.rng.Index(len(names))
+	return names[idx]
 }
 
 func (p *PeopleGen) getSurname(country enums.Country) string {
-	return data.GetSurnames(country)[0]
+	surnames := data.GetSurnames(country)
+	idx := p.rng.Index(len(surnames))
+	return surnames[idx]
 }
 
 func (p *PeopleGen) getSkill() int {

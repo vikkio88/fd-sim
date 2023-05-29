@@ -42,7 +42,9 @@ func NewTeamGen(seed int64) *TeamGen {
 }
 
 func (t *TeamGen) cityName(country enums.Country) string {
-	return data.GetCities(country)[0]
+	cities := data.GetCities(country)
+	idx := t.rng.Index(len(cities))
+	return cities[idx]
 }
 
 func (t *TeamGen) Teams(count int, country enums.Country) []*models.Team {
