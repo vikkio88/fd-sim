@@ -4,6 +4,7 @@ import (
 	"fdsim/enums"
 	"fdsim/generators"
 	"fdsim/models"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,9 +31,10 @@ func TestPeopleGenBuilderCoachGenerator(t *testing.T) {
 	assert.Equal(t, "Italian", c.Country.Nationality())
 }
 
-// func TestGenerateManyPlayers(t *testing.T) {
-// 	g := generators.NewPeopleGen(generatorsTestSeed)
-// 	for i := 0; i < 7000; i++ {
-// 		fmt.Println(g.Player(enums.EN))
-// 	}
-// }
+func TestGenerateManyPlayers(t *testing.T) {
+	t.Skip("Long Test")
+	g := generators.NewPeopleGen(generatorsTestSeed)
+	for i := 0; i < 7000; i++ {
+		fmt.Println(g.Player(enums.EN))
+	}
+}

@@ -2,8 +2,8 @@ package models
 
 import (
 	"fdsim/libs"
-	"fdsim/utils"
 	"fmt"
+	"math"
 
 	"github.com/oklog/ulid/v2"
 )
@@ -39,11 +39,11 @@ func (m *Match) Simulate(rng *libs.Rng) {
 	}
 
 	goalsH, goalsA := 0, 0
-	if rng.Chance(utils.NewPerc(int(m.LineupHome.teamStats.Skill - m.LineupAway.teamStats.Skill))) {
+	if rng.ChanceI(diffChance(m.LineupHome.teamStats.Skill, m.LineupAway.teamStats.Skill)) {
 		goalsH += 1
 	}
 
-	if rng.Chance(utils.NewPerc(int(m.LineupAway.teamStats.Skill - m.LineupAway.teamStats.Skill))) {
+	if rng.ChanceI(diffChance(m.LineupAway.teamStats.Skill, m.LineupHome.teamStats.Skill)) {
 		goalsA += 1
 	}
 
@@ -66,4 +66,13 @@ func (m *Match) Result() (*Result, bool) {
 	}
 
 	return m.result, true
+}
+
+const (
+	chanceMin = 40
+	chanceMax = 60
+)
+
+func diffChance(a, b float64) int {
+	return int(math.Min(100, math.Max(chanceMin, chanceMin+chanceMax*(b-a)/100)))
 }
