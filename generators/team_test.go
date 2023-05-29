@@ -24,7 +24,7 @@ func TestTeamBuilder(t *testing.T) {
 func TestGeneratingManyTeams(t *testing.T) {
 	t.Skip("Long Test")
 	tg := generators.NewTeamGen(time.Now().Unix())
-	ts := tg.Teams(1000, enums.EN)
+	ts := tg.Teams(1000, enums.FR)
 	var highest float64 = 0.0
 	var lowest float64 = 100.0
 	for _, team := range ts {

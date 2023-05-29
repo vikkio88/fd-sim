@@ -5,6 +5,7 @@ import (
 	"fdsim/enums"
 	"fdsim/libs"
 	"fdsim/models"
+	"fmt"
 )
 
 func getTeamConfigGeneration() map[models.Role]int {
@@ -47,6 +48,12 @@ func (t *TeamGen) cityName(country enums.Country) string {
 	return cities[idx]
 }
 
+func (t *TeamGen) teamName(country enums.Country) string {
+	tnp := data.GetTeamNamePattern(country)
+	idx := t.rng.Index(len(tnp))
+	return tnp[idx]
+}
+
 func (t *TeamGen) Teams(count int, country enums.Country) []*models.Team {
 	teams := make([]*models.Team, count)
 	for i := 0; i < count; i++ {
@@ -58,7 +65,8 @@ func (t *TeamGen) Teams(count int, country enums.Country) []*models.Team {
 
 func (t *TeamGen) Team(country enums.Country) *models.Team {
 	city := t.cityName(country)
-	team := models.NewTeam(city, city, country)
+	teamName := t.teamName(country)
+	team := models.NewTeam(fmt.Sprintf(teamName, city), city, country)
 	players := []*models.Player{}
 
 	for role, count := range t.config {
