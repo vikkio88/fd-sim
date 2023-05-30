@@ -39,6 +39,14 @@ func NewTeam(name, city string, country enums.Country) Team {
 	}
 }
 
+func (t *Team) String() string {
+	return fmt.Sprintf("%s (%s)", t.Name, t.Country)
+}
+
+func (t *Team) StringShort() string {
+	return fmt.Sprintf("%s", t.Name)
+}
+
 func (t *Team) Lineup() *Lineup {
 	return t.Roster.Lineup(t.Coach.Module)
 }
