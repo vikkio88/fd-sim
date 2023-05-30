@@ -30,6 +30,20 @@ func getModuleMapping() map[Module]string {
 	}
 }
 
+func (m Module) Validate(lineup map[Role][]PPH) bool {
+	conf := m.Conf()
+	for r, c := range conf {
+		if ps, ok := lineup[r]; ok {
+			if len(ps) != c {
+				return false
+			}
+		}
+
+	}
+
+	return true
+}
+
 func (r Module) Conf() map[Role]int {
 	switch r {
 	case M442:
