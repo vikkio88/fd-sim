@@ -109,7 +109,7 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 	cCountry := t.getCountry(country)
 	team.Coach = t.pGen.Coach(cCountry)
 
-	return &team
+	return team
 }
 
 func (t *TeamGen) getCountry(c enums.Country) enums.Country {
