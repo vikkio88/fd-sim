@@ -39,6 +39,14 @@ func (m *Match) Simulate(rng *libs.Rng) {
 	}
 
 	goalsH, goalsA := 0, 0
+
+	// calculating maluses
+	goalsH, aMalus := m.LineupAway.Malus()
+	goalsA, hMalus := m.LineupHome.Malus()
+
+	goalsH -= hMalus
+	goalsA -= aMalus
+
 	startChance, homeStart := diffChance(m.LineupHome.teamStats.Skill, m.LineupAway.teamStats.Skill)
 	if rng.ChanceI(startChance) {
 		goalsH += rng.UInt(0, homeStart)

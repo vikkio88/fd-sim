@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/maps"
@@ -26,6 +27,7 @@ func TestMatchBuilder(t *testing.T) {
 	assert.NotNil(t, m.LineupHome)
 	assert.NotNil(t, m.LineupAway)
 }
+
 func TestMatchResultIfPlayed(t *testing.T) {
 	rng := libs.NewRng(0)
 
@@ -48,8 +50,23 @@ func TestMatchResultIfPlayed(t *testing.T) {
 	assert.Equal(t, r, r2)
 }
 
+func TestMatchSimulationWithMissingPlayers(t *testing.T) {
+	rng := libs.NewRng(time.Now().Unix())
+
+	g := generators.NewTeamGenSeeded(rng)
+	gp := generators.NewPeopleGenSeeded(rng)
+	home := g.Team(enums.IT)
+	away := models.NewTeam("Broken", "", enums.IT)
+	away.Roster.AddPlayer(gp.PlayerWithRole(enums.IT, models.GK))
+
+	m := models.NewMatch(home, away)
+	m.Simulate(rng)
+
+	fmt.Println(m)
+}
+
 func TestMultipleMatches(t *testing.T) {
-	t.Skip("Long Test")
+	// t.Skip("Long Test")
 	rng := libs.NewRng(100)
 
 	g := generators.NewTeamGenSeeded(rng)
@@ -111,5 +128,4 @@ func TestMultipleMatches(t *testing.T) {
 		float32(points[away.Name])/float32(matches),
 		float32(won[away.Name])/float32(matches),
 	)
-
 }

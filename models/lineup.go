@@ -22,6 +22,30 @@ func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup 
 	}
 }
 
+func (l *Lineup) CountStarters() int {
+	c := 0
+	for _, ps := range l.Starting {
+		c += len(ps)
+	}
+
+	return c
+}
+
+func (l *Lineup) Malus() (int, int) {
+	malusOpponent := 0
+	malusSelf := 0
+	if !l.Module.Validate(l.Starting) {
+		malusOpponent += 1
+	}
+
+	if l.CountStarters() != 11 {
+		malusOpponent += 3
+		malusSelf += 3
+	}
+
+	return malusOpponent, malusSelf
+}
+
 func (l *Lineup) BestPlayerInRole(role Role) (*PPH, bool) {
 	pls, ok := l.Starting[role]
 	if !ok || len(pls) < 1 {
