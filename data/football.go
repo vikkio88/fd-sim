@@ -1,40 +1,23 @@
 package data
 
-import "fdsim/enums"
+import (
+	"fdsim/enums"
+	l "fdsim/locales"
+)
 
 func GetTeamNamePattern(country enums.Country) []string {
 	switch country {
 	case enums.IT:
-		return italianTeams
+		return l.ItalianTeams
 	case enums.EN:
-		return englishTeams
+		return l.EnglishTeams
 	case enums.FR:
-		return frenchTeams
+		return l.FrenchTeams
 	case enums.ES:
-		return spanishTeams
+		return l.SpanishTeams
 	case enums.DE:
-		return germanTeams
+		return l.GermanTeams
 	}
 
-	return italianTeams
-}
-
-var italianTeams = []string{
-	"%s Calcio", "%s FC", "AC %s", "AS %s", "%s", "%s Sport", "Città di %s",
-}
-
-var spanishTeams = []string{
-	"%s CF", "%s FC", "%s United", "Real %s", "Deportivo %s", "Atlético %s", "Sporting %s", "Racing %s", "UD %s", "%s Athletic", "%s",
-}
-
-var frenchTeams = []string{
-	"Olympique %s", "FC %s", "AS %s", "Stade %s", "%s United", "Racing %s", "ES %s", "Girondins de %s", "OGC %s", "SM Caen %s", "%s",
-}
-
-var germanTeams = []string{
-	"%s FC", "FC %s", "VfL %s", "Borussia %s", "SV %s", "Eintracht %s", "Hertha %s", "SC %s", "FC Union %s", "1. FC %s", "%s",
-}
-
-var englishTeams = []string{
-	"AFC %s", "FC %s", "%s United", "%s City", "%s Rovers", "%s Town", "%s Athletic", "%s Albion", "%s Wanderers", "Real %s", "%s Football", "%s",
+	return l.ItalianTeams
 }
