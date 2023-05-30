@@ -29,8 +29,8 @@ type TPH struct {
 	Name string
 }
 
-func NewTeam(name, city string, country enums.Country) Team {
-	return Team{
+func NewTeam(name, city string, country enums.Country) *Team {
+	return &Team{
 		idable:  NewIdable(teamIdGenerator()),
 		Name:    name,
 		City:    city,
@@ -48,7 +48,12 @@ func (t *Team) StringShort() string {
 }
 
 func (t *Team) Lineup() *Lineup {
-	return t.Roster.Lineup(t.Coach.Module)
+	module := M442
+	if t.Coach != nil {
+		module = t.Coach.Module
+	}
+
+	return t.Roster.Lineup(module)
 }
 
 func (t *Team) PH() TPH {
