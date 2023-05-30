@@ -39,12 +39,14 @@ func (p *Player) PH() PPH {
 	return PPH{
 		Id:  p.Id,
 		sPH: p.skillable.PH(),
+		Age: p.Age,
 	}
 }
 
 type PPH struct {
 	sPH
-	Id string
+	Id  string
+	Age int
 	// TODO: track injuries so we know whether can be choose or not for lineup
 }
 

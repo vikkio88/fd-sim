@@ -128,4 +128,6 @@ func TestMultipleMatches(t *testing.T) {
 		float32(points[away.Name])/float32(matches),
 		float32(won[away.Name])/float32(matches),
 	)
+
+	fmt.Printf("drawn perc: %.2f\n", 1.0-(float32(won[away.Name])/float32(matches)+float32(won[home.Name])/float32(matches)))
 }

@@ -3,18 +3,37 @@ package models
 import "fdsim/libs"
 
 type Lineup struct {
-	Module    Module
-	Starting  map[Role][]PPH
-	teamStats TeamStats
+	Module       Module
+	Starting     map[Role][]PPH
+	teamStats    TeamStats
+	lineupStats  TeamStats
+	sectorStat   map[Role]TeamStats
+	starterCount int
+
 	// Bench    map[Role][]PPH
 	//TODO: track substitutions
 }
 
 func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup {
+	starterCount := 0
+	sectorStat := map[Role]TeamStats{}
+	flattened := []PPH{}
+	for r, ps := range starting {
+		starterCount += len(ps)
+		s, m, a := calculateAvgs(ps)
+		sectorStat[r] = TeamStats{s, m, a}
+		flattened = append(flattened, ps...)
+	}
+	s, m, a := calculateAvgs(flattened)
+	lineupStats := TeamStats{s, m, a}
+
 	return &Lineup{
-		Module:    module,
-		Starting:  starting,
-		teamStats: stats,
+		Module:       module,
+		Starting:     starting,
+		teamStats:    stats,
+		lineupStats:  lineupStats,
+		starterCount: starterCount,
+		sectorStat:   sectorStat,
 		//TODO: calculate also starting skillsAvg
 
 		// TODO: model issues like missing players in role or similar
@@ -23,27 +42,22 @@ func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup 
 }
 
 func (l *Lineup) CountStarters() int {
-	c := 0
-	for _, ps := range l.Starting {
-		c += len(ps)
-	}
-
-	return c
+	return l.starterCount
 }
 
 func (l *Lineup) Malus() (int, int) {
-	malusOpponent := 0
+	bonusOpponent := 0
 	malusSelf := 0
 	if !l.Module.Validate(l.Starting) {
-		malusOpponent += 1
+		bonusOpponent += 1
 	}
 
 	if l.CountStarters() != 11 {
-		malusOpponent += 3
+		bonusOpponent += 3
 		malusSelf += 3
 	}
 
-	return malusOpponent, malusSelf
+	return bonusOpponent, malusSelf
 }
 
 func (l *Lineup) BestPlayerInRole(role Role) (*PPH, bool) {
@@ -65,4 +79,21 @@ func (l *Lineup) Scorer(rng *libs.Rng) string {
 
 	Idx := rng.Index(len(l.Starting[role]))
 	return l.Starting[role][Idx].Id
+}
+
+func calculateAvgs(players []PPH) (float64, float64, float64) {
+	tot := len(players)
+	totS := 0
+	totM := 0
+	totA := 0
+	for _, p := range players {
+		totS += p.Skill
+		totM += p.Morale
+		totA += p.Age
+	}
+
+	valS := float64(totS) / float64(tot)
+	valM := float64(totM) / float64(tot)
+	valA := float64(totA) / float64(tot)
+	return valS, valM, valA
 }

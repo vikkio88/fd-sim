@@ -47,33 +47,57 @@ func (m *Match) Simulate(rng *libs.Rng) {
 	goalsH -= hMalus
 	goalsA -= aMalus
 
-	startChance, homeStart := diffChance(m.LineupHome.teamStats.Skill, m.LineupAway.teamStats.Skill)
+	startChance, homeStart := startingGoals(m.LineupHome.teamStats.Skill, m.LineupAway.teamStats.Skill)
 	if rng.ChanceI(startChance) {
-		goalsH += rng.UInt(0, homeStart)
+		goalsH += rng.UInt(1, homeStart)
 	}
 
-	startChance, awayStart := diffChance(m.LineupAway.teamStats.Skill, m.LineupHome.teamStats.Skill)
+	startChance, awayStart := startingGoals(m.LineupAway.teamStats.Skill, m.LineupHome.teamStats.Skill)
 	if rng.ChanceI(startChance) {
-		goalsA += rng.UInt(0, awayStart)
+		goalsA += rng.UInt(1, awayStart)
 	}
 
 	if rng.ChanceI(int(m.LineupHome.teamStats.Morale)) {
-		goalsH += 1
+		goalsH += rng.UInt(0, 1)
 	}
 
 	if rng.ChanceI(int(m.LineupAway.teamStats.Morale)) {
-		goalsA += 1
+		goalsA += rng.UInt(0, 1)
 	}
 
-	goalsH, goalsA = m.strikersBonus(rng, goalsH, goalsA)
+	goalsH, goalsA = m.bestStrikerBonus(rng, goalsH, goalsA)
+	goalsA, goalsH = m.bestDefenderBonus(rng, goalsA, goalsH)
 
-	goalsA, goalsH = m.defendersBonus(rng, goalsA, goalsH)
+	goalsA, goalsH = m.defenceBonus(rng, goalsA, goalsH)
+	goalsA, goalsH = m.attackBonus(rng, goalsA, goalsH)
 
 	goalsA, goalsH = m.normaliseGoals(goalsA, goalsH)
-
 	scorersH := []string{}
 	scorersA := []string{}
 	m.result = NewResult(goalsH, goalsA, scorersH, scorersA)
+}
+
+func (m *Match) defenceBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
+	if rng.ChanceI(diffChance(m.LineupHome.sectorStat[DF].Skill, m.LineupAway.sectorStat[ST].Skill)) {
+		goalsA -= rng.UInt(1, 2)
+	}
+
+	if rng.ChanceI(diffChance(m.LineupAway.sectorStat[DF].Skill, m.LineupHome.sectorStat[ST].Skill)) {
+		goalsH -= rng.UInt(1, 2)
+	}
+	return goalsA, goalsH
+}
+
+func (m *Match) attackBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
+	if rng.ChanceI(diffChance(m.LineupHome.sectorStat[ST].Skill, m.LineupAway.sectorStat[DF].Skill)) {
+		goalsH += rng.UInt(0, 1)
+	}
+
+	if rng.ChanceI(diffChance(m.LineupAway.sectorStat[ST].Skill, m.LineupHome.sectorStat[DF].Skill)) {
+		goalsA += rng.UInt(0, 1)
+	}
+
+	return goalsA, goalsH
 }
 
 func (*Match) normaliseGoals(goalsA int, goalsH int) (int, int) {
@@ -87,7 +111,7 @@ func (*Match) normaliseGoals(goalsA int, goalsH int) (int, int) {
 	return goalsA, goalsH
 }
 
-func (m *Match) defendersBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
+func (m *Match) bestDefenderBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
 	if bestDf, ok := m.LineupHome.BestPlayerInRole(DF); ok {
 		if rng.ChanceI(bestDf.Skill) {
 			goalsA -= rng.UInt(0, goalsA)
@@ -102,7 +126,7 @@ func (m *Match) defendersBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int)
 	return goalsA, goalsH
 }
 
-func (m *Match) strikersBonus(rng *libs.Rng, goalsH int, goalsA int) (int, int) {
+func (m *Match) bestStrikerBonus(rng *libs.Rng, goalsH int, goalsA int) (int, int) {
 	if bestSt, ok := m.LineupHome.BestPlayerInRole(ST); ok {
 		if rng.ChanceI(bestSt.Skill) {
 			goalsH += rng.UInt(0, 2)
@@ -140,7 +164,7 @@ const (
 	goalRatio = 33.3
 )
 
-func diffChance(a, b float64) (int, int) {
+func startingGoals(a, b float64) (int, int) {
 	startingGoals := 0
 	diff := a - b
 	switch {
@@ -154,5 +178,9 @@ func diffChance(a, b float64) (int, int) {
 		startingGoals = 1
 	}
 
-	return int(math.Min(100, math.Max(chanceMin, chanceMin+chanceMax*(b-a)/100))), startingGoals
+	return diffChance(a, b), startingGoals
+}
+
+func diffChance(a, b float64) int {
+	return int(math.Min(100, math.Max(chanceMin, chanceMin+chanceMax*(b-a)/100)))
 }
