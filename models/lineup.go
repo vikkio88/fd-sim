@@ -22,6 +22,15 @@ func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup 
 	}
 }
 
+func (l *Lineup) BestPlayerInRole(role Role) (*PPH, bool) {
+	pls, ok := l.Starting[role]
+	if !ok || len(pls) < 1 {
+		return nil, false
+	}
+
+	return &pls[0], true
+}
+
 func (l *Lineup) Scorer(rng *libs.Rng) string {
 	role := MF
 	if rng.ChanceI(70) {
