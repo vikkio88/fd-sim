@@ -50,26 +50,39 @@ func TestMatchResultIfPlayed(t *testing.T) {
 
 func TestMultipleMatches(t *testing.T) {
 	t.Skip("Long Test")
-	rng := libs.NewRng(0)
+	rng := libs.NewRng(100)
 
 	g := generators.NewTeamGenSeeded(rng)
 	home := g.Team(enums.IT)
 	away := g.Team(enums.EN)
-
-	crazyP := models.NewPlayer("a", "a", 10, enums.IT, models.ST)
-	crazyP.SetVals(100, 100, 100)
-
-	home.Roster.AddPlayer(&crazyP)
+	for _, r := range []models.Role{models.GK, models.GK, models.DF, models.DF, models.DF, models.MF, models.MF, models.ST, models.ST, models.ST} {
+		crazyP := models.NewPlayer("a", "a", 10, enums.IT, r)
+		crazyP.SetVals(10, 10, 100)
+		home.Roster.AddPlayer(&crazyP)
+	}
 
 	gr := map[string]int{}
+	points := map[string]int{}
+	won := map[string]int{}
+	matches := 10000
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < matches; i++ {
 		m := models.NewMatch(home, away)
 		m.Simulate(rng)
 		res, _ := m.Result()
 		scoreStr := fmt.Sprintf("%d - %d", res.GoalsHome, res.GoalsAway)
 		gr[scoreStr]++
-		fmt.Printf("%s - %s  %s\n", m.Home.Name, m.Away.Name, scoreStr)
+		fmt.Printf("%s\n", m)
+		if res.Draw() {
+			points[home.Name] += 1
+			points[away.Name] += 1
+		} else if res.HomeWin() {
+			points[home.Name] += 3
+			won[home.Name]++
+		} else {
+			points[away.Name] += 3
+			won[away.Name]++
+		}
 	}
 	grK := maps.Keys(gr)
 
@@ -83,5 +96,20 @@ func TestMultipleMatches(t *testing.T) {
 
 		fmt.Printf("%s : %d\n", s, c)
 	}
+
+	fmt.Printf(
+		"%s %.2f: %d => ppm: %.2f , w%% %.2f\n",
+		home, home.Roster.AvgSkill(),
+		points[home.Name],
+		float32(points[home.Name])/float32(matches),
+		float32(won[home.Name])/float32(matches),
+	)
+	fmt.Printf(
+		"%s %.2f: %d => ppm: %.2f , w%% %.2f\n",
+		away, away.Roster.AvgSkill(),
+		points[away.Name],
+		float32(points[away.Name])/float32(matches),
+		float32(won[away.Name])/float32(matches),
+	)
 
 }
