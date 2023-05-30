@@ -24,7 +24,7 @@ func TestTeamBuilder(t *testing.T) {
 func TestGeneratingManyTeams(t *testing.T) {
 	t.Skip("Long Test")
 	tg := generators.NewTeamGen(time.Now().Unix())
-	ts := tg.Teams(1000, enums.FR)
+	ts := tg.Teams(1000)
 	var highest float64 = 0.0
 	var lowest float64 = 100.0
 	for _, team := range ts {
@@ -35,7 +35,7 @@ func TestGeneratingManyTeams(t *testing.T) {
 		if team.Roster.AvgSkill() < lowest {
 			lowest = team.Roster.AvgSkill()
 		}
-		fmt.Printf("%s - %d - %.2f\n", team.Name, team.Roster.Len(), team.Roster.AvgSkill())
+		fmt.Printf("%s - %d - %.2f\n", team, team.Roster.Len(), team.Roster.AvgSkill())
 	}
 
 	fmt.Println(highest, lowest)

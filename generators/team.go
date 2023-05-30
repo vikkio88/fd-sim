@@ -54,10 +54,19 @@ func (t *TeamGen) teamName(country enums.Country) string {
 	return tnp[idx]
 }
 
-func (t *TeamGen) Teams(count int, country enums.Country) []*models.Team {
+func (t *TeamGen) TeamsWithCountry(count int, country enums.Country) []*models.Team {
 	teams := make([]*models.Team, count)
 	for i := 0; i < count; i++ {
 		teams[i] = t.Team(country)
+	}
+
+	return teams
+}
+
+func (t *TeamGen) Teams(count int) []*models.Team {
+	teams := make([]*models.Team, count)
+	for i := 0; i < count; i++ {
+		teams[i] = t.Team(t.eGen.Country())
 	}
 
 	return teams
