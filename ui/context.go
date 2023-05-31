@@ -28,13 +28,6 @@ func (s *AppContext) GetWindow() fyne.Window {
 	return s.w
 }
 
-// func (s *AppContext) GetAppCanvas() fyne.Canvas {
-// 	w := s.w
-// 	return (*w).Canvas()
-// }
-
-// You could add multiple OnrouteChange
-// todo: maybe needs to find a better name for this
 func (s *AppContext) OnRouteChange(callback func()) {
 	s.Route.AddListener(binding.NewDataListener(callback))
 }
@@ -53,3 +46,5 @@ func (s *AppContext) NavigateToWithParam(route AppRoute, param any) {
 	s.RouteParam = param
 	s.Route.Set(route.String())
 }
+
+//TODO: Add Push Pop routes to navigate back and forth and keep the state also?
