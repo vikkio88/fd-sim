@@ -1,0 +1,55 @@
+package ui
+
+import (
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/data/binding"
+)
+
+type AppContext struct {
+	Version    string
+	Route      binding.String
+	RouteParam any
+	w          fyne.Window
+}
+
+func NewAppContext(initialRoute AppRoute, window fyne.Window) AppContext {
+	route := initialRoute.String()
+	return AppContext{
+		Route: binding.BindString(&route),
+		w:     window,
+	}
+}
+
+func (s *AppContext) GetClipboard() fyne.Clipboard {
+	return s.w.Clipboard()
+}
+
+func (s *AppContext) GetWindow() fyne.Window {
+	return s.w
+}
+
+// func (s *AppContext) GetAppCanvas() fyne.Canvas {
+// 	w := s.w
+// 	return (*w).Canvas()
+// }
+
+// You could add multiple OnrouteChange
+// todo: maybe needs to find a better name for this
+func (s *AppContext) OnRouteChange(callback func()) {
+	s.Route.AddListener(binding.NewDataListener(callback))
+}
+
+func (s *AppContext) CurrentRoute() AppRoute {
+	r, _ := s.Route.Get()
+	return RouteFromString(r)
+}
+
+func (s *AppContext) NavigateTo(route AppRoute) {
+	s.RouteParam = nil
+	s.Route.Set(route.String())
+}
+
+func (s *AppContext) NavigateToWithParam(route AppRoute, param any) {
+	s.RouteParam = param
+	s.Route.Set(route.String())
+}
