@@ -8,9 +8,9 @@ fs-sim in golang and fyne
         - [x] Roster
     - [ ] League
     - [ ] Rounds
-    - [ ] Match
+    - [x] Match
 
-- [ ] Generators
+- [x] Generators
     - [x] People
-    - [ ] Teams
-    - [ ] Make generator use normal distribution
+    - [x] Teams
+    - [x] Make generator use normal distribution
