@@ -69,6 +69,14 @@ func (l *Lineup) BestPlayerInRole(role Role) (*PPH, bool) {
 	return &pls[0], true
 }
 
+func (l *Lineup) Scorers(count int, rng *libs.Rng) []string {
+	scorers := []string{}
+	for i := 0; i < count; i++ {
+		scorers = append(scorers, l.Scorer(rng))
+	}
+	return scorers
+}
+
 func (l *Lineup) Scorer(rng *libs.Rng) string {
 	role := MF
 	if rng.ChanceI(70) {
