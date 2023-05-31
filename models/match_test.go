@@ -44,10 +44,24 @@ func TestMatchResultIfPlayed(t *testing.T) {
 	r, ok := m.Result()
 	assert.True(t, ok)
 	assert.IsType(t, models.Result{}, *r)
+	assert.Equal(t, r.GoalsHome, len(r.ScorersHome))
+	assert.Equal(t, r.GoalsAway, len(r.ScorersAway))
+	for _, id := range r.ScorersHome {
+		p, ok := home.Roster.Player(id)
+		assert.NotNil(t, p)
+		assert.True(t, ok)
+	}
+
+	for _, id := range r.ScorersAway {
+		p, ok := away.Roster.Player(id)
+		assert.NotNil(t, p)
+		assert.True(t, ok)
+	}
 
 	m.Simulate(rng)
 	r2, _ := m.Result()
 	assert.Equal(t, r, r2)
+
 }
 
 func TestMatchSimulationWithMissingPlayers(t *testing.T) {
@@ -62,20 +76,39 @@ func TestMatchSimulationWithMissingPlayers(t *testing.T) {
 	m := models.NewMatch(home, away)
 	m.Simulate(rng)
 
-	fmt.Println(m)
+	r, ok := m.Result()
+	assert.NotNil(t, r)
+	assert.True(t, ok)
+
+	assert.True(t, r.HomeWin())
+	assert.Greater(t, r.GoalsHome, 1)
+	assert.Equal(t, 0, r.GoalsAway)
 }
 
 func TestMultipleMatches(t *testing.T) {
-	// t.Skip("Long Test")
-	rng := libs.NewRng(100)
+	t.Skip("Long Test")
+	seeded := true
+
+	var seed int64 = 100
+	if !seeded {
+		seed = time.Now().Unix()
+	}
+
+	rng := libs.NewRng(seed)
 
 	g := generators.NewTeamGenSeeded(rng)
 	home := g.Team(enums.IT)
 	away := g.Team(enums.EN)
 	for _, r := range []models.Role{models.GK, models.GK, models.DF, models.DF, models.DF, models.MF, models.MF, models.ST, models.ST, models.ST} {
-		crazyP := models.NewPlayer("a", "a", 10, enums.IT, r)
-		crazyP.SetVals(10, 10, 100)
-		home.Roster.AddPlayer(&crazyP)
+		player := models.NewPlayer("a", "a", 10, enums.IT, r)
+		player.SetVals(1, 10, 100)
+		home.Roster.AddPlayer(&player)
+	}
+
+	for _, r := range []models.Role{models.GK, models.GK, models.DF, models.DF, models.DF, models.MF, models.MF, models.ST, models.ST, models.ST} {
+		player := models.NewPlayer("a", "a", 25, enums.IT, r)
+		player.SetVals(100, 100, 100)
+		away.Roster.AddPlayer(&player)
 	}
 
 	gr := map[string]int{}
@@ -114,20 +147,20 @@ func TestMultipleMatches(t *testing.T) {
 		fmt.Printf("%s : %d\n", s, c)
 	}
 
-	fmt.Printf(
-		"%s %.2f: %d => ppm: %.2f , w%% %.2f\n",
-		home, home.Roster.AvgSkill(),
-		points[home.Name],
-		float32(points[home.Name])/float32(matches),
-		float32(won[home.Name])/float32(matches),
-	)
-	fmt.Printf(
-		"%s %.2f: %d => ppm: %.2f , w%% %.2f\n",
-		away, away.Roster.AvgSkill(),
-		points[away.Name],
-		float32(points[away.Name])/float32(matches),
-		float32(won[away.Name])/float32(matches),
-	)
-
+	printTeam(home, points, won, matches)
+	printTeam(away, points, won, matches)
 	fmt.Printf("drawn perc: %.2f\n", 1.0-(float32(won[away.Name])/float32(matches)+float32(won[home.Name])/float32(matches)))
+}
+
+func printTeam(t *models.Team, points, won map[string]int, matchesCount int) {
+	fmt.Printf(
+		"%s s:%.2f m:%.2f a: %.2f: %d => ppm: %.2f , w%% %.2f\n",
+		t,
+		t.Roster.AvgSkill(),
+		t.Roster.AvgMorale(),
+		t.Roster.AvgAge(),
+		points[t.Name],
+		float32(points[t.Name])/float32(matchesCount),
+		float32(won[t.Name])/float32(matchesCount),
+	)
 }

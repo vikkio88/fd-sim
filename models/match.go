@@ -8,6 +8,15 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
+const (
+	chanceMin  = 50
+	chanceMax  = 70
+	goalRatio  = 33.3
+	matureTeam = 28.0
+	youngTeam  = 22.0
+	moraleHigh = 70.0
+)
+
 const matchInMemoryId = "mId"
 
 func matchIdGenerator() string {
@@ -23,14 +32,17 @@ type Match struct {
 	result     *Result
 }
 
-func NewMatch(home, away *Team) *Match {
+func NewMatchWithId(Id string, home, away *Team) *Match {
 	return &Match{
-		idable:     NewIdable(matchIdGenerator()),
+		idable:     NewIdable(Id),
 		Home:       home.PH(),
 		Away:       away.PH(),
 		LineupHome: home.Lineup(),
 		LineupAway: away.Lineup(),
 	}
+}
+func NewMatch(home, away *Team) *Match {
+	return NewMatchWithId(matchIdGenerator(), home, away)
 }
 
 func (m *Match) Simulate(rng *libs.Rng) {
@@ -59,10 +71,12 @@ func (m *Match) Simulate(rng *libs.Rng) {
 
 	if rng.ChanceI(int(m.LineupHome.teamStats.Morale)) {
 		goalsH += rng.UInt(0, 1)
+		goalsA -= rng.UInt(0, 1)
 	}
 
 	if rng.ChanceI(int(m.LineupAway.teamStats.Morale)) {
 		goalsA += rng.UInt(0, 1)
+		goalsH -= rng.UInt(0, 1)
 	}
 
 	goalsH, goalsA = m.bestStrikerBonus(rng, goalsH, goalsA)
@@ -71,10 +85,57 @@ func (m *Match) Simulate(rng *libs.Rng) {
 	goalsA, goalsH = m.defenceBonus(rng, goalsA, goalsH)
 	goalsA, goalsH = m.attackBonus(rng, goalsA, goalsH)
 
-	goalsA, goalsH = m.normaliseGoals(goalsA, goalsH)
-	scorersH := []string{}
-	scorersA := []string{}
+	goalsA, goalsH = m.lineupMoraleAgeBonus(rng, goalsA, goalsH)
+
+	goalsH, goalsA = m.fluke(goalsH, rng, goalsA)
+
+	goalsA, goalsH = m.normaliseGoals(goalsA, goalsH, rng)
+
+	scorersH := m.LineupHome.Scorers(goalsH, rng)
+	scorersA := m.LineupAway.Scorers(goalsA, rng)
 	m.result = NewResult(goalsH, goalsA, scorersH, scorersA)
+}
+
+func (*Match) fluke(goalsH int, rng *libs.Rng, goalsA int) (int, int) {
+	goalsH += rng.PlusMinusVal(1, 50)
+	goalsA += rng.PlusMinusVal(1, 50)
+	return goalsH, goalsA
+}
+
+func (m *Match) lineupMoraleAgeBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
+	if m.LineupHome.lineupStats.Morale >= moraleHigh {
+		goalsH += rng.UInt(0, 2)
+	}
+
+	if m.LineupAway.lineupStats.Morale >= moraleHigh {
+		goalsA += rng.UInt(0, 2)
+	}
+
+	if rng.ChanceI(int(m.LineupHome.lineupStats.Morale)) {
+		goalsA -= rng.UInt(0, 2)
+	}
+
+	if rng.ChanceI(int(m.LineupAway.lineupStats.Morale)) {
+		goalsH -= rng.UInt(0, 2)
+	}
+
+	if m.LineupHome.lineupStats.Age >= matureTeam {
+		goalsA -= rng.UInt(0, 1)
+	}
+
+	if m.LineupAway.lineupStats.Age >= matureTeam {
+		goalsH -= rng.UInt(0, 1)
+	}
+
+	if m.LineupHome.lineupStats.Age <= youngTeam {
+		goalsH += rng.UInt(0, 1)
+	}
+
+	if m.LineupAway.lineupStats.Age >= youngTeam {
+		goalsA += rng.UInt(0, 1)
+	}
+
+	return goalsA, goalsH
 }
 
 func (m *Match) defenceBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
@@ -100,14 +161,23 @@ func (m *Match) attackBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
 	return goalsA, goalsH
 }
 
-func (*Match) normaliseGoals(goalsA int, goalsH int) (int, int) {
+func (m *Match) normaliseGoals(goalsA, goalsH int, rng *libs.Rng) (int, int) {
 	if goalsA < 0 {
 		goalsA = 0
+	}
+
+	if goalsA > 7 && rng.ChanceI(60) {
+		goalsA -= rng.UInt(1, 3)
 	}
 
 	if goalsH < 0 {
 		goalsH = 0
 	}
+
+	if goalsH > 7 && rng.ChanceI(60) {
+		goalsH -= rng.UInt(1, 3)
+	}
+
 	return goalsA, goalsH
 }
 
@@ -157,12 +227,6 @@ func (m *Match) String() string {
 
 	return fmt.Sprintf("%s - %s %s", m.Home.Name, m.Away.Name, res)
 }
-
-const (
-	chanceMin = 50
-	chanceMax = 70
-	goalRatio = 33.3
-)
 
 func startingGoals(a, b float64) (int, int) {
 	startingGoals := 0
