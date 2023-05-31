@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 const (
 	WinPoints  = 3
 	DrawPoints = 1
@@ -11,7 +13,7 @@ type Row struct {
 	Wins         int
 	Draws        int
 	Losses       int
-	Score        int
+	Points       int
 	GoalScored   int
 	GoalConceded int
 }
@@ -22,6 +24,13 @@ func newRow(team *Team) *Row {
 	}
 }
 
+func (r *Row) String() string {
+	return fmt.Sprintf("%s\tw: %d d: %d l: %d , gs: %d gc: %d , %d",
+		r.team.Name, r.Wins, r.Draws, r.Losses, r.GoalConceded,
+		r.GoalScored, r.Points,
+	)
+}
+
 func (r *Row) UpdateGoals(scored, conceded int) {
 	r.GoalScored += scored
 	r.GoalConceded += conceded
@@ -30,7 +39,7 @@ func (r *Row) UpdateGoals(scored, conceded int) {
 func (r *Row) AddWin() {
 	r.Played++
 	r.Wins++
-	r.Score += WinPoints
+	r.Points += WinPoints
 }
 
 func (r *Row) AddLoss() {
@@ -41,7 +50,7 @@ func (r *Row) AddLoss() {
 func (r *Row) AddDraw() {
 	r.Played++
 	r.Draws++
-	r.Score += DrawPoints
+	r.Points += DrawPoints
 }
 
 type Table struct {
