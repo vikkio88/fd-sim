@@ -54,7 +54,7 @@ func (l *Lineup) Malus() (int, int) {
 
 	if l.CountStarters() != 11 {
 		bonusOpponent += 3
-		malusSelf += 3
+		malusSelf += 11 - l.starterCount
 	}
 
 	return bonusOpponent, malusSelf
@@ -79,10 +79,26 @@ func (l *Lineup) Scorers(count int, rng *libs.Rng) []string {
 
 func (l *Lineup) Scorer(rng *libs.Rng) string {
 	role := MF
+	if len(l.Starting[MF]) < 1 {
+		role = ST
+	}
+
 	if rng.ChanceI(70) {
 		role = ST
 	} else if rng.ChanceI(30) {
 		role = DF
+	}
+
+	if role == ST && len(l.Starting[ST]) < 1 {
+		role = DF
+	}
+
+	if len(l.Starting[DF]) < 1 {
+		role = GK
+	}
+
+	if role == GK && len(l.Starting[GK]) < 1 {
+		panic("There are no players in this lineup, this should never happen")
 	}
 
 	Idx := rng.Index(len(l.Starting[role]))
