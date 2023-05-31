@@ -101,10 +101,20 @@ func NewLeague(name string, teams []*Team) League {
 		Table:       NewTable(teams),
 		Rounds:      rounds,
 		totalRounds: (len(teams) * 2) - 2,
-		rPointer:    -1,
+		rPointer:    0,
 	}
 }
 
-func (l *League) NextRound() *Round {
-	return nil
+func (l *League) NextRound() (*Round, bool) {
+	if l.rPointer >= l.totalRounds {
+		return nil, false
+	}
+	return l.Rounds[l.rPointer].Round(l.teamMap), true
+}
+
+func (l *League) Update(round *Round) {
+
+	l.Table.Update(round)
+	//l. Update Stats
+	l.rPointer++
 }

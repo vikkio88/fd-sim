@@ -1,6 +1,9 @@
 package models_test
 
 import (
+	"fdsim/enums"
+	"fdsim/generators"
+	"fdsim/libs"
 	"fdsim/models"
 	"testing"
 
@@ -28,4 +31,51 @@ func TestCalendarBuilder(t *testing.T) {
 		assert.Equal(t, i, r.Index)
 		assert.Len(t, r.Matches, 2)
 	}
+}
+
+func TestLeagueSimulation(t *testing.T) {
+	rng := libs.NewRng(5)
+	tg := generators.NewTeamGenSeeded(rng)
+
+	ts := tg.TeamsWithCountry(4, enums.IT)
+
+	l := models.NewLeague("Serie A", ts)
+
+	r, ok := l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.True(t, ok)
+	r.Simulate(rng)
+	l.Update(r)
+
+	r, ok = l.NextRound()
+	assert.False(t, ok)
+	assert.Nil(t, r)
+
+	// for _, r := range l.Table.Rows() {
+	// 	fmt.Printf("%s\n", r)
+	// }
 }
