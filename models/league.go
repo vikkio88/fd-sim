@@ -93,11 +93,13 @@ func NewLeague(name string, teams []*Team) League {
 		teamMap[t.Id] = t
 		teamIds[i] = t.Id
 	}
+	rounds := NewRoundsCalendar(teamIds)
 	return League{
 		Name:        name,
 		teamMap:     teamMap,
 		teams:       teams,
 		Table:       NewTable(teams),
+		Rounds:      rounds,
 		totalRounds: (len(teams) * 2) - 2,
 		rPointer:    -1,
 	}
