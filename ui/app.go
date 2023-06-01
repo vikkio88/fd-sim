@@ -38,7 +38,9 @@ func NewApp() App {
 		application:  a,
 		window:       &w,
 		views: map[AppRoute]func() *fyne.Container{
-			Main: func() *fyne.Container { return mainView(&ctx) },
+			Main:    func() *fyne.Container { return mainView(&ctx) },
+			Setup:   func() *fyne.Container { return SetupView(&ctx) },
+			NewGame: func() *fyne.Container { return NewGameView(&ctx) },
 		},
 	}
 }
@@ -48,13 +50,31 @@ func NewApp() App {
 func (a *App) getView() *fyne.Container {
 	key := a.ctx.CurrentRoute()
 
+	if a.ctx.RouteMode == Pop {
+		a.log("POP cached view")
+		//todo: this is crap, I need to make everything fyne.CanvasObject
+		return a.ctx.NavStack.GetPopContent().(*fyne.Container)
+	}
+
+	if a.ctx.RouteMode == Replace {
+		a.log("REPLACE")
+		a.ctx.NavStack.Clear()
+	}
+
 	if content, ok := a.views[key]; ok {
+		a.log("rendering view anew")
 		return content()
 	}
 
 	return a.views[Main]()
 }
+
 func (a *App) setView() {
+	if a.ctx.RouteMode == Push {
+		a.log("caching old view")
+		a.ctx.CacheViewOnStack((*a.window).Content())
+	}
+
 	(*a.window).SetContent(a.getView())
 }
 
@@ -86,7 +106,9 @@ func (a *App) Cleanup() {
 }
 
 func setupContext(w fyne.Window) AppContext {
-	initialRoute := Main
+	//TODO: remove this as it is for testing views
+	// initialRoute := Main
+	initialRoute := NewGame
 
 	return NewAppContext(initialRoute, w)
 }

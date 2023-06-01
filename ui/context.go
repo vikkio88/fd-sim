@@ -5,46 +5,97 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 )
 
+type ViewMode uint8
+
+const (
+	Replace ViewMode = iota
+	Push
+	Pop
+)
+
 type AppContext struct {
-	Version    string
+	Version string
+	//TODO: maybe those 3 props can be handled by Navstack
 	Route      binding.String
 	RouteParam any
-	w          fyne.Window
+	RouteMode  ViewMode
+	//
+
+	NavStack *NavStack
+
+	w fyne.Window
 }
 
 func NewAppContext(initialRoute AppRoute, window fyne.Window) AppContext {
 	route := initialRoute.String()
 	return AppContext{
-		Route: binding.BindString(&route),
-		w:     window,
+		Route:    binding.BindString(&route),
+		NavStack: NewNavStack(),
+		w:        window,
 	}
 }
 
-func (s *AppContext) GetClipboard() fyne.Clipboard {
-	return s.w.Clipboard()
+func (c *AppContext) GetClipboard() fyne.Clipboard {
+	return c.w.Clipboard()
 }
 
-func (s *AppContext) GetWindow() fyne.Window {
-	return s.w
+func (c *AppContext) GetWindow() fyne.Window {
+	return c.w
 }
 
-func (s *AppContext) OnRouteChange(callback func()) {
-	s.Route.AddListener(binding.NewDataListener(callback))
+func (c *AppContext) OnRouteChange(callback func()) {
+	c.Route.AddListener(binding.NewDataListener(callback))
 }
 
-func (s *AppContext) CurrentRoute() AppRoute {
-	r, _ := s.Route.Get()
+func (c *AppContext) CurrentRoute() AppRoute {
+	r, _ := c.Route.Get()
 	return RouteFromString(r)
 }
 
-func (s *AppContext) NavigateTo(route AppRoute) {
-	s.RouteParam = nil
-	s.Route.Set(route.String())
+func (c *AppContext) NavigateTo(route AppRoute) {
+	c.RouteParam = nil
+	c.RouteMode = Replace
+	c.Route.Set(route.String())
 }
 
-func (s *AppContext) NavigateToWithParam(route AppRoute, param any) {
-	s.RouteParam = param
-	s.Route.Set(route.String())
+func (c *AppContext) NavigateToWithParam(route AppRoute, param any) {
+	c.RouteParam = param
+	c.RouteMode = Replace
+	c.Route.Set(route.String())
 }
 
-//TODO: Add Push Pop routes to navigate back and forth and keep the state also?
+func (c *AppContext) PushWithParam(route AppRoute, param any) {
+	c.NavStack.Push(NewNavStackItem(c.CurrentRoute(), c.RouteParam))
+	c.RouteParam = param
+	c.RouteMode = Push
+	c.Route.Set(route.String())
+}
+
+func (c *AppContext) Push(route AppRoute) {
+	c.NavStack.Push(NewNavStackItem(c.CurrentRoute(), c.RouteParam))
+	c.RouteMode = Push
+	c.RouteParam = nil
+	c.Route.Set(route.String())
+}
+
+func (c *AppContext) Pop() {
+	nsi, ok := c.NavStack.Pop()
+	if !ok {
+		//TODO: instead of panic maybe should revert to a base view?
+		panic("Trying to pop even tho you have no views on the stack")
+	}
+
+	c.RouteMode = Pop
+	c.RouteParam = nsi.routeParam
+	c.Route.Set(nsi.route.String())
+}
+
+func (c *AppContext) CacheViewOnStack(content fyne.CanvasObject) {
+	//TODO: maybe return an error or something if this Peek fails
+	i, ok := c.NavStack.Peek()
+	if !ok {
+		return
+	}
+
+	i.SetContent(content)
+}

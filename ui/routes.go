@@ -7,8 +7,10 @@ import (
 type AppRoute uint8
 
 const (
-	main string = "MAIN"
-	list string = "LIST"
+	main    string = "MAIN"
+	setup   string = "SETUP"
+	newGame string = "NEW_GAME"
+
 	quit string = "QUIT"
 
 	invalid string = "INVALID_ROUTE"
@@ -16,24 +18,27 @@ const (
 
 const (
 	Main AppRoute = iota
-	List
+	Setup
+	NewGame
 
 	Quit
 )
 
 func getMapping() map[AppRoute]string {
 	return map[AppRoute]string{
-		Main: main,
-		List: list,
-		Quit: quit,
+		Main:    main,
+		Setup:   setup,
+		NewGame: newGame,
+		Quit:    quit,
 	}
 }
 
 func getReverseMapping() map[string]AppRoute {
 	return map[string]AppRoute{
-		main: Main,
-		list: List,
-		quit: Quit,
+		main:    Main,
+		setup:   Setup,
+		newGame: NewGame,
+		quit:    Quit,
 	}
 }
 
