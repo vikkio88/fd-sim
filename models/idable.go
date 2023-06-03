@@ -1,9 +1,9 @@
 package models
 
-type idable struct {
+type Idable struct {
 	Id string
 }
 
-func NewIdable(id string) idable {
-	return idable{id}
+func NewIdable(id string) Idable {
+	return Idable{id}
 }

@@ -14,7 +14,7 @@ func coachIdGenerator() string {
 }
 
 type Coach struct {
-	idable
+	Idable
 	Person
 	Module Module
 	skillable
@@ -22,7 +22,7 @@ type Coach struct {
 
 func NewCoach(name, surname string, age int, country enums.Country, module Module) Coach {
 	return Coach{
-		idable: NewIdable(coachIdGenerator()),
+		Idable: NewIdable(coachIdGenerator()),
 		Person: Person{
 			Name:    name,
 			Surname: surname,

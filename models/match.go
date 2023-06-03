@@ -24,7 +24,7 @@ func matchIdGenerator() string {
 }
 
 type Match struct {
-	idable
+	Idable
 	Home       TPH
 	Away       TPH
 	LineupHome *Lineup
@@ -34,7 +34,7 @@ type Match struct {
 
 func NewMatchWithId(Id string, home, away *Team) *Match {
 	return &Match{
-		idable:     NewIdable(Id),
+		Idable:     NewIdable(Id),
 		Home:       home.PH(),
 		Away:       away.PH(),
 		LineupHome: home.Lineup(),

@@ -14,7 +14,7 @@ func teamIdGenerator() string {
 }
 
 type Team struct {
-	idable
+	Idable
 	Name    string
 	City    string
 	Country enums.Country
@@ -31,7 +31,7 @@ type TPH struct {
 
 func NewTeam(name, city string, country enums.Country) *Team {
 	return &Team{
-		idable:  NewIdable(teamIdGenerator()),
+		Idable:  NewIdable(teamIdGenerator()),
 		Name:    name,
 		City:    city,
 		Country: country,

@@ -10,4 +10,5 @@ const (
 	WindowFixed      = true
 	EnableConsoleLog = true
 	Version          = "dev"
+	DbFiles          = "fdsim.db"
 )

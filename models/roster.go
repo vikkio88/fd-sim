@@ -1,6 +1,10 @@
 package models
 
-import "sort"
+import (
+	"sort"
+
+	"golang.org/x/exp/maps"
+)
 
 // Roster Cache Keys
 const (
@@ -154,6 +158,10 @@ func (r *Roster) Lineup(module Module) *Lineup {
 func (r *Roster) Player(id string) (*Player, bool) {
 	p, ok := r.players[id]
 	return p, ok
+}
+
+func (r *Roster) Players() []*Player {
+	return maps.Values(r.players)
 }
 
 type TeamStats struct {

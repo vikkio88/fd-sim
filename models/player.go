@@ -14,7 +14,7 @@ func playerIdGenerator() string {
 }
 
 type Player struct {
-	idable
+	Idable
 	Person
 	Role Role
 	skillable
@@ -22,7 +22,7 @@ type Player struct {
 
 func NewPlayer(name, surname string, age int, country enums.Country, role Role) Player {
 	return Player{
-		idable: NewIdable(playerIdGenerator()),
+		Idable: NewIdable(playerIdGenerator()),
 		Person: Person{
 			Name:    name,
 			Surname: surname,
