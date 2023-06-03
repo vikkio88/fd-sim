@@ -9,11 +9,12 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"golang.org/x/exp/slices"
 )
 
-func NewGameView(ctx *AppContext) *fyne.Container {
+func newGameView(ctx *AppContext) *fyne.Container {
 	countries := viewmodels.GetAllCountries()
 	var ts float64 = 2
 	teamsNumber := binding.BindFloat(&ts)
@@ -44,40 +45,44 @@ func NewGameView(ctx *AppContext) *fyne.Container {
 
 	teamLst := widget.NewListWithData(
 		teams,
-		func() fyne.CanvasObject {
-			return widget.NewLabel("")
-		},
-		func(di binding.DataItem, co fyne.CanvasObject) {
-			team := viewmodels.TeamFromDi(di)
-			l := co.(*widget.Label)
-			l.SetText(team.String())
-		},
+		simpleTeamListRow,
+		makeSimpleTeamRowBind(ctx),
 	)
 
-	return container.NewBorder(
-		centered(widget.NewLabel("New Game")),
-		nil,
-		nil,
-		nil,
-		container.NewBorder(
-			container.NewBorder(
-				nil,
-				nil,
-				nil,
-				teamGenBtn,
-				container.NewGridWithColumns(2,
-					ctrSelect,
-					container.NewVBox(
-						centered(numberText),
-						numberSelect,
-					),
-				),
+	inputs := NewFborder().Right(teamGenBtn).Get(
+		container.NewGridWithColumns(2,
+			ctrSelect,
+			container.NewVBox(
+				centered(numberText),
+				numberSelect,
 			),
-			nil,
-			nil,
-			nil,
-			pholder,
-			teamLst,
 		),
 	)
+	return NewFborder().
+		Top(
+			centered(widget.NewLabel("New Game"))).
+		Get(
+			NewFborder().
+				Top(inputs).
+				Get(teamLst, pholder),
+		)
+
+}
+
+func simpleTeamListRow() fyne.CanvasObject {
+	return NewFborder().Right(widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {})).Get(widget.NewLabel(""))
+}
+
+func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
+
+	return func(di binding.DataItem, co fyne.CanvasObject) {
+		team := viewmodels.TeamFromDi(di)
+		c := co.(*fyne.Container)
+		l := c.Objects[0].(*widget.Label)
+		b := c.Objects[1].(*widget.Button)
+		l.SetText(team.String())
+		b.OnTapped = func() {
+			ctx.PushWithParam(TeamDetails, team.Id)
+		}
+	}
 }

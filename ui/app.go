@@ -39,8 +39,10 @@ func NewApp() App {
 		window:       &w,
 		views: map[AppRoute]func() *fyne.Container{
 			Main:    func() *fyne.Container { return mainView(&ctx) },
-			Setup:   func() *fyne.Container { return SetupView(&ctx) },
-			NewGame: func() *fyne.Container { return NewGameView(&ctx) },
+			Setup:   func() *fyne.Container { return setupView(&ctx) },
+			NewGame: func() *fyne.Container { return newGameView(&ctx) },
+
+			TeamDetails: func() *fyne.Container { return teamDetailsView(&ctx) },
 		},
 	}
 }

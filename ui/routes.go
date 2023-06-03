@@ -11,6 +11,8 @@ const (
 	setup   string = "SETUP"
 	newGame string = "NEW_GAME"
 
+	teamDetails string = "TEAM_DETAILS"
+
 	quit string = "QUIT"
 
 	invalid string = "INVALID_ROUTE"
@@ -21,6 +23,8 @@ const (
 	Setup
 	NewGame
 
+	TeamDetails
+
 	Quit
 )
 
@@ -29,7 +33,10 @@ func getMapping() map[AppRoute]string {
 		Main:    main,
 		Setup:   setup,
 		NewGame: newGame,
-		Quit:    quit,
+
+		TeamDetails: teamDetails,
+
+		Quit: quit,
 	}
 }
 
@@ -38,7 +45,10 @@ func getReverseMapping() map[string]AppRoute {
 		main:    Main,
 		setup:   Setup,
 		newGame: NewGame,
-		quit:    Quit,
+
+		teamDetails: TeamDetails,
+
+		quit: Quit,
 	}
 }
 
