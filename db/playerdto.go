@@ -4,6 +4,8 @@ import (
 	"fdsim/enums"
 	"fdsim/models"
 	"fdsim/utils"
+
+	"gorm.io/gorm"
 )
 
 type PlayerDto struct {
@@ -21,7 +23,7 @@ type PlayerDto struct {
 	TeamId string
 }
 
-func DtoFromPlayer(player *models.Player, teamId string) PlayerDto {
+func DtoFromPlayer(player *models.Player) PlayerDto {
 	return PlayerDto{
 		Id:      player.Id,
 		Name:    player.Name,
@@ -34,8 +36,16 @@ func DtoFromPlayer(player *models.Player, teamId string) PlayerDto {
 		Morale: player.Morale.Val(),
 		Fame:   player.Fame.Val(),
 
-		TeamId: teamId,
+		//TODO: gorm how to add empty string
+		TeamId: "",
 	}
+}
+
+func DtoFromPlayerWithTeam(player *models.Player, teamId string) PlayerDto {
+	p := DtoFromPlayer(player)
+	p.TeamId = teamId
+
+	return p
 }
 
 func (p PlayerDto) Player() *models.Player {
@@ -53,4 +63,54 @@ func (p PlayerDto) Player() *models.Player {
 	player.Fame = utils.NewPerc(p.Fame)
 
 	return player
+}
+
+type PlayerRepo struct {
+	g *gorm.DB
+}
+
+func NewPlayerRepo(g *gorm.DB) *PlayerRepo {
+	return &PlayerRepo{
+		g,
+	}
+}
+
+func (pr *PlayerRepo) InsertOne(p *models.Player) {
+	pdto := DtoFromPlayer(p)
+
+	pr.g.Create(&pdto)
+}
+
+func (pr *PlayerRepo) Insert(players []*models.Player) {
+	pdtos := make([]PlayerDto, len(players))
+	for i, p := range players {
+		pdtos[i] = DtoFromPlayer(p)
+	}
+
+	pr.g.Create(&pdtos)
+}
+
+func (pr *PlayerRepo) ById(id string) *models.Player {
+	var p PlayerDto
+	pr.g.Model(&PlayerDto{}).Find(&p, "Id = ?", id)
+
+	return p.Player()
+}
+
+func (pr *PlayerRepo) Count() int64 {
+	var c int64
+	pr.g.Model(&PlayerDto{}).Count(&c)
+
+	return c
+}
+
+func (pr *PlayerRepo) All() []*models.Player {
+	var pdtos []PlayerDto
+	pr.g.Model(&PlayerDto{}).Find(&pdtos)
+
+	ps := make([]*models.Player, len(pdtos))
+	for i, t := range pdtos {
+		ps[i] = t.Player()
+	}
+	return ps
 }

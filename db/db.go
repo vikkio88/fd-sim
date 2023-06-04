@@ -1,14 +1,19 @@
 package db
 
 import (
-	"fdsim/models"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+const (
+	teamRepoCacheKey   = "db_TR"
+	playerRepoCacheKey = "db_PR"
+	coachRepoCacheKey  = "db_CR"
+)
+
 type Db struct {
-	g *gorm.DB
+	g     *gorm.DB
+	cache map[string]interface{}
 }
 
 func NewDb(fileName string) Db {
@@ -18,42 +23,26 @@ func NewDb(fileName string) Db {
 	}
 
 	g.AutoMigrate(&TeamDto{}, &PlayerDto{}, &CoachDto{})
-
-	return Db{g}
+	cache := map[string]interface{}{}
+	return Db{g, cache}
 }
 
-func (d *Db) TeamsCount() int64 {
-	var c int64
-	d.g.Model(&TeamDto{}).Count(&c)
-
-	return c
-}
-
-func (d *Db) InsertTeam(t *models.Team) {
-	tdto := DtoFromTeam(t)
-
-	d.g.Create(&tdto)
-}
-
-func (d *Db) InsertManyTeams(ts []*models.Team) {
-	tdtos := make([]TeamDto, len(ts))
-	for i, t := range ts {
-		tdtos[i] = DtoFromTeam(t)
+func (db *Db) TeamR() *TeamsRepo {
+	if tr, ok := db.cache[teamRepoCacheKey]; ok {
+		return tr.(*TeamsRepo)
 	}
+	tr := NewTeamsRepo(db.g)
+	db.cache[teamRepoCacheKey] = tr
 
-	d.g.Create(&tdtos)
+	return tr
 }
 
-func (d *Db) TeamById(id string) *models.Team {
-	var t TeamDto
-	d.g.Model(&TeamDto{}).Preload("Players").Preload("Coach").Find(&t, "Id = ?", id)
+func (db *Db) PlayerR() *PlayerRepo {
+	if pr, ok := db.cache[playerRepoCacheKey]; ok {
+		return pr.(*PlayerRepo)
+	}
+	pr := NewPlayerRepo(db.g)
+	db.cache[playerRepoCacheKey] = pr
 
-	return t.Team()
-}
-
-func (d *Db) AllTeams() []TeamDto {
-	var t []TeamDto
-	d.g.Model(&TeamDto{}).Preload("Players").Find(&t)
-
-	return t
+	return pr
 }
