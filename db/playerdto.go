@@ -20,7 +20,7 @@ type PlayerDto struct {
 	Morale int
 	Fame   int
 
-	TeamId string
+	TeamId *string
 }
 
 func DtoFromPlayer(player *models.Player) PlayerDto {
@@ -36,14 +36,13 @@ func DtoFromPlayer(player *models.Player) PlayerDto {
 		Morale: player.Morale.Val(),
 		Fame:   player.Fame.Val(),
 
-		//TODO: gorm how to add empty string
-		TeamId: "",
+		TeamId: nil,
 	}
 }
 
 func DtoFromPlayerWithTeam(player *models.Player, teamId string) PlayerDto {
 	p := DtoFromPlayer(player)
-	p.TeamId = teamId
+	p.TeamId = &teamId
 
 	return p
 }
@@ -102,6 +101,17 @@ func (pr *PlayerRepo) Count() int64 {
 	pr.g.Model(&PlayerDto{}).Count(&c)
 
 	return c
+}
+
+func (pr *PlayerRepo) FreeAgents() []*models.Player {
+	var pdtos []PlayerDto
+	pr.g.Model(&PlayerDto{}).Where("team_id", nil).Find(&pdtos)
+
+	ps := make([]*models.Player, len(pdtos))
+	for i, t := range pdtos {
+		ps[i] = t.Player()
+	}
+	return ps
 }
 
 func (pr *PlayerRepo) All() []*models.Player {
