@@ -18,10 +18,10 @@ type CoachDto struct {
 	Morale int
 	Fame   int
 
-	TeamId string
+	TeamId *string
 }
 
-func DtoFromCoach(c *models.Coach, teamId string) CoachDto {
+func DtoFromCoach(c *models.Coach) CoachDto {
 	return CoachDto{
 		Id:      c.Id,
 		Name:    c.Name,
@@ -35,8 +35,13 @@ func DtoFromCoach(c *models.Coach, teamId string) CoachDto {
 
 		Module: c.Module,
 
-		TeamId: teamId,
+		TeamId: nil,
 	}
+}
+func DtoFromCoachWithTeam(c *models.Coach, teamId string) CoachDto {
+	coach := DtoFromCoach(c)
+	coach.TeamId = &teamId
+	return coach
 }
 
 func (c CoachDto) Coach() *models.Coach {
