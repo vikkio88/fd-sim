@@ -16,7 +16,7 @@ type Db struct {
 	cache map[string]interface{}
 }
 
-func NewDb(fileName string) Db {
+func NewDb(fileName string) *Db {
 	g, err := gorm.Open(sqlite.Open(fileName), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -24,7 +24,7 @@ func NewDb(fileName string) Db {
 
 	g.AutoMigrate(&TeamDto{}, &PlayerDto{}, &CoachDto{})
 	cache := map[string]interface{}{}
-	return Db{g, cache}
+	return &Db{g, cache}
 }
 
 func (db *Db) TeamR() *TeamsRepo {
