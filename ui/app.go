@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/db"
 	"fmt"
 	"time"
 
@@ -28,6 +29,7 @@ func NewApp() App {
 	isLogEnabled := conf.EnableConsoleLog
 
 	ctx := setupContext(w)
+	ctx.Db = db.NewDb(conf.DbFiles)
 	ctx.Version = conf.Version
 
 	//a.Settings().SetTheme(&ui.MuscurdigTheme{})

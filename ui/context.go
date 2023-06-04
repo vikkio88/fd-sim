@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fdsim/db"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 )
@@ -20,6 +22,8 @@ type AppContext struct {
 	RouteParam any
 	RouteMode  ViewMode
 	//
+
+	Db *db.Db
 
 	NavStack *NavStack
 
