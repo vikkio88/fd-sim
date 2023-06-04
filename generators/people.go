@@ -113,6 +113,15 @@ func (p *PeopleGen) PlayerWithRole(country enums.Country, role models.Role) *mod
 	return &pl
 }
 
+func (p *PeopleGen) Players(count int) []*models.Player {
+	players := make([]*models.Player, count)
+	for i := 0; i < count; i++ {
+		players[i] = p.Player(p.getEnumsGen().Country())
+	}
+
+	return players
+}
+
 func (p *PeopleGen) Player(country enums.Country) *models.Player {
 	mGen := p.getModelsGen()
 
