@@ -13,8 +13,9 @@ type TeamDto struct {
 	City    string
 	Country enums.Country
 
-	Coach   CoachDto    `gorm:"foreignKey:TeamId"`
-	Players []PlayerDto `gorm:"foreignKey:TeamId"`
+	//TODO: test ONDelete constraint
+	Coach   CoachDto    `gorm:"foreignKey:TeamId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Players []PlayerDto `gorm:"foreignKey:TeamId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func DtoFromTeam(team *models.Team) TeamDto {
@@ -29,7 +30,7 @@ func DtoFromTeam(team *models.Team) TeamDto {
 		City:    team.City,
 		Country: team.Country,
 
-		Coach: DtoFromCoach(team.Coach, team.Id),
+		Coach: DtoFromCoachWithTeam(team.Coach, team.Id),
 
 		Players: pdtos,
 	}
