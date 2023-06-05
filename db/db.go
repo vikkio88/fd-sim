@@ -48,3 +48,13 @@ func (db *Db) PlayerR() *PlayerRepo {
 
 	return pr
 }
+
+func (db *Db) CoachR() *CoachRepo {
+	if cr, ok := db.cache[coachRepoCacheKey]; ok {
+		return cr.(*CoachRepo)
+	}
+	cr := NewCoachRepo(db.g)
+	db.cache[coachRepoCacheKey] = cr
+
+	return cr
+}

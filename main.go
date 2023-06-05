@@ -27,6 +27,7 @@ func main() {
 			}
 			fmt.Printf("teams#: %d\n", db.TeamR().Count())
 			fmt.Printf("players#: %d\n", db.PlayerR().Count())
+			fmt.Printf("coach#: %d\n", db.CoachR().Count())
 			fmt.Printf("id#: %s\n", ts[0].Id)
 		}
 
@@ -37,7 +38,8 @@ func main() {
 		}
 
 		fmt.Printf("players#: %d\n", db.PlayerR().Count())
-		fmt.Printf("free agents#: %d\n", len(db.PlayerR().FreeAgents()))
+		fmt.Printf("free agents coach#: %d\n", len(db.CoachR().FreeAgents()))
+		fmt.Printf("free agents players#: %d\n", len(db.PlayerR().FreeAgents()))
 		return
 	}
 
