@@ -96,6 +96,14 @@ func (pr *PlayerRepo) ById(id string) *models.Player {
 	return p.Player()
 }
 
+func (tr *PlayerRepo) DeleteOne(id string) {
+	tr.g.Delete(&PlayerDto{}, id)
+}
+
+func (tr *PlayerRepo) Delete(ids []string) {
+	tr.g.Delete(&PlayerDto{}, ids)
+}
+
 func (pr *PlayerRepo) Count() int64 {
 	var c int64
 	pr.g.Model(&PlayerDto{}).Count(&c)

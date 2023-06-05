@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -17,7 +19,7 @@ type Db struct {
 }
 
 func NewDb(fileName string) *Db {
-	g, err := gorm.Open(sqlite.Open(fileName), &gorm.Config{})
+	g, err := gorm.Open(sqlite.Open(fmt.Sprintf("%s?_foreign_keys=on", fileName)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

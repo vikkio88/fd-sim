@@ -10,7 +10,7 @@ import (
 const teamInMemoryId = "tmId"
 
 func teamIdGenerator() string {
-	return fmt.Sprintf("%s_%s", playerInMemoryId, ulid.Make())
+	return fmt.Sprintf("%s_%s", teamInMemoryId, ulid.Make())
 }
 
 type Team struct {

@@ -14,8 +14,8 @@ type TeamDto struct {
 	Country enums.Country
 
 	//TODO: test ONDelete constraint
-	Coach   CoachDto    `gorm:"foreignKey:TeamId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	Players []PlayerDto `gorm:"foreignKey:TeamId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Coach   CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Players []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func DtoFromTeam(team *models.Team) TeamDto {
@@ -82,6 +82,14 @@ func (tr *TeamsRepo) ById(id string) *models.Team {
 	tr.g.Model(&TeamDto{}).Preload("Players").Preload("Coach").Find(&t, "Id = ?", id)
 
 	return t.Team()
+}
+
+func (tr *TeamsRepo) DeleteOne(id string) {
+	tr.g.Where("Id = ?", id).Delete(&TeamDto{})
+}
+
+func (tr *TeamsRepo) Delete(ids []string) {
+	tr.g.Delete(&TeamDto{}, ids)
 }
 
 func (tr *TeamsRepo) Count() int64 {
