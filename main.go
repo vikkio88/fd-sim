@@ -5,17 +5,35 @@ import (
 	"fdsim/db"
 	"fdsim/generators"
 	"fmt"
+	"os"
 	"time"
 )
 
 func main() {
+	args := os.Args[1:]
+	if len(args) < 1 {
+		panic("Need action")
+	}
+	action := args[0]
+
 	db := db.NewDb(conf.DbFiles)
 	tc := db.TeamR().Count()
 	if tc > 0 {
 		fmt.Printf("Had %d some teams\n", tc)
-		ts := db.TeamR().All()
-		for _, t := range ts {
-			fmt.Printf("t: %s - p#: %d skill: %.2f\n", t, t.Roster.Len(), t.Roster.AvgSkill())
+		if action == "list" {
+			ts := db.TeamR().All()
+			for _, t := range ts {
+				fmt.Printf("t: %s - p#: %d skill: %.2f\n", t, t.Roster.Len(), t.Roster.AvgSkill())
+			}
+			fmt.Printf("teams#: %d\n", db.TeamR().Count())
+			fmt.Printf("players#: %d\n", db.PlayerR().Count())
+			fmt.Printf("id#: %s\n", ts[0].Id)
+		}
+
+		if action == "delete" {
+			fmt.Printf("deleting team with id#: %s\n", args[1])
+			db.TeamR().DeleteOne(args[1])
+			fmt.Printf("teamsAfterDel#: %d\n", db.TeamR().Count())
 		}
 
 		fmt.Printf("players#: %d\n", db.PlayerR().Count())
