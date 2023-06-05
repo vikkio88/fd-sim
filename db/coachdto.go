@@ -53,7 +53,7 @@ func (c CoachDto) Coach() *models.Coach {
 
 	coach.Id = c.Id
 	coach.Name = c.Name
-	coach.Surname = c.Name
+	coach.Surname = c.Surname
 	coach.Age = c.Age
 	coach.Country = c.Country
 	coach.Skill = utils.NewPerc(c.Skill)

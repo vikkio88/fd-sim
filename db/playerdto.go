@@ -54,7 +54,7 @@ func (p PlayerDto) Player() *models.Player {
 
 	player.Id = p.Id
 	player.Name = p.Name
-	player.Surname = p.Name
+	player.Surname = p.Surname
 	player.Age = p.Age
 	player.Country = p.Country
 	player.Skill = utils.NewPerc(p.Skill)
