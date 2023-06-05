@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
@@ -19,7 +20,15 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
 		Top(
 			NewFborder().Left(backButton(ctx)).
-				Get(widget.NewLabel(team.String()))).
+				Get(
+					centered(
+						container.NewHBox(
+							widget.NewLabel(team.String()),
+							small(team.City),
+							small(team.Country.String()),
+						),
+					),
+				)).
 		Get(
 			widget.NewListWithData(
 				roster,
