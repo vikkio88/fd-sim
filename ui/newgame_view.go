@@ -24,10 +24,12 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	pholder := container.NewCenter(widget.NewLabel("No teams yet..."))
 	teamGenBtn := widget.NewButton("Generate Teams", func() {
 		pholder.Hide()
+		ctx.Db.TruncateAll()
 		viewmodels.ClearDataUtList(teams)
 		tg := generators.NewTeamGen(time.Now().Unix())
 		n, _ := teamsNumber.Get()
 		ts := tg.TeamsWithCountry(int(n), selectedCountry)
+		ctx.Db.TeamR().Insert(ts)
 		for _, t := range ts {
 			teams.Append(t)
 		}

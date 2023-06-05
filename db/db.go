@@ -58,3 +58,9 @@ func (db *Db) CoachR() *CoachRepo {
 
 	return cr
 }
+
+func (db *Db) TruncateAll() {
+	db.TeamR().Truncate()
+	db.PlayerR().Truncate()
+	db.CoachR().Truncate()
+}

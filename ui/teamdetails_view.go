@@ -7,8 +7,9 @@ import (
 
 func teamDetailsView(ctx *AppContext) *fyne.Container {
 	id := ctx.RouteParam.(string)
+	team := ctx.Db.TeamR().ById(id)
 	return NewFborder().
-		Top(widget.NewLabel(id)).
+		Top(widget.NewLabel(team.String())).
 		Bottom(leftAligned(backButton(ctx))).
 		Get()
 }

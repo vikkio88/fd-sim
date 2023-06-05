@@ -95,6 +95,10 @@ func (cr *CoachRepo) ById(id string) *models.Coach {
 	return c.Coach()
 }
 
+func (cr *CoachRepo) Truncate() {
+	cr.g.Where("1 = 1").Delete(&CoachDto{})
+}
+
 func (cr *CoachRepo) DeleteOne(id string) {
 	cr.g.Delete(&CoachDto{}, id)
 }

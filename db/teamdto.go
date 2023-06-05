@@ -84,6 +84,10 @@ func (tr *TeamsRepo) ById(id string) *models.Team {
 	return t.Team()
 }
 
+func (tr *TeamsRepo) Truncate() {
+	tr.g.Where("1 = 1").Delete(&TeamDto{})
+}
+
 func (tr *TeamsRepo) DeleteOne(id string) {
 	tr.g.Where("Id = ?", id).Delete(&TeamDto{})
 }
