@@ -72,7 +72,10 @@ func newGameView(ctx *AppContext) *fyne.Container {
 }
 
 func simpleTeamListRow() fyne.CanvasObject {
-	return NewFborder().Right(widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {})).Get(widget.NewLabel(""))
+	return NewFborder().
+		Right(widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {})).
+		Left(widget.NewHyperlink("", nil)).
+		Get()
 }
 
 func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
@@ -80,9 +83,12 @@ func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.Ca
 	return func(di binding.DataItem, co fyne.CanvasObject) {
 		team := viewmodels.TeamFromDi(di)
 		c := co.(*fyne.Container)
-		l := c.Objects[0].(*widget.Label)
+		l := c.Objects[0].(*widget.Hyperlink)
 		b := c.Objects[1].(*widget.Button)
 		l.SetText(team.String())
+		l.OnTapped = func() {
+			ctx.PushWithParam(TeamDetails, team.Id)
+		}
 		b.OnTapped = func() {
 			ctx.PushWithParam(TeamDetails, team.Id)
 		}

@@ -34,6 +34,10 @@ func NewPlayer(name, surname string, age int, country enums.Country, role Role) 
 	}
 }
 
+func (p *Player) String() string {
+	return fmt.Sprintf("%s %s", p.Name, p.Surname)
+}
+
 // get placeholder
 func (p *Player) PH() PPH {
 	return PPH{
