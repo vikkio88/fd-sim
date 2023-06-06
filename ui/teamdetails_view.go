@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fdsim/viewmodels"
-	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -51,7 +50,7 @@ func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.
 		l := c.Objects[0].(*widget.Hyperlink)
 		l.SetText(player.String())
 		l.OnTapped = func() {
-			fmt.Println(player.Id)
+			ctx.PushWithParam(PlayerDetails, player.Id)
 		}
 	}
 }
