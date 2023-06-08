@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"fdsim/utils"
-	"fdsim/viewmodels"
+	vm "fdsim/vm"
+	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -18,22 +18,77 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	for _, p := range team.Roster.Players() {
 		roster.Append(p)
 	}
+
+	coach := widget.NewCard(
+		"",
+		"Coach",
+		container.NewVBox(
+			centered(widget.NewLabel(team.Coach.String())),
+			container.NewGridWithColumns(2,
+				widget.NewLabel(fmt.Sprintf("%d", team.Coach.Age)),
+				widget.NewLabel(team.Coach.Country.Nationality()),
+			),
+			centered(
+				starsFromPerc(team.Coach.Skill),
+			),
+			container.NewGridWithColumns(2,
+				widget.NewLabel("Module:"),
+				widget.NewLabel(team.Coach.Module.String()),
+			),
+		),
+	)
+
+	finances := widget.NewCard("",
+		"Finances",
+		container.NewVBox(
+			container.NewGridWithColumns(2,
+				widgets.Icon("money"),
+				widgets.Icon("meh_face"),
+			),
+		),
+	)
+
+	teamDetails := widget.NewCard(
+		"",
+		"Team Details",
+		container.NewVBox(
+			container.NewGridWithColumns(2,
+				widgets.Icon("city"),
+				widget.NewLabel(team.City),
+			),
+			container.NewHBox(
+				widgets.Icon("dumbell"),
+				starsFromf64(team.Roster.AvgSkill()),
+			),
+			container.NewHBox(
+				widget.NewLabel("Avg Age"),
+				widget.NewLabel(fmt.Sprintf("%.2f", team.Roster.AvgAge())),
+			),
+			coach,
+			finances,
+		),
+	)
+
+	main := container.NewHSplit(
+		rosterUi(roster, ctx),
+		teamDetails,
+	)
+
+	main.SetOffset(1.0)
+
 	return NewFborder().
 		Top(
 			NewFborder().Left(backButton(ctx)).
 				Get(
 					centered(
 						container.NewHBox(
-							widget.NewLabel(team.String()),
+							h1(team.Name),
 							small(team.Country.String()),
 						),
 					),
 				)).
 		Get(
-			container.NewGridWithColumns(2,
-				rosterUi(roster, ctx),
-				container.NewVBox(stars(utils.NewPerc(10))),
-			),
+			main,
 		)
 }
 
@@ -54,7 +109,7 @@ func simpleRosterListRow() fyne.CanvasObject {
 					centered(widget.NewHyperlink("", nil)),
 					widget.NewLabel("Age"),
 					widget.NewLabel("Role"),
-					widget.NewLabel("Nantionality"),
+					widget.NewLabel("Nationality"),
 				),
 			),
 		)
@@ -62,7 +117,7 @@ func simpleRosterListRow() fyne.CanvasObject {
 
 func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
 	return func(di binding.DataItem, co fyne.CanvasObject) {
-		player := viewmodels.PlayerFromDi(di)
+		player := vm.PlayerFromDi(di)
 		c := co.(*fyne.Container)
 
 		ctn := c.Objects[0].(*fyne.Container)
