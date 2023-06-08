@@ -105,12 +105,11 @@ func simpleRosterListRow() fyne.CanvasObject {
 		Get(
 			container.NewMax(
 				container.NewGridWithColumns(
-					5,
+					4,
 					centered(widget.NewHyperlink("", nil)),
-					widget.NewLabel("Age"),
-					widget.NewLabel("Role"),
-					widget.NewLabel("Nationality"),
-					starsFromf64(0),
+					centered(widget.NewLabel("Role")),
+					centered(widget.NewLabel("Nationality")),
+					centered(starsFromf64(0)),
 				),
 			),
 		)
@@ -126,15 +125,14 @@ func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.
 		ctr := mx.Objects[0].(*fyne.Container)
 		l := ctr.Objects[0].(*widget.Hyperlink)
 
-		l.SetText(player.String())
+		l.SetText(fmt.Sprintf("%s (%d)", player.String(), player.Age))
 		l.OnTapped = func() {
 			ctx.PushWithParam(PlayerDetails, player.Id)
 		}
 
-		mx.Objects[1].(*widget.Label).SetText(fmt.Sprintf("%d", player.Age))
-		mx.Objects[2].(*widget.Label).SetText(player.Role.String())
-		mx.Objects[3].(*widget.Label).SetText(player.Country.Nationality())
-		s := mx.Objects[4].(*widgets.StarRating)
+		mx.Objects[1].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Role.String())
+		mx.Objects[2].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Country.Nationality())
+		s := mx.Objects[3].(*fyne.Container).Objects[0].(*widgets.StarRating)
 		s.SetValues(vm.PercToStars(player.Skill))
 	}
 }
