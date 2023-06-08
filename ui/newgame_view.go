@@ -3,20 +3,21 @@ package ui
 import (
 	"fdsim/enums"
 	"fdsim/generators"
-	"fdsim/viewmodels"
+	"fdsim/vm"
+	"fdsim/widgets"
+	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"golang.org/x/exp/slices"
 )
 
 func newGameView(ctx *AppContext) *fyne.Container {
-	countries := viewmodels.GetAllCountries()
-	var ts float64 = 2
+	countries := vm.GetAllCountries()
+	var ts float64 = 8
 	teamsNumber := binding.BindFloat(&ts)
 	teams := binding.NewUntypedList()
 	var selectedCountry enums.Country
@@ -25,7 +26,7 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	teamGenBtn := widget.NewButton("Generate Teams", func() {
 		pholder.Hide()
 		ctx.Db.TruncateAll()
-		viewmodels.ClearDataUtList(teams)
+		vm.ClearDataUtList(teams)
 		tg := generators.NewTeamGen(time.Now().Unix())
 		n, _ := teamsNumber.Get()
 		ts := tg.TeamsWithCountry(int(n), selectedCountry)
@@ -37,7 +38,7 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	teamGenBtn.Disable()
 	ctrSelect := widget.NewSelect(countries, func(s string) {
 		idx := slices.Index(countries, s)
-		selectedCountry = viewmodels.CountryFromIndex(idx)
+		selectedCountry = vm.CountryFromIndex(idx)
 		teamGenBtn.Enable()
 	})
 	ctrSelect.PlaceHolder = "Select Country"
@@ -62,7 +63,8 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	)
 	return NewFborder().
 		Top(
-			centered(widget.NewLabel("New Game"))).
+			centered(widget.NewLabel("New Game")),
+		).
 		Get(
 			NewFborder().
 				Top(inputs).
@@ -73,24 +75,37 @@ func newGameView(ctx *AppContext) *fyne.Container {
 
 func simpleTeamListRow() fyne.CanvasObject {
 	return NewFborder().
-		Right(widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {})).
-		Left(widget.NewHyperlink("", nil)).
-		Get()
+		Get(
+			container.NewMax(
+				container.NewGridWithColumns(
+					3,
+					centered(widget.NewHyperlink("", nil)),
+					container.NewHBox(
+						widgets.Icon("team"),
+						widget.NewLabel("Roster"),
+					),
+					widget.NewLabel("AvgAge"),
+				),
+			),
+		)
 }
 
 func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
 
 	return func(di binding.DataItem, co fyne.CanvasObject) {
-		team := viewmodels.TeamFromDi(di)
+		team := vm.TeamFromDi(di)
 		c := co.(*fyne.Container)
-		l := c.Objects[0].(*widget.Hyperlink)
-		b := c.Objects[1].(*widget.Button)
+
+		ctn := c.Objects[0].(*fyne.Container)
+		mx := ctn.Objects[0].(*fyne.Container)
+		ctr := mx.Objects[0].(*fyne.Container)
+		l := ctr.Objects[0].(*widget.Hyperlink)
+
 		l.SetText(team.String())
 		l.OnTapped = func() {
 			ctx.PushWithParam(TeamDetails, team.Id)
 		}
-		b.OnTapped = func() {
-			ctx.PushWithParam(TeamDetails, team.Id)
-		}
+		mx.Objects[1].(*fyne.Container).Objects[1].(*widget.Label).SetText(fmt.Sprintf("%d", team.Roster.Len()))
+		mx.Objects[2].(*widget.Label).SetText(fmt.Sprintf("Avg Age: %.2f", team.Roster.AvgAge()))
 	}
 }
