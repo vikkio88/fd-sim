@@ -29,8 +29,9 @@ var starFull = &fyne.StaticResource{
 
 type StarRating struct {
 	widget.BaseWidget
-	full int
-	half bool
+	full      int
+	half      bool
+	container *fyne.Container
 }
 
 func NewStarRating(stars int) *StarRating {
@@ -66,7 +67,24 @@ func NewStarRatingWithHalf(stars int, half bool) *StarRating {
 	return s
 }
 
-func (s *StarRating) CreateRenderer() fyne.WidgetRenderer {
+func (s *StarRating) Refresh() {
+	s.updateContainer()
+	s.BaseWidget.Refresh()
+}
+
+func (s *StarRating) SetValues(rating float32) {
+	full := int(rating)
+	mantissa := rating - float32(full)
+	half := false
+	if mantissa >= .5 {
+		half = true
+	}
+	s.full = full
+	s.half = half
+	s.Refresh()
+}
+
+func (s *StarRating) updateContainer() {
 	full := s.full
 	halves := 0
 	if s.half {
@@ -76,18 +94,25 @@ func (s *StarRating) CreateRenderer() fyne.WidgetRenderer {
 	if empty < 0 {
 		empty = 0
 	}
-	box := container.NewHBox()
+	if s.container == nil {
+		s.container = container.NewHBox()
+	} else {
+		s.container.RemoveAll()
+	}
 	for i := 0; i < full; i++ {
-		box.Add(widget.NewIcon(theme.NewThemedResource(starFull)))
+		s.container.Add(widget.NewIcon(theme.NewThemedResource(starFull)))
 	}
 	if s.half {
-		box.Add(widget.NewIcon(theme.NewThemedResource(starHalf)))
+		s.container.Add(widget.NewIcon(theme.NewThemedResource(starHalf)))
 	}
 	for i := 0; i < empty; i++ {
-		box.Add(widget.NewIcon(theme.NewThemedResource(star)))
+		s.container.Add(widget.NewIcon(theme.NewThemedResource(star)))
 	}
+}
 
+func (s *StarRating) CreateRenderer() fyne.WidgetRenderer {
+	s.updateContainer()
 	return widget.NewSimpleRenderer(
-		container.NewCenter(box),
+		container.NewCenter(s.container),
 	)
 }
