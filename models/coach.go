@@ -32,3 +32,7 @@ func NewCoach(name, surname string, age int, country enums.Country, module Modul
 		Module: module,
 	}
 }
+
+func (c *Coach) String() string {
+	return fmt.Sprintf("%s %s", c.Name, c.Surname)
+}
