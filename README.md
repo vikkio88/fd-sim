@@ -7,10 +7,24 @@ fs-sim in golang and fyne
     - [x] Team
         - [x] Roster
     - [ ] League
-    - [ ] Rounds
+    - [x] Rounds
     - [x] Match
 
 - [x] Generators
     - [x] People
     - [x] Teams
     - [x] Make generator use normal distribution
+
+- [ ] Finances
+    - [ ] Transfer Budget
+    - [ ] Wage Budget
+    - [ ] Sponsors
+    - [ ] Season Tickets
+
+- [ ] Fame/Supporters
+- [ ] Board Approval
+- [ ] Add flag icons
+
+## Helpers
+- [ ] Add Test page for icons
+ 
