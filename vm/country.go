@@ -1,4 +1,4 @@
-package viewmodels
+package vm
 
 import "fdsim/enums"
 
