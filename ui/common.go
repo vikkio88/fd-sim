@@ -1,6 +1,10 @@
 package ui
 
 import (
+	"fdsim/utils"
+	vm "fdsim/vm"
+	"fdsim/widgets"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -49,4 +53,12 @@ func backButton(ctx *AppContext) *widget.Button {
 	return widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
 		ctx.Pop()
 	})
+}
+
+func starsFromPerc(perc utils.Perc) fyne.CanvasObject {
+	return widgets.NewStarRatingFromFloat(vm.PercToStars(perc))
+}
+
+func starsFromf64(value float64) fyne.CanvasObject {
+	return widgets.NewStarRatingFromFloat(vm.PercFToStars(value))
 }
