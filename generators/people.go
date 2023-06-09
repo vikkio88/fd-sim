@@ -58,6 +58,65 @@ func (p *PeopleGen) getEnumsGen() *EnumsGen {
 	return p.eGen
 }
 
+func (p *PeopleGen) getContractInfo(idealWage utils.Money) (utils.Money, uint8) {
+	wage := idealWage.Value() * p.rng.PercR(80, 110)
+	contractYears := uint8(p.rng.UInt(1, 5))
+	return utils.NewEurosFromF(wage), contractYears
+}
+
+func (p *PeopleGen) getWage(skill, age int, isCoach bool) utils.Money {
+	if age < 19 {
+		return utils.NewEuros(int64(p.rng.UInt(5_000, 150_000)))
+	}
+
+	var baseVal int
+
+	switch {
+	case skill >= 95:
+		baseVal = p.rng.UInt(5_000, 15_000)
+	case skill >= 90:
+		baseVal = p.rng.UInt(3_000, 7_000)
+	case skill >= 80:
+		baseVal = p.rng.UInt(600, 5_000)
+	case skill >= 70:
+		baseVal = p.rng.UInt(500, 1_000)
+	case skill >= 60:
+		baseVal = p.rng.UInt(200, 450)
+	case skill >= 50:
+		baseVal = p.rng.UInt(90, 200)
+	default:
+		baseVal = p.rng.UInt(1, 200)
+	}
+
+	if isCoach {
+		return utils.NewEuros(int64((baseVal) * 250.0))
+	}
+
+	return utils.NewEuros(int64((baseVal * 1000)))
+
+}
+
+func (p *PeopleGen) getValue(skill, age int) utils.Money {
+	var baseVal int
+
+	switch {
+	case skill >= 95:
+		baseVal = p.rng.UInt(90_000, 250_000)
+	case skill >= 90:
+		baseVal = p.rng.UInt(80_000, 120_000)
+	case skill >= 80:
+		baseVal = p.rng.UInt(50_000, 90_000)
+	case skill >= 60:
+		baseVal = p.rng.UInt(200, 800)
+	case skill >= 50:
+		baseVal = p.rng.UInt(100, 600)
+	default:
+		baseVal = p.rng.UInt(10, 100)
+	}
+
+	return utils.NewEuros(int64(baseVal * 1000))
+}
+
 func (p *PeopleGen) getName(country enums.Country) string {
 	names := data.GetNames(country)
 	idx := p.rng.Index(len(names))
@@ -79,7 +138,7 @@ func (p *PeopleGen) getMorale() int {
 }
 
 func (p *PeopleGen) getFame(skill int) int {
-	return p.rng.UInt(skill+p.rng.PlusMinusVal(10, 50), 100)
+	return p.rng.UInt(skill+p.rng.PlusMinusVal(10, 20), 100)
 }
 
 func (p *PeopleGen) Champion(country enums.Country) *models.Player {
@@ -94,6 +153,12 @@ func (p *PeopleGen) Champion(country enums.Country) *models.Player {
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
+	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+
+	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+	wage, contract := p.getContractInfo(pl.IdealWage)
+	pl.Wage = wage
+	pl.YContract = contract
 
 	return &pl
 }
@@ -109,6 +174,12 @@ func (p *PeopleGen) PlayerWithRole(country enums.Country, role models.Role) *mod
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
+	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+
+	wage, contract := p.getContractInfo(pl.IdealWage)
+	pl.Wage = wage
+	pl.YContract = contract
 
 	return &pl
 }
@@ -135,6 +206,12 @@ func (p *PeopleGen) Player(country enums.Country) *models.Player {
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
+	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+
+	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+	wage, contract := p.getContractInfo(pl.IdealWage)
+	pl.Wage = wage
+	pl.YContract = contract
 
 	return &pl
 }
@@ -152,6 +229,10 @@ func (p *PeopleGen) Coach(country enums.Country) *models.Coach {
 	fame := p.getFame(skill)
 
 	c.SetVals(skill, morale, fame)
+	c.IdealWage = p.getWage(c.Skill.Val(), c.Age, true)
+	wage, contract := p.getContractInfo(c.IdealWage)
+	c.Wage = wage
+	c.YContract = contract
 
 	return &c
 }
