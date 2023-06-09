@@ -20,7 +20,11 @@ type CoachDto struct {
 	Morale int
 	Fame   int
 
-	TeamId *string
+	IdealWage int64
+
+	TeamId    *string
+	Wage      int64
+	YContract uint8
 }
 
 func DtoFromCoach(c *models.Coach) CoachDto {
@@ -37,7 +41,11 @@ func DtoFromCoach(c *models.Coach) CoachDto {
 
 		Module: c.Module,
 
-		TeamId: nil,
+		IdealWage: c.IdealWage.Val,
+
+		TeamId:    nil,
+		Wage:      c.Wage.Val,
+		YContract: c.YContract,
 	}
 }
 func DtoFromCoachWithTeam(c *models.Coach, teamId string) CoachDto {
@@ -59,6 +67,9 @@ func (c CoachDto) Coach() *models.Coach {
 	coach.Skill = utils.NewPerc(c.Skill)
 	coach.Morale = utils.NewPerc(c.Morale)
 	coach.Fame = utils.NewPerc(c.Fame)
+	coach.IdealWage = utils.NewEuros(c.IdealWage / moneyMultiplier)
+	coach.Wage = utils.NewEuros(c.Wage / moneyMultiplier)
+	coach.YContract = c.YContract
 
 	return coach
 }

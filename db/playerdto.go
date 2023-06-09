@@ -20,7 +20,12 @@ type PlayerDto struct {
 	Morale int
 	Fame   int
 
-	TeamId *string
+	Value     int64
+	IdealWage int64
+
+	TeamId    *string
+	Wage      int64
+	YContract uint8
 }
 
 func DtoFromPlayer(player *models.Player) PlayerDto {
@@ -32,11 +37,15 @@ func DtoFromPlayer(player *models.Player) PlayerDto {
 		Country: player.Country,
 		Role:    player.Role,
 
-		Skill:  player.Skill.Val(),
-		Morale: player.Morale.Val(),
-		Fame:   player.Fame.Val(),
+		Skill:     player.Skill.Val(),
+		Morale:    player.Morale.Val(),
+		Fame:      player.Fame.Val(),
+		IdealWage: player.IdealWage.Val,
+		Value:     player.Value.Val,
 
-		TeamId: nil,
+		TeamId:    nil,
+		Wage:      player.Wage.Val,
+		YContract: player.YContract,
 	}
 }
 
@@ -60,6 +69,10 @@ func (p PlayerDto) Player() *models.Player {
 	player.Skill = utils.NewPerc(p.Skill)
 	player.Morale = utils.NewPerc(p.Morale)
 	player.Fame = utils.NewPerc(p.Fame)
+	player.Value = utils.NewEuros(p.Value / moneyMultiplier)
+	player.IdealWage = utils.NewEuros(p.IdealWage / moneyMultiplier)
+	player.Wage = utils.NewEuros(p.Wage / moneyMultiplier)
+	player.YContract = p.YContract
 
 	return player
 }

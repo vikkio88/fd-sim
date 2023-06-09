@@ -3,15 +3,18 @@ package db
 import (
 	"fdsim/enums"
 	"fdsim/models"
+	"fdsim/utils"
 
 	"gorm.io/gorm"
 )
 
 type TeamDto struct {
-	Id      string `gorm:"primarykey;size:16"`
-	Name    string
-	City    string
-	Country enums.Country
+	Id            string `gorm:"primarykey;size:16"`
+	Name          string
+	City          string
+	Country       enums.Country
+	Balance       float64
+	TransferRatio float64
 
 	//TODO: test ONDelete constraint
 	Coach   CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
@@ -25,10 +28,12 @@ func DtoFromTeam(team *models.Team) TeamDto {
 		pdtos[i] = DtoFromPlayerWithTeam(p, team.Id)
 	}
 	return TeamDto{
-		Id:      team.Id,
-		Name:    team.Name,
-		City:    team.City,
-		Country: team.Country,
+		Id:            team.Id,
+		Name:          team.Name,
+		City:          team.City,
+		Country:       team.Country,
+		Balance:       team.Balance.Value(),
+		TransferRatio: team.TransferRatio,
 
 		Coach: DtoFromCoachWithTeam(team.Coach, team.Id),
 
@@ -38,10 +43,12 @@ func DtoFromTeam(team *models.Team) TeamDto {
 
 func (t TeamDto) Team() *models.Team {
 	ts := &models.Team{
-		Name:    t.Name,
-		City:    t.City,
-		Country: t.Country,
-		Roster:  models.NewRoster(),
+		Name:          t.Name,
+		City:          t.City,
+		Balance:       utils.NewEurosFromF(t.Balance),
+		TransferRatio: t.TransferRatio,
+		Country:       t.Country,
+		Roster:        models.NewRoster(),
 	}
 	ts.Id = t.Id
 	ts.Coach = t.Coach.Coach()
@@ -79,7 +86,7 @@ func (tr *TeamsRepo) Insert(teams []*models.Team) {
 
 func (tr *TeamsRepo) ById(id string) *models.Team {
 	var t TeamDto
-	tr.g.Model(&TeamDto{}).Preload("Players").Preload("Coach").Find(&t, "Id = ?", id)
+	tr.g.Model(&TeamDto{}).Preload(playersRel).Preload(coachRel).Find(&t, "Id = ?", id)
 
 	return t.Team()
 }
@@ -105,7 +112,7 @@ func (tr *TeamsRepo) Count() int64 {
 
 func (tr *TeamsRepo) All() []*models.Team {
 	var tdtos []TeamDto
-	tr.g.Model(&TeamDto{}).Preload("Players").Find(&tdtos)
+	tr.g.Model(&TeamDto{}).Preload(playersRel).Find(&tdtos)
 
 	ts := make([]*models.Team, len(tdtos))
 	for i, t := range tdtos {
