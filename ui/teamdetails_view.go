@@ -90,7 +90,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 					centered(
 						container.NewHBox(
 							h1(team.Name),
-							small(team.Country.String()),
+							widgets.Flag(team.Country),
 						),
 					),
 				)).

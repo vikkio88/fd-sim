@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/enums"
 	"fdsim/widgets"
 
 	"fyne.io/fyne/v2"
@@ -10,8 +11,14 @@ import (
 func TestView(ctx *AppContext) *fyne.Container {
 	return container.NewCenter(
 		container.NewVBox(
-			widgets.Icon("dumbell"),
-			widgets.Icon("transfers"),
+			container.NewHBox(
+				widgets.Flag(enums.IT),
+				widgets.Flag(enums.EN),
+				widgets.Flag(enums.FR),
+				widgets.Flag(enums.ES),
+				widgets.Flag(enums.DE),
+			),
+			widgets.Icon("sdsadsa"),
 		),
 	)
 }
