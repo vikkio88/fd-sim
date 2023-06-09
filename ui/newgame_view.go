@@ -78,14 +78,15 @@ func simpleTeamListRow() fyne.CanvasObject {
 		Get(
 			container.NewMax(
 				container.NewGridWithColumns(
-					4,
+					3,
 					centered(widget.NewHyperlink("", nil)),
-					container.NewHBox(
-						widgets.Icon("team"),
-						widget.NewLabel("Roster"),
+					centered(
+						container.NewHBox(
+							widgets.Icon("team"),
+							widget.NewLabel("Roster"),
+						),
 					),
-					widget.NewLabel("AvgAge"),
-					starsFromf64(0),
+					centered(starsFromf64(0)),
 				),
 			),
 		)
@@ -106,8 +107,7 @@ func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.Ca
 		l.OnTapped = func() {
 			ctx.PushWithParam(TeamDetails, team.Id)
 		}
-		mx.Objects[1].(*fyne.Container).Objects[1].(*widget.Label).SetText(fmt.Sprintf("%d", team.Roster.Len()))
-		mx.Objects[2].(*widget.Label).SetText(fmt.Sprintf("Avg Age: %.2f", team.Roster.AvgAge()))
-		mx.Objects[3].(*widgets.StarRating).SetValues(vm.PercFToStars(team.Roster.AvgSkill()))
+		mx.Objects[1].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Label).SetText(fmt.Sprintf("%d", team.Roster.Len()))
+		mx.Objects[2].(*fyne.Container).Objects[0].(*widgets.StarRating).SetValues(vm.PercFToStars(team.Roster.AvgSkill()))
 	}
 }

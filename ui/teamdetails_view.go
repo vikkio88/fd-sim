@@ -23,9 +23,8 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		"",
 		"Coach",
 		container.NewVBox(
-			centered(widget.NewLabel(team.Coach.String())),
-			container.NewGridWithColumns(2,
-				widget.NewLabel(fmt.Sprintf("%d", team.Coach.Age)),
+			centered(widget.NewLabel(fmt.Sprintf("%s (%d)", team.Coach.String(), team.Coach.Age))),
+			centered(
 				widget.NewLabel(team.Coach.Country.Nationality()),
 			),
 			centered(
