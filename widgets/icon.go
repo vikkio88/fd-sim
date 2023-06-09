@@ -28,5 +28,5 @@ func Icon(name string) *widget.Icon {
 		return widget.NewIcon(theme.NewThemedResource(res.Transfers))
 	}
 
-	return widget.NewIcon(theme.NewThemedResource(res.City))
+	return widget.NewIcon(theme.NewThemedResource(res.Unknown))
 }
