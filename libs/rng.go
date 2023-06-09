@@ -25,6 +25,14 @@ func NewRng(seed int64) *Rng {
 	}
 }
 
+func (r *Rng) PercR(min, max int) float64 {
+	return float64(r.UInt(min, max)) / 100.
+}
+
+func (r *Rng) Perc() float64 {
+	return float64(r.UInt(0, 100)) / 100.
+}
+
 func (r *Rng) NormF64(mean, stdDev float64) float64 {
 	return rand.NormFloat64()*stdDev + mean
 }

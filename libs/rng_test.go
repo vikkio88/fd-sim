@@ -63,6 +63,16 @@ func TestPlusMinus(t *testing.T) {
 	assert.Less(t, -val-1, rng.PlusMinusVal(val, 50))
 }
 
+func TestRndPerc(t *testing.T) {
+	rng := libs.NewRng(testSeed)
+	p := rng.Perc()
+
+	for i := 0; i < 100; i++ {
+		assert.Greater(t, p, 0.009)
+		assert.Greater(t, 1.1, p)
+	}
+}
+
 func TestNormalDistro(t *testing.T) {
 	rng := libs.NewRng(testSeed)
 	results := map[int]int{}
