@@ -2,6 +2,7 @@ package models
 
 import (
 	"fdsim/enums"
+	"fdsim/utils"
 	"fmt"
 
 	"github.com/oklog/ulid/v2"
@@ -21,6 +22,9 @@ type Team struct {
 	Roster  *Roster
 	Coach   *Coach
 
+	Balance       utils.Money
+	TransferRatio float64
+
 	//TODO: add familiarity with a module
 }
 
@@ -37,6 +41,11 @@ func NewTeam(name, city string, country enums.Country) *Team {
 		Country: country,
 		Roster:  NewRoster(),
 	}
+}
+
+func (t *Team) TransferBudget() utils.Money {
+	val := t.Balance.Value() * t.TransferRatio
+	return utils.NewEurosFromF(val)
 }
 
 func (t *Team) String() string {
