@@ -46,6 +46,9 @@ func NewApp() App {
 
 			TeamDetails:   func() *fyne.Container { return teamDetailsView(&ctx) },
 			PlayerDetails: func() *fyne.Container { return playerDetailsView(&ctx) },
+
+			//TEST ROUTE
+			Test: func() *fyne.Container { return TestView(&ctx) },
 		},
 	}
 }
@@ -113,6 +116,8 @@ func (a *App) Cleanup() {
 func setupContext(w fyne.Window) AppContext {
 	//TODO: remove this as it is for testing views
 	// initialRoute := Main
+
+	// initialRoute := Test
 	initialRoute := NewGame
 
 	return NewAppContext(initialRoute, w)
