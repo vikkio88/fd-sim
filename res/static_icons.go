@@ -19,7 +19,7 @@ var Dumbell = &fyne.StaticResource{
 var City = &fyne.StaticResource{
 	StaticName: "city",
 	StaticContent: []byte(
-		"<?xml version=\"1.0\" encoding=\"utf-8\"?><svg fill=\"#000000\" width=\"800px\" height=\"800px\" viewBox=\"2 2 22 22\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M13,9a1,1,0,0,0-1-1H3A1,1,0,0,0,2,9V22H13ZM6,20H4V18H6Zm0-4H4V14H6Zm0-4H4V10H6Zm5,8H8V18h3Zm0-4H8V14h3Zm0-4H8V10h3Zm3.5-6H6V3A1,1,0,0,1,7,2H17a1,1,0,0,1,1,1v7H15V6.5A.5.5,0,0,0,14.5,6ZM22,13v9H19.5V18h-2v4H15V13a1,1,0,0,1,1-1h5A1,1,0,0,1,22,13Z\"/></svg>",
+		`<?xml version="1.0" encoding="utf-8"?><svg fill="#000000" width="800px" height="800px" viewBox="2 2 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M13,9a1,1,0,0,0-1-1H3A1,1,0,0,0,2,9V22H13ZM6,20H4V18H6Zm0-4H4V14H6Zm0-4H4V10H6Zm5,8H8V18h3Zm0-4H8V14h3Zm0-4H8V10h3Zm3.5-6H6V3A1,1,0,0,1,7,2H17a1,1,0,0,1,1,1v7H15V6.5A.5.5,0,0,0,14.5,6ZM22,13v9H19.5V18h-2v4H15V13a1,1,0,0,1,1-1h5A1,1,0,0,1,22,13Z"/></svg>`,
 	),
 }
 
@@ -114,5 +114,12 @@ var HappyFace = &fyne.StaticResource{
                 l-26.609-14.875c-12.109,21.609-35.109,36.203-61.625,36.203c-26.484,0-49.469-14.594-61.594-36.219L167.781,344.844z"/>
         </g>
         </svg>`,
+	),
+}
+
+var Transfers = &fyne.StaticResource{
+	StaticName: "transfers",
+	StaticContent: []byte(
+		`<svg viewBox="2 2 22 22" width="800px" height="800px" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17h12M4 17l3.5-3.5M4 17l3.5 3.5M7 7h13m0 0l-3.5-3.5M20 7l-3.5 3.5"></path> </g></svg>`,
 	),
 }

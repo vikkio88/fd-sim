@@ -24,6 +24,8 @@ func Icon(name string) *widget.Icon {
 		return widget.NewIcon(theme.NewThemedResource(res.MehFace))
 	case "happy_face":
 		return widget.NewIcon(theme.NewThemedResource(res.HappyFace))
+	case "transfers":
+		return widget.NewIcon(theme.NewThemedResource(res.Transfers))
 	}
 
 	return widget.NewIcon(theme.NewThemedResource(res.City))
