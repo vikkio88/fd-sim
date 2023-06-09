@@ -3,6 +3,7 @@ package ui
 import (
 	"fdsim/vm"
 	"fdsim/widgets"
+	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -31,15 +32,32 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 					centered(
 						container.NewHBox(
 							h1(player.String()),
-							small(player.Country.String()),
+							small(fmt.Sprintf("%d", player.Age)),
 						),
 					),
 				),
 		).
 		Get(
 			container.NewVBox(
+				container.NewGridWithColumns(3,
+					centered(widget.NewLabel(player.Country.Nationality())),
+					centered(widget.NewLabel(player.Role.String())),
+					centered(starsFromPerc(player.Skill)),
+				),
 				container.NewGridWithColumns(2,
-					widget.NewLabel("Morale"),
+					centered(widget.NewLabel("Fame")),
+					centered(starsFromPerc(player.Fame)),
+				),
+				container.NewGridWithColumns(2,
+					centered(widget.NewLabel("Value")),
+					centered(widget.NewLabel(player.Value.StringKMB())),
+				),
+				container.NewGridWithColumns(2,
+					centered(widget.NewLabel("Contract")),
+					widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
+				),
+				container.NewGridWithColumns(2,
+					centered(widget.NewLabel("Morale")),
 					moraleIcon,
 				),
 			),
