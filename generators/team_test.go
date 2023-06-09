@@ -19,6 +19,8 @@ func TestTeamBuilder(t *testing.T) {
 	assert.GreaterOrEqual(t, team.Roster.Len(), 17)
 
 	assert.NotNil(t, team.Coach)
+	assert.Greater(t, team.Balance.Value(), 1000.)
+	assert.Greater(t, team.TransferRatio, .5)
 }
 
 func TestGeneratingManyTeams(t *testing.T) {
