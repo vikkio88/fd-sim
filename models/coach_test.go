@@ -19,6 +19,9 @@ func TestBuildingCoach(t *testing.T) {
 
 	// idable
 	assert.Contains(t, c.Id, "cmId_")
+
+	// Wage
+	assert.Equal(t, c.IdealWage.Val, utils.Money{}.Val)
 }
 
 func TestCoachIsSkillable(t *testing.T) {

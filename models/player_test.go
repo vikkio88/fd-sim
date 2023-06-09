@@ -19,6 +19,10 @@ func TestBuildingPlayer(t *testing.T) {
 
 	// idable
 	assert.Contains(t, p.Id, "pmId_")
+
+	// Wage and Value
+	assert.Equal(t, p.IdealWage.Val, utils.Money{}.Val)
+	assert.Equal(t, p.Value.Val, utils.Money{}.Val)
 }
 
 func TestPlayerIsSkillable(t *testing.T) {

@@ -2,6 +2,7 @@ package models
 
 import (
 	"fdsim/enums"
+	"fdsim/utils"
 	"fmt"
 
 	"github.com/oklog/ulid/v2"
@@ -16,7 +17,8 @@ func playerIdGenerator() string {
 type Player struct {
 	Idable
 	Person
-	Role Role
+	Role  Role
+	Value utils.Money
 	skillable
 }
 

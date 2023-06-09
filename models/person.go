@@ -1,10 +1,17 @@
 package models
 
-import "fdsim/enums"
+import (
+	"fdsim/enums"
+	"fdsim/utils"
+)
 
 type Person struct {
-	Name    string
-	Surname string
-	Age     int
-	Country enums.Country
+	Name      string
+	Surname   string
+	Age       int
+	IdealWage utils.Money
+	Country   enums.Country
+
+	Wage      utils.Money
+	YContract uint8
 }
