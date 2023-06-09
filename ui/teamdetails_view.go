@@ -32,6 +32,10 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 				starsFromPerc(team.Coach.Skill),
 			),
 			container.NewGridWithColumns(2,
+				widget.NewLabel("Contract"),
+				widget.NewLabel(fmt.Sprintf("%s / %d years", team.Coach.Wage.StringKMB(), team.Coach.YContract)),
+			),
+			container.NewGridWithColumns(2,
 				widget.NewLabel("Module:"),
 				widget.NewLabel(team.Coach.Module.String()),
 			),
@@ -43,7 +47,11 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		container.NewVBox(
 			container.NewGridWithColumns(2,
 				widgets.Icon("money"),
-				widgets.Icon("meh_face"),
+				widget.NewLabel(team.Balance.StringKMB()),
+			),
+			container.NewGridWithColumns(2,
+				widgets.Icon("transfers"),
+				widget.NewLabel(team.TransferBudget().StringKMB()),
 			),
 		),
 	)
