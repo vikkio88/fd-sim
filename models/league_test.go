@@ -41,36 +41,43 @@ func TestLeagueSimulation(t *testing.T) {
 
 	l := models.NewLeague("Serie A", ts)
 
+	assert.False(t, l.IsFinished())
 	r, ok := l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.False(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.False(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.False(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.False(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.False(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.True(t, ok)
 	r.Simulate(rng)
 	l.Update(r)
 
+	assert.True(t, l.IsFinished())
 	r, ok = l.NextRound()
 	assert.False(t, ok)
 	assert.Nil(t, r)

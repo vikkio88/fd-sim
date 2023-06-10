@@ -105,8 +105,12 @@ func NewLeague(name string, teams []*Team) League {
 	}
 }
 
+func (l *League) IsFinished() bool {
+	return l.rPointer >= l.totalRounds
+}
+
 func (l *League) NextRound() (*Round, bool) {
-	if l.rPointer >= l.totalRounds {
+	if l.IsFinished() {
 		return nil, false
 	}
 	return l.Rounds[l.rPointer].Round(l.teamMap), true
