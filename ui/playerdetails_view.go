@@ -40,7 +40,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		Get(
 			container.NewVBox(
 				container.NewGridWithColumns(3,
-					centered(widgets.Flag(player.Country)),
+					centered(widgets.FlagIcon(player.Country)),
 					centered(widget.NewLabel(player.Role.String())),
 					centered(starsFromPerc(player.Skill)),
 				),

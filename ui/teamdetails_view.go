@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/enums"
 	vm "fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -25,14 +26,14 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		container.NewVBox(
 			centered(widget.NewLabel(fmt.Sprintf("%s (%d)", team.Coach.String(), team.Coach.Age))),
 			centered(
-				widget.NewLabel(team.Coach.Country.Nationality()),
+				widgets.FlagIcon(team.Coach.Country),
 			),
 			centered(
 				starsFromPerc(team.Coach.Skill),
 			),
 			container.NewGridWithColumns(2,
 				widget.NewLabel("Contract"),
-				widget.NewLabel(fmt.Sprintf("%s / %d years", team.Coach.Wage.StringKMB(), team.Coach.YContract)),
+				widget.NewLabel(fmt.Sprintf("%s / %d ys", team.Coach.Wage.StringKMB(), team.Coach.YContract)),
 			),
 			container.NewGridWithColumns(2,
 				widget.NewLabel("Module:"),
@@ -90,7 +91,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 					centered(
 						container.NewHBox(
 							h1(team.Name),
-							widgets.Flag(team.Country),
+							widgets.FlagIcon(team.Country),
 						),
 					),
 				)).
@@ -115,7 +116,7 @@ func simpleRosterListRow() fyne.CanvasObject {
 					4,
 					centered(widget.NewHyperlink("", nil)),
 					centered(widget.NewLabel("Role")),
-					centered(widget.NewLabel("Nationality")),
+					centered(widgets.NewFlag(enums.EN)),
 					centered(starsFromf64(0)),
 				),
 			),
@@ -138,7 +139,8 @@ func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.
 		}
 
 		mx.Objects[1].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Role.String())
-		mx.Objects[2].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Country.Nationality())
+		f := mx.Objects[2].(*fyne.Container).Objects[0].(*widgets.Flag)
+		f.SetCountry(player.Country)
 		s := mx.Objects[3].(*fyne.Container).Objects[0].(*widgets.StarRating)
 		s.SetValues(vm.PercToStars(player.Skill))
 	}
