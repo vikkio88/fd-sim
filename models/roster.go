@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/utils"
 	"sort"
 
 	"golang.org/x/exp/maps"
@@ -14,6 +15,9 @@ const (
 	rCK_PAM = "rck:plsAvgMorale"
 	// RosterCacheKey Players Avg Age
 	rCK_PAA = "rck:plsAvgAge"
+
+	// RosterCacheKey Players Wages
+	rCK_PW = "rck:plsWage"
 )
 
 type Roster struct {
@@ -30,14 +34,16 @@ func NewRoster() *Roster {
 	}
 }
 
-func (r *Roster) calculateAvgs() (float64, float64, float64) {
+func (r *Roster) cacheValues() {
 	totS := 0
 	totM := 0
 	totA := 0
+	var totWages float64
 	for _, p := range r.players {
 		totS += p.Skill.Val()
 		totM += p.Morale.Val()
 		totA += p.Age
+		totWages += p.Wage.Value()
 	}
 
 	valS := float64(totS) / float64(r.Len())
@@ -47,17 +53,25 @@ func (r *Roster) calculateAvgs() (float64, float64, float64) {
 	valA := float64(totA) / float64(r.Len())
 	r.cache[rCK_PAA] = valA
 
-	return valS, valM, valA
+	r.cache[rCK_PW] = totWages
+}
+
+func (r *Roster) Wages() utils.Money {
+	if val, ok := r.cache[rCK_PW]; ok {
+		return utils.NewEurosFromF(val.(float64))
+	}
+	r.cacheValues()
+	val := r.cache[rCK_PW].(float64)
+	return utils.NewEurosFromF(val)
 }
 
 func (r *Roster) AvgSkill() float64 {
 	if val, ok := r.cache[rCK_PAS]; ok {
 		return val.(float64)
 	}
-
-	v, _, _ := r.calculateAvgs()
-
-	return v
+	r.cacheValues()
+	val := r.cache[rCK_PAS].(float64)
+	return val
 }
 
 func (r *Roster) AvgAge() float64 {
@@ -65,9 +79,9 @@ func (r *Roster) AvgAge() float64 {
 		return val.(float64)
 	}
 
-	_, _, v := r.calculateAvgs()
-
-	return v
+	r.cacheValues()
+	val := r.cache[rCK_PAA].(float64)
+	return val
 }
 
 func (r *Roster) AvgMorale() float64 {
@@ -75,9 +89,9 @@ func (r *Roster) AvgMorale() float64 {
 		return val.(float64)
 	}
 
-	_, v, _ := r.calculateAvgs()
-
-	return v
+	r.cacheValues()
+	val := r.cache[rCK_PAM].(float64)
+	return val
 }
 
 func (r *Roster) add(player *Player) {
@@ -98,7 +112,7 @@ func (r *Roster) add(player *Player) {
 
 func (r *Roster) AddPlayer(player *Player) {
 	r.add(player)
-	r.calculateAvgs()
+	r.cacheValues()
 }
 
 func (r *Roster) AddPlayers(players []*Player) {
@@ -106,7 +120,7 @@ func (r *Roster) AddPlayers(players []*Player) {
 		r.add(p)
 
 	}
-	r.calculateAvgs()
+	r.cacheValues()
 }
 
 func (r *Roster) Len() int {

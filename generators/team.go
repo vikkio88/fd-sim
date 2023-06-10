@@ -78,13 +78,11 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 	teamName := t.teamName(country)
 	team := models.NewTeam(fmt.Sprintf(teamName, city), city, country)
 	players := []*models.Player{}
-	var wages float64
 
 	for role, count := range t.config {
 		for i := 0; i < count; i++ {
 			plCountry := t.getCountry(country)
 			p := t.pGen.PlayerWithRole(plCountry, role)
-			wages += p.IdealWage.Value()
 			players = append(players, p)
 		}
 	}
@@ -94,7 +92,6 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 		for i := 0; i < additional; i++ {
 			plCountry := t.getCountry(country)
 			p := t.pGen.Player(plCountry)
-			wages += p.IdealWage.Value()
 			players = append(players, p)
 		}
 	}
@@ -105,7 +102,6 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 		for i := 0; i < additional; i++ {
 			plCountry := t.getCountry(country)
 			p := t.pGen.Champion(plCountry)
-			wages += p.IdealWage.Value()
 			players = append(players, p)
 		}
 	}
@@ -113,11 +109,12 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 	team.Roster.AddPlayers(players)
 	cCountry := t.getCountry(country)
 	team.Coach = t.pGen.Coach(cCountry)
-
-	wages += team.Coach.IdealWage.Value()
-
-	team.Balance = utils.NewEurosFromF(wages * t.rng.PercR(90, 120))
-	team.TransferRatio = t.rng.PercR(50, 90)
+	wages := team.Roster.Wages().Value()
+	wages += team.Coach.Wage.Value()
+	balance := utils.NewEurosFromF(wages)
+	balance.Modify(t.rng.PercR(90, 150))
+	team.Balance = balance
+	team.TransferRatio = t.rng.PercR(30, 50)
 	return team
 }
 
