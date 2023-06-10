@@ -18,7 +18,7 @@ func TestView(ctx *AppContext) *fyne.Container {
 				widgets.FlagIcon(enums.ES),
 				widgets.FlagIcon(enums.DE),
 			),
-			widgets.Icon("sdsadsa"),
+			widgets.Icon("contract"),
 		),
 	)
 }

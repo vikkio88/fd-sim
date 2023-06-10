@@ -43,6 +43,10 @@ func NewTeam(name, city string, country enums.Country) *Team {
 	}
 }
 
+func (t *Team) Wages() utils.Money {
+	r := t.Roster.Wages()
+	return utils.NewEurosFromF(r.Value() + t.Coach.Wage.Value())
+}
 func (t *Team) TransferBudget() utils.Money {
 	val := t.Balance.Value() * t.TransferRatio
 	return utils.NewEurosFromF(val)

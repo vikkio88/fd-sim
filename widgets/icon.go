@@ -26,6 +26,9 @@ func Icon(name string) *widget.Icon {
 		return widget.NewIcon(theme.NewThemedResource(res.HappyFace))
 	case "transfers":
 		return widget.NewIcon(theme.NewThemedResource(res.Transfers))
+	case "contract":
+		//TODO: check how to theme also icons that colour changes if themed
+		return widget.NewIcon(res.Contract)
 	}
 
 	return widget.NewIcon(theme.NewThemedResource(res.Unknown))
