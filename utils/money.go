@@ -58,7 +58,7 @@ func NewMoneyUF(currency Currency, unit, fractional int64) Money {
 }
 
 func NewMoneyFromF(currency Currency, amount float64) Money {
-	val, _ := math.Modf(amount * 100)
+	val, _ := math.Modf(amount * MULTIPLIERF_100)
 
 	return Money{Val: int64(val), Currency: currency}
 }
@@ -75,6 +75,13 @@ func (m Money) String() string {
 
 func (m Money) Value() float64 {
 	return float64(m.Val) / MULTIPLIERF_100
+}
+
+func (m *Money) Modify(perc float64) {
+	val := m.Value()
+
+	val = val * perc
+	m.Val = int64(val * MULTIPLIERF_100)
 }
 
 func (m *Money) Add(n Money) error {
@@ -94,6 +101,7 @@ func (m *Money) Sub(n Money) error {
 	m.Val -= n.Val
 	return nil
 }
+
 func (m Money) Cmp(n Money) int {
 	if m.Val > n.Val {
 		return 1
