@@ -5,14 +5,33 @@ import (
 	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
+func assertPanic(t *testing.T, f func()) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	f()
+}
+
 func TestLeagueBuilder(t *testing.T) {
-	//l := models.NewLeague()
-	//assert.Equal(t, l, false)
+	rng := libs.NewRng(5)
+	tg := generators.NewTeamGenSeeded(rng)
+	ts := tg.TeamsWithCountry(4, enums.IT)
+	l := models.NewLeague("Serie A", ts)
+	assert.Equal(t, len(l.Rounds), ((4 - 1) * 2))
+
+	ts = tg.TeamsWithCountry(3, enums.IT)
+	assertPanic(t, func() {
+		models.NewLeague("Serie A", ts)
+	})
 }
 
 func TestCalendarBuilder(t *testing.T) {
@@ -34,55 +53,35 @@ func TestCalendarBuilder(t *testing.T) {
 }
 
 func TestLeagueSimulation(t *testing.T) {
-	rng := libs.NewRng(5)
+	teams := 4
+	rng := libs.NewRng(time.Now().Unix())
 	tg := generators.NewTeamGenSeeded(rng)
-
-	ts := tg.TeamsWithCountry(4, enums.IT)
-
+	ts := tg.TeamsWithCountry(teams, enums.IT)
 	l := models.NewLeague("Serie A", ts)
 
-	assert.False(t, l.IsFinished())
-	r, ok := l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
-
-	assert.False(t, l.IsFinished())
-	r, ok = l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
-
-	assert.False(t, l.IsFinished())
-	r, ok = l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
-
-	assert.False(t, l.IsFinished())
-	r, ok = l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
-
-	assert.False(t, l.IsFinished())
-	r, ok = l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
-
-	assert.False(t, l.IsFinished())
-	r, ok = l.NextRound()
-	assert.True(t, ok)
-	r.Simulate(rng)
-	l.Update(r)
+	for i := 0; i < len(l.Rounds); i++ {
+		assert.False(t, l.IsFinished())
+		r, ok := l.NextRound()
+		assert.True(t, ok)
+		r.Simulate(rng)
+		printResults(r)
+		l.Update(r)
+	}
 
 	assert.True(t, l.IsFinished())
-	r, ok = l.NextRound()
+	r, ok := l.NextRound()
 	assert.False(t, ok)
 	assert.Nil(t, r)
 
-	// for _, r := range l.Table.Rows() {
-	// 	fmt.Printf("%s\n", r)
-	// }
+	println("\nTABLE")
+	for i, r := range l.Table.Rows() {
+		fmt.Printf("%d  - %s\n", i+1, r)
+	}
+}
+
+func printResults(r *models.Round) {
+	fmt.Printf("\nRound %d\n", r.Index+1)
+	for _, m := range r.Matches {
+		fmt.Printf("%s\n", m)
+	}
 }

@@ -87,6 +87,9 @@ type League struct {
 }
 
 func NewLeague(name string, teams []*Team) League {
+	if len(teams)%2 != 0 {
+		panic("Teams need to be an even number!")
+	}
 	teamMap := map[string]*Team{}
 	teamIds := make([]string, len(teams))
 	for i, t := range teams {

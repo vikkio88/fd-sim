@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 const (
 	WinPoints  = 3
@@ -26,8 +29,8 @@ func newRow(team *Team) *Row {
 
 func (r *Row) String() string {
 	return fmt.Sprintf("%s\tw: %d d: %d l: %d , gs: %d gc: %d , %d",
-		r.team.Name, r.Wins, r.Draws, r.Losses, r.GoalConceded,
-		r.GoalScored, r.Points,
+		r.team.Name, r.Wins, r.Draws, r.Losses, r.GoalScored,
+		r.GoalConceded, r.Points,
 	)
 }
 
@@ -79,6 +82,7 @@ func (t *Table) Update(round *Round) {
 	if !ok {
 		return
 	}
+
 	for id, r := range res {
 		m := round.MatchMap[id]
 		switch r.X12() {
@@ -103,10 +107,20 @@ func (t *Table) Update(round *Round) {
 	}
 
 	t.updateTableOrder()
-
 }
 
-func (t *Table) updateTableOrder() {}
+func (t *Table) updateTableOrder() {
+	sort.SliceStable(t.order, func(i, j int) bool {
+		rowI := t.rows[t.order[i]]
+		rowJ := t.rows[t.order[j]]
+
+		if rowI.Points != rowJ.Points {
+			return rowI.Points > rowJ.Points
+		}
+
+		return (rowI.GoalScored - rowI.GoalConceded) > (rowJ.GoalScored - rowJ.GoalConceded)
+	})
+}
 
 func (t *Table) Rows() []*Row {
 	rows := make([]*Row, t.count)
