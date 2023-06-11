@@ -17,7 +17,7 @@ func TestRoundBuilder(t *testing.T) {
 		models.NewMatch(teams[0], teams[1]),
 		models.NewMatch(teams[2], teams[3]),
 	}
-	round := models.NewRound(0, matches)
+	round := models.NewRound("", 0, matches)
 	r, ok := round.Results()
 	assert.Nil(t, r)
 	assert.False(t, ok)

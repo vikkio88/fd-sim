@@ -11,7 +11,7 @@ const (
 )
 
 type Row struct {
-	team         TPH
+	Team         TPH
 	Played       int
 	Wins         int
 	Draws        int
@@ -23,13 +23,13 @@ type Row struct {
 
 func newRow(team *Team) *Row {
 	return &Row{
-		team: team.PH(),
+		Team: team.PH(),
 	}
 }
 
 func (r *Row) String() string {
 	return fmt.Sprintf("%s\tw: %d d: %d l: %d , gs: %d gc: %d , %d",
-		r.team.Name, r.Wins, r.Draws, r.Losses, r.GoalScored,
+		r.Team.Name, r.Wins, r.Draws, r.Losses, r.GoalScored,
 		r.GoalConceded, r.Points,
 	)
 }

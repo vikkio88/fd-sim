@@ -1,7 +1,14 @@
 package models
 
+import (
+	"fmt"
+
+	"github.com/oklog/ulid/v2"
+)
+
 // Round Placeholder
 type RPH struct {
+	Id      string
 	Index   int
 	Matches []MPH
 }
@@ -37,11 +44,13 @@ func NewRoundsCalendar(teamIds []string) []RPH {
 		}
 
 		firstHalf = append(firstHalf, RPH{
+			Id:      roundIdGenerator(),
 			Index:   round,
 			Matches: tempRoundFirstHalf,
 		})
 
 		secondHalf = append(secondHalf, RPH{
+			Id:      roundIdGenerator(),
 			Index:   round + totalRounds,
 			Matches: tempRoundSecondHalf,
 		})
@@ -60,7 +69,7 @@ func (r *RPH) Round(teamsMap map[string]*Team) *Round {
 		matches[i] = mph.Match(mph.Id, home, away)
 
 	}
-	return NewRound(r.Index, matches)
+	return NewRound(r.Id, r.Index, matches)
 }
 
 // Match Placeholder
@@ -75,6 +84,7 @@ func (r *MPH) Match(Id string, home, away *Team) *Match {
 }
 
 type League struct {
+	Idable
 	Name    string
 	teamMap map[string]*Team
 	teams   []*Team
@@ -82,8 +92,14 @@ type League struct {
 	Rounds []RPH
 	Table  *Table
 	// Last round pointer
-	rPointer    int
+	RPointer    int
 	totalRounds int
+}
+
+const leagueInMemoryId = "leId"
+
+func leagueIdGenerator() string {
+	return fmt.Sprintf("%s_%s", leagueInMemoryId, ulid.Make())
 }
 
 func NewLeague(name string, teams []*Team) League {
@@ -98,30 +114,31 @@ func NewLeague(name string, teams []*Team) League {
 	}
 	rounds := NewRoundsCalendar(teamIds)
 	return League{
+		Idable:      NewIdable(leagueIdGenerator()),
 		Name:        name,
 		teamMap:     teamMap,
 		teams:       teams,
 		Table:       NewTable(teams),
 		Rounds:      rounds,
 		totalRounds: (len(teams) * 2) - 2,
-		rPointer:    0,
+		RPointer:    0,
 	}
 }
 
 func (l *League) IsFinished() bool {
-	return l.rPointer >= l.totalRounds
+	return l.RPointer >= l.totalRounds
 }
 
 func (l *League) NextRound() (*Round, bool) {
 	if l.IsFinished() {
 		return nil, false
 	}
-	return l.Rounds[l.rPointer].Round(l.teamMap), true
+	return l.Rounds[l.RPointer].Round(l.teamMap), true
 }
 
 func (l *League) Update(round *Round) {
 
 	l.Table.Update(round)
 	//l. Update Stats
-	l.rPointer++
+	l.RPointer++
 }

@@ -1,8 +1,20 @@
 package models
 
-import "fdsim/libs"
+import (
+	"fdsim/libs"
+	"fmt"
+
+	"github.com/oklog/ulid/v2"
+)
+
+const roundInMemoryId = "rdId"
+
+func roundIdGenerator() string {
+	return fmt.Sprintf("%s_%s", roundInMemoryId, ulid.Make())
+}
 
 type Round struct {
+	Idable
 	Index     int
 	Matches   []*Match
 	MatchMap  map[string]*Match
@@ -10,12 +22,13 @@ type Round struct {
 	WasPlayed bool
 }
 
-func NewRound(index int, matches []*Match) *Round {
+func NewRound(id string, index int, matches []*Match) *Round {
 	mmap := map[string]*Match{}
 	for _, m := range matches {
 		mmap[m.Id] = m
 	}
 	return &Round{
+		Idable:    NewIdable(id),
 		Index:     index,
 		Matches:   matches,
 		MatchMap:  mmap,

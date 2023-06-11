@@ -16,9 +16,9 @@ type TeamDto struct {
 	Balance       float64
 	TransferRatio float64
 
-	//TODO: test ONDelete constraint
-	Coach   CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Players []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	LeagueId *string
+	Coach    CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Players  []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func DtoFromTeam(team *models.Team) TeamDto {
