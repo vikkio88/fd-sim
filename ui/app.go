@@ -40,12 +40,16 @@ func NewApp() App {
 		application:  a,
 		window:       &w,
 		views: map[AppRoute]func() *fyne.Container{
-			Main:    func() *fyne.Container { return mainView(&ctx) },
-			Setup:   func() *fyne.Container { return setupView(&ctx) },
-			NewGame: func() *fyne.Container { return newGameView(&ctx) },
+			Main:      func() *fyne.Container { return mainView(&ctx) },
+			Setup:     func() *fyne.Container { return setupView(&ctx) },
+			NewGame:   func() *fyne.Container { return newGameView(&ctx) },
+			Dashboard: func() *fyne.Container { return dashboardView(&ctx) },
 
 			TeamDetails:   func() *fyne.Container { return teamDetailsView(&ctx) },
 			PlayerDetails: func() *fyne.Container { return playerDetailsView(&ctx) },
+			League:        func() *fyne.Container { return leagueView(&ctx) },
+			Round:         func() *fyne.Container { return roundView(&ctx) },
+			Match:         func() *fyne.Container { return matchView(&ctx) },
 
 			//TEST ROUTE
 			Test: func() *fyne.Container { return TestView(&ctx) },

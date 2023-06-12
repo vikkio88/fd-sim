@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"golang.org/x/exp/slices"
 )
@@ -23,6 +24,11 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	var selectedCountry enums.Country
 
 	pholder := container.NewCenter(widget.NewLabel("No teams yet..."))
+	startGame := widget.NewButtonWithIcon("Start", theme.NavigateNextIcon(), func() {
+		ctx.NavigateTo(Dashboard)
+	})
+	startGame.Disable()
+
 	teamGenBtn := widget.NewButton("Generate Teams", func() {
 		pholder.Hide()
 		ctx.Db.TruncateAll()
@@ -34,8 +40,10 @@ func newGameView(ctx *AppContext) *fyne.Container {
 		for _, t := range ts {
 			teams.Append(t)
 		}
+		startGame.Enable()
 	})
 	teamGenBtn.Disable()
+
 	ctrSelect := widget.NewSelect(countries, func(s string) {
 		idx := slices.Index(countries, s)
 		selectedCountry = vm.CountryFromIndex(idx)
@@ -61,9 +69,13 @@ func newGameView(ctx *AppContext) *fyne.Container {
 			),
 		),
 	)
+
 	return NewFborder().
 		Top(
 			centered(widget.NewLabel("New Game")),
+		).
+		Bottom(
+			NewFborder().Right(startGame).Get(),
 		).
 		Get(
 			NewFborder().
