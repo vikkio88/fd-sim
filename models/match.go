@@ -32,6 +32,21 @@ type Match struct {
 	result     *Result
 }
 
+type MatchResult struct {
+	Id         string
+	Home       TPH
+	Away       TPH
+	LineupHome []string
+	LineupAway []string
+	Result     *Result
+}
+
+func NewMatchOnlyWithId(Id string) *Match {
+	return &Match{
+		Idable: NewIdable(Id),
+	}
+}
+
 func NewMatchWithId(Id string, home, away *Team) *Match {
 	return &Match{
 		Idable:     NewIdable(Id),
@@ -209,6 +224,14 @@ func (m *Match) bestStrikerBonus(rng *libs.Rng, goalsH int, goalsA int) (int, in
 		}
 	}
 	return goalsH, goalsA
+}
+
+func (m *Match) SetResult(result *Result) {
+	if m.result != nil {
+		return
+	}
+
+	m.result = result
 }
 
 func (m *Match) Result() (*Result, bool) {

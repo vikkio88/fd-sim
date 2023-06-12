@@ -3,9 +3,10 @@ package db
 import "fdsim/models"
 
 type RoundDto struct {
-	Id      string `gorm:"primarykey;size:16"`
-	Index   int
-	Matches []MatchDto `gorm:"foreignKey:round_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Id        string `gorm:"primarykey;size:16"`
+	Index     int
+	Matches   []MatchDto `gorm:"foreignKey:round_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	WasPlayed bool
 
 	LeagueId string
 }
@@ -17,10 +18,11 @@ func DtoFromRound(r *models.Round, leagueId string) RoundDto {
 		ms[i] = DtoFromMatch(m, r.Id)
 	}
 	return RoundDto{
-		Id:       r.Id,
-		Index:    r.Index,
-		LeagueId: leagueId,
-		Matches:  ms,
+		Id:        r.Id,
+		Index:     r.Index,
+		LeagueId:  leagueId,
+		Matches:   ms,
+		WasPlayed: r.WasPlayed,
 	}
 }
 func DtoFromRoundPH(r models.RPH, leagueId string) RoundDto {
@@ -34,6 +36,20 @@ func DtoFromRoundPH(r models.RPH, leagueId string) RoundDto {
 		Index:    r.Index,
 		LeagueId: leagueId,
 		Matches:  ms,
+	}
+}
+
+func (r *RoundDto) Round(teams map[string]*models.Team) *models.RoundResult {
+	matches := make([]*models.MatchResult, len(r.Matches))
+	for i, m := range r.Matches {
+		matches[i] = m.MatchResult(teams[m.Home].PH(), teams[m.Away].PH())
+	}
+
+	return &models.RoundResult{
+		Id:        r.Id,
+		Index:     r.Index,
+		Matches:   matches,
+		WasPlayed: r.WasPlayed,
 	}
 }
 

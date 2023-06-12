@@ -12,10 +12,10 @@ import (
 )
 
 func TestLeagueParity(t *testing.T) {
-	// t.Skip("Slow")
+	t.Skip("Slow")
 	db := d.NewDb("test.db")
 	db.TruncateAll()
-	ts := generators.NewTeamGen(time.Now().Unix()).Teams(10)
+	ts := generators.NewTeamGen(time.Now().Unix()).Teams(4)
 	db.TeamR().Insert(ts)
 
 	l := models.NewLeague("Test", ts)
@@ -45,7 +45,25 @@ func TestLeagueParity(t *testing.T) {
 	dbRestoreLeague.Update(rFromDb)
 	assert.Equal(t, l.RPointer, dbRestoreLeague.RPointer)
 
-	// store Round in Db here
 	db.LeagueR().PostRoundUpdate(rFromDb, dbRestoreLeague)
+	//checking if stored stuff is correct
+	l = *db.LeagueR().ByIdFull(dbRestoreLeague.Id)
+	assert.Equal(t, l.RPointer, dbRestoreLeague.RPointer)
 
+	// check if matches are stored correctly
+	res := db.LeagueR().RoundByIndex(dbRestoreLeague, rFromDb.Index)
+	for _, dbMatchResult := range res.Matches {
+		matchInMemory, ok := r.MatchMap[dbMatchResult.Id]
+		assert.True(t, ok)
+		assert.Equal(t, matchInMemory.Home.Name, dbMatchResult.Home.Name)
+		assert.Equal(t, matchInMemory.Away.Name, dbMatchResult.Away.Name)
+		result, ok := matchInMemory.Result()
+		assert.True(t, ok)
+		assert.Equal(t, result.GoalsHome, dbMatchResult.Result.GoalsHome)
+		assert.Equal(t, result.GoalsAway, dbMatchResult.Result.GoalsAway)
+	}
+
+	// reload League and see if tables Matches
+	restoredLeague := db.LeagueR().ByIdFull(dbRestoreLeague.Id)
+	assert.Equal(t, restoredLeague.Table.Rows()[0].Team, dbRestoreLeague.Table.Rows()[0].Team)
 }

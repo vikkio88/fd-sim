@@ -91,7 +91,7 @@ func (r *MPH) Match(Id string, home, away *Team) *Match {
 type League struct {
 	Idable
 	Name    string
-	teamMap map[string]*Team
+	TeamMap map[string]*Team
 	teams   []*Team
 	// Rounds Placeholders
 	Rounds []RPH
@@ -118,7 +118,7 @@ func NewLeagueWithData(id, name string, teams []*Team) *League {
 		Idable:      NewIdable(id),
 		Name:        name,
 		totalRounds: (len(teams) * 2) - 2,
-		teamMap:     teamMap,
+		TeamMap:     teamMap,
 		teams:       teams,
 	}
 }
@@ -137,7 +137,7 @@ func NewLeague(name string, teams []*Team) League {
 	return League{
 		Idable:      NewIdable(leagueIdGenerator()),
 		Name:        name,
-		teamMap:     teamMap,
+		TeamMap:     teamMap,
 		teams:       teams,
 		Table:       NewTable(teams),
 		Rounds:      rounds,
@@ -161,7 +161,7 @@ func (l *League) NextRound() (*Round, bool) {
 	if l.IsFinished() {
 		return nil, false
 	}
-	return l.Rounds[l.RPointer].Round(l.teamMap), true
+	return l.Rounds[l.RPointer].Round(l.TeamMap), true
 }
 
 func (l *League) Update(round *Round) {

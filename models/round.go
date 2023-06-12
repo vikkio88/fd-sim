@@ -13,6 +13,13 @@ func roundIdGenerator() string {
 	return fmt.Sprintf("%s_%s", roundInMemoryId, ulid.Make())
 }
 
+type RoundResult struct {
+	Id        string
+	Index     int
+	Matches   []*MatchResult
+	WasPlayed bool
+}
+
 type Round struct {
 	Idable
 	Index     int

@@ -42,7 +42,6 @@ func TableFromTableRowsDto(trs []TableRowDto) *models.Table {
 	rs := make([]*models.Row, len(trs))
 	for i, tr := range trs {
 		rs[i] = &models.Row{
-
 			Team:         tr.TeamId,
 			Played:       tr.Played,
 			Wins:         tr.Wins,

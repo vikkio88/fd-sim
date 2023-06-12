@@ -81,6 +81,8 @@ func (lr *LeagueRepo) PostRoundUpdate(r *models.Round, league *models.League) {
 	lr.g.Save(table)
 	rdto := DtoFromRound(r, league.Id)
 	lr.g.Save(rdto)
+
+	lr.g.Model(&LeagueDto{}).Where("Id = ?", league.Id).Update("RPointer", league.RPointer)
 }
 
 func (lr *LeagueRepo) InsertOne(l *models.League) {
@@ -109,4 +111,10 @@ func (lr *LeagueRepo) ByIdFull(id string) *models.League {
 		Preload(tableRowsRel).
 		Find(&ldto, "Id = ?", id)
 	return ldto.League()
+}
+
+func (lr *LeagueRepo) RoundByIndex(league *models.League, index int) *models.RoundResult {
+	var rdto RoundDto
+	lr.g.Model(&RoundDto{}).Preload("Matches.Result").Where("`index` = ? AND league_id = ?", index, league.Id).Find(&rdto)
+	return rdto.Round(league.TeamMap)
 }

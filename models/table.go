@@ -70,11 +70,15 @@ func NewTableFromRows(rows []*Row) *Table {
 		rowsMap[r.Team] = r
 		order[i] = r.Team
 	}
-	return &Table{
+	t := &Table{
 		order: order,
 		rows:  rowsMap,
 		count: count,
 	}
+
+	t.updateTableOrder()
+
+	return t
 }
 
 func NewTable(teams []*Team) *Table {

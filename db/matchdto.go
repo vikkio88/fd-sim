@@ -55,6 +55,27 @@ func DtoFromMatchPH(match models.MPH, roundId string) MatchDto {
 	}
 }
 
+func (m *MatchDto) MatchResult(home, away models.TPH) *models.MatchResult {
+	res := models.MatchResult{
+		Id:         m.Id,
+		Home:       home,
+		Away:       away,
+		LineupHome: []string{},
+		LineupAway: []string{},
+		Result:     m.Result.Result(),
+	}
+
+	if m.LineupHome != nil {
+		res.LineupHome = strings.Split(*m.LineupHome, pIdSeparator)
+	}
+
+	if m.LineupAway != nil {
+		res.LineupAway = strings.Split(*m.LineupAway, pIdSeparator)
+	}
+
+	return &res
+}
+
 func (m *MatchDto) MPH() models.MPH {
 	return models.MPH{
 		Id:   m.Id,
