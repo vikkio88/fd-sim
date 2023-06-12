@@ -9,6 +9,7 @@ type Lineup struct {
 	lineupStats  TeamStats
 	sectorStat   map[Role]TeamStats
 	starterCount int
+	flattened    []PPH
 
 	// Bench    map[Role][]PPH
 	//TODO: track substitutions
@@ -34,11 +35,20 @@ func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup 
 		lineupStats:  lineupStats,
 		starterCount: starterCount,
 		sectorStat:   sectorStat,
+		flattened:    flattened,
 		//TODO: calculate also starting skillsAvg
 
 		// TODO: model issues like missing players in role or similar
 		// Bench:    bench,
 	}
+}
+
+func (l *Lineup) Ids() []string {
+	ids := make([]string, len(l.flattened))
+	for i, p := range l.flattened {
+		ids[i] = p.Id
+	}
+	return ids
 }
 
 func (l *Lineup) CountStarters() int {

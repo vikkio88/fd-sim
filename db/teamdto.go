@@ -17,8 +17,19 @@ type TeamDto struct {
 	TransferRatio float64
 
 	LeagueId *string
-	Coach    CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Coach    CoachDto    `gorm:"embedded;foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Players  []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+func DtoFromTeams(teams []*models.Team, leagueId string) []TeamDto {
+	tdtos := make([]TeamDto, len(teams))
+	for i, t := range teams {
+		tdto := DtoFromTeam(t)
+		tdto.LeagueId = &leagueId
+		tdtos[i] = tdto
+	}
+
+	return tdtos
 }
 
 func DtoFromTeam(team *models.Team) TeamDto {
@@ -86,7 +97,7 @@ func (tr *TeamsRepo) Insert(teams []*models.Team) {
 
 func (tr *TeamsRepo) ById(id string) *models.Team {
 	var t TeamDto
-	tr.g.Model(&TeamDto{}).Preload(playersRel).Preload(coachRel).Find(&t, "Id = ?", id)
+	tr.g.Model(&TeamDto{}).Preload(playersRel).Find(&t, "Id = ?", id)
 
 	return t.Team()
 }

@@ -27,6 +27,12 @@ func TestLeagueBuilder(t *testing.T) {
 	ts := tg.TeamsWithCountry(4, enums.IT)
 	l := models.NewLeague("Serie A", ts)
 	assert.Equal(t, len(l.Rounds), ((4 - 1) * 2))
+	for _, r := range l.Rounds {
+		assert.Equal(t, len(r.Matches), 2)
+		for _, m := range r.Matches {
+			assert.NotEmpty(t, m.Id)
+		}
+	}
 
 	ts = tg.TeamsWithCountry(3, enums.IT)
 	assertPanic(t, func() {
@@ -49,6 +55,9 @@ func TestCalendarBuilder(t *testing.T) {
 	for i, r := range calendar {
 		assert.Equal(t, i, r.Index)
 		assert.Len(t, r.Matches, 2)
+		for _, m := range r.Matches {
+			assert.NotEmpty(t, m.Id)
+		}
 	}
 }
 

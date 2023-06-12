@@ -7,4 +7,4 @@ tests:
 tests-bench:
 	go test -v --bench . --benchmem ./...
 clean:
-	rm -rf bin/ fdsim.db
+	rm -rf bin/ fdsim.db test.db db/test.db

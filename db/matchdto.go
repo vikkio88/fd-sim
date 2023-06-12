@@ -1,15 +1,48 @@
 package db
 
-import "fdsim/models"
+import (
+	"fdsim/models"
+	"strings"
+)
 
 type MatchDto struct {
-	Id       string
+	Id       string `gorm:"primarykey;size:16"`
 	Away     string
 	Home     string
-	HomeTeam TeamDto `gorm:"foreignKey:Home"`
-	AwayTeam TeamDto `gorm:"foreignKey:Away"`
-	Result   *ResultDto
+	HomeTeam TeamDto    `gorm:"foreignKey:Home"`
+	AwayTeam TeamDto    `gorm:"foreignKey:Away"`
+	Result   *ResultDto `gorm:"foreignKey:match_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	RoundId  string
+
+	LineupHome *string
+	LineupAway *string
+}
+
+func DtoFromMatch(match *models.Match, roundId string) MatchDto {
+	var homel, awayl *string = nil, nil
+	if match.LineupHome != nil {
+		homel1 := strings.Join(match.LineupHome.Ids(), pIdSeparator)
+		homel = &homel1
+	}
+
+	if match.LineupAway != nil {
+		awayl1 := strings.Join(match.LineupAway.Ids(), pIdSeparator)
+		awayl = &awayl1
+	}
+	var result *ResultDto = nil
+	if r, ok := match.Result(); ok {
+		result = DtoFromResult(r, match.Id)
+	}
+
+	return MatchDto{
+		Id:         match.Id,
+		Home:       match.Home.Id,
+		Away:       match.Away.Id,
+		RoundId:    roundId,
+		LineupHome: homel,
+		LineupAway: awayl,
+		Result:     result,
+	}
 }
 
 func DtoFromMatchPH(match models.MPH, roundId string) MatchDto {
@@ -19,5 +52,13 @@ func DtoFromMatchPH(match models.MPH, roundId string) MatchDto {
 		Away:    match.Away,
 		Result:  nil,
 		RoundId: roundId,
+	}
+}
+
+func (m *MatchDto) MPH() models.MPH {
+	return models.MPH{
+		Id:   m.Id,
+		Home: m.Home,
+		Away: m.Away,
 	}
 }

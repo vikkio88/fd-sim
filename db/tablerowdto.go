@@ -3,7 +3,7 @@ package db
 import "fdsim/models"
 
 type TableRowDto struct {
-	TeamId       string
+	TeamId       string `gorm:"primarykey;size:16"`
 	Played       int
 	Wins         int
 	Draws        int
@@ -12,12 +12,20 @@ type TableRowDto struct {
 	GoalScored   int
 	GoalConceded int
 
-	LeagueId string
+	LeagueId string `gorm:"primarykey;size:16"`
 }
 
+func DtoFromTableRows(rs []*models.Row, leagueId string) []TableRowDto {
+	result := make([]TableRowDto, len(rs))
+	for i, tr := range rs {
+		result[i] = DtoFromTableRow(tr, leagueId)
+	}
+
+	return result
+}
 func DtoFromTableRow(tr *models.Row, leagueId string) TableRowDto {
 	return TableRowDto{
-		TeamId:       tr.Team.Id,
+		TeamId:       tr.Team,
 		Played:       tr.Played,
 		Wins:         tr.Wins,
 		Draws:        tr.Draws,
@@ -28,4 +36,23 @@ func DtoFromTableRow(tr *models.Row, leagueId string) TableRowDto {
 
 		LeagueId: leagueId,
 	}
+}
+
+func TableFromTableRowsDto(trs []TableRowDto) *models.Table {
+	rs := make([]*models.Row, len(trs))
+	for i, tr := range trs {
+		rs[i] = &models.Row{
+
+			Team:         tr.TeamId,
+			Played:       tr.Played,
+			Wins:         tr.Wins,
+			Draws:        tr.Draws,
+			Losses:       tr.Losses,
+			Points:       tr.Points,
+			GoalScored:   tr.GoalScored,
+			GoalConceded: tr.GoalConceded,
+		}
+	}
+
+	return models.NewTableFromRows(rs)
 }

@@ -11,7 +11,7 @@ const (
 )
 
 type Row struct {
-	Team         TPH
+	Team         string
 	Played       int
 	Wins         int
 	Draws        int
@@ -23,13 +23,13 @@ type Row struct {
 
 func newRow(team *Team) *Row {
 	return &Row{
-		Team: team.PH(),
+		Team: team.Id,
 	}
 }
 
 func (r *Row) String() string {
 	return fmt.Sprintf("%s\tw: %d d: %d l: %d , gs: %d gc: %d , %d",
-		r.Team.Name, r.Wins, r.Draws, r.Losses, r.GoalScored,
+		r.Team, r.Wins, r.Draws, r.Losses, r.GoalScored,
 		r.GoalConceded, r.Points,
 	)
 }
@@ -60,6 +60,21 @@ type Table struct {
 	order []string
 	rows  map[string]*Row
 	count int
+}
+
+func NewTableFromRows(rows []*Row) *Table {
+	count := len(rows)
+	order := make([]string, len(rows))
+	rowsMap := map[string]*Row{}
+	for i, r := range rows {
+		rowsMap[r.Team] = r
+		order[i] = r.Team
+	}
+	return &Table{
+		order: order,
+		rows:  rowsMap,
+		count: count,
+	}
 }
 
 func NewTable(teams []*Team) *Table {

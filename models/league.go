@@ -33,11 +33,13 @@ func NewRoundsCalendar(teamIds []string) []RPH {
 			}
 
 			tempRoundFirstHalf = append(tempRoundFirstHalf, MPH{
+				Id:   matchIdGenerator(),
 				Home: teamIds[home],
 				Away: teamIds[away],
 			})
 
 			tempRoundSecondHalf = append(tempRoundSecondHalf, MPH{
+				Id:   matchIdGenerator(),
 				Home: teamIds[away],
 				Away: teamIds[home],
 			})
@@ -64,8 +66,11 @@ func NewRoundsCalendar(teamIds []string) []RPH {
 func (r *RPH) Round(teamsMap map[string]*Team) *Round {
 	matches := make([]*Match, len(r.Matches))
 	for i, mph := range r.Matches {
-		home := teamsMap[mph.Home]
-		away := teamsMap[mph.Away]
+		home, ok := teamsMap[mph.Home]
+		away, ok2 := teamsMap[mph.Away]
+		if !ok || !ok2 {
+			panic("Empty team map")
+		}
 		matches[i] = mph.Match(mph.Id, home, away)
 
 	}
@@ -80,7 +85,7 @@ type MPH struct {
 }
 
 func (r *MPH) Match(Id string, home, away *Team) *Match {
-	return NewMatch(home, away)
+	return NewMatchWithId(Id, home, away)
 }
 
 type League struct {
@@ -100,6 +105,22 @@ const leagueInMemoryId = "leId"
 
 func leagueIdGenerator() string {
 	return fmt.Sprintf("%s_%s", leagueInMemoryId, ulid.Make())
+}
+
+func NewLeagueWithData(id, name string, teams []*Team) *League {
+	teamMap := map[string]*Team{}
+	teamIds := make([]string, len(teams))
+	for i, t := range teams {
+		teamMap[t.Id] = t
+		teamIds[i] = t.Id
+	}
+	return &League{
+		Idable:      NewIdable(id),
+		Name:        name,
+		totalRounds: (len(teams) * 2) - 2,
+		teamMap:     teamMap,
+		teams:       teams,
+	}
 }
 
 func NewLeague(name string, teams []*Team) League {
@@ -125,6 +146,13 @@ func NewLeague(name string, teams []*Team) League {
 	}
 }
 
+func (l *League) Teams() []*Team {
+	return l.teams
+}
+
+// Add a function to match teams or tph with rows
+// func (l *League) TableTPH()
+
 func (l *League) IsFinished() bool {
 	return l.RPointer >= l.totalRounds
 }
@@ -137,7 +165,6 @@ func (l *League) NextRound() (*Round, bool) {
 }
 
 func (l *League) Update(round *Round) {
-
 	l.Table.Update(round)
 	//l. Update Stats
 	l.RPointer++

@@ -11,6 +11,8 @@ const (
 	teamRepoCacheKey   = "db_TR"
 	playerRepoCacheKey = "db_PR"
 	coachRepoCacheKey  = "db_CR"
+
+	leagueRepoCacheKey = "db_LR"
 )
 
 type Db struct {
@@ -24,42 +26,57 @@ func NewDb(fileName string) *Db {
 		panic(err)
 	}
 
-	g.AutoMigrate(&TeamDto{}, &PlayerDto{}, &CoachDto{})
+	g.AutoMigrate(
+		&LeagueDto{}, &MatchDto{}, &ResultDto{},
+		&TableRowDto{}, &RoundDto{}, &TeamDto{},
+		&PlayerDto{}, &CoachDto{},
+	)
 	cache := map[string]interface{}{}
 	return &Db{g, cache}
 }
 
-func (db *Db) TeamR() *TeamsRepo {
-	if tr, ok := db.cache[teamRepoCacheKey]; ok {
-		return tr.(*TeamsRepo)
+func (db *Db) LeagueR() *LeagueRepo {
+	if repo, ok := db.cache[leagueRepoCacheKey]; ok {
+		return repo.(*LeagueRepo)
 	}
-	tr := NewTeamsRepo(db.g)
-	db.cache[teamRepoCacheKey] = tr
+	repo := NewLeagueRepo(db.g)
+	db.cache[leagueRepoCacheKey] = repo
 
-	return tr
+	return repo
+}
+
+func (db *Db) TeamR() *TeamsRepo {
+	if repo, ok := db.cache[teamRepoCacheKey]; ok {
+		return repo.(*TeamsRepo)
+	}
+	repo := NewTeamsRepo(db.g)
+	db.cache[teamRepoCacheKey] = repo
+
+	return repo
 }
 
 func (db *Db) PlayerR() *PlayerRepo {
-	if pr, ok := db.cache[playerRepoCacheKey]; ok {
-		return pr.(*PlayerRepo)
+	if repo, ok := db.cache[playerRepoCacheKey]; ok {
+		return repo.(*PlayerRepo)
 	}
-	pr := NewPlayerRepo(db.g)
-	db.cache[playerRepoCacheKey] = pr
+	repo := NewPlayerRepo(db.g)
+	db.cache[playerRepoCacheKey] = repo
 
-	return pr
+	return repo
 }
 
 func (db *Db) CoachR() *CoachRepo {
-	if cr, ok := db.cache[coachRepoCacheKey]; ok {
-		return cr.(*CoachRepo)
+	if repo, ok := db.cache[coachRepoCacheKey]; ok {
+		return repo.(*CoachRepo)
 	}
-	cr := NewCoachRepo(db.g)
-	db.cache[coachRepoCacheKey] = cr
+	repo := NewCoachRepo(db.g)
+	db.cache[coachRepoCacheKey] = repo
 
-	return cr
+	return repo
 }
 
 func (db *Db) TruncateAll() {
+	db.LeagueR().Truncate()
 	db.TeamR().Truncate()
 	db.PlayerR().Truncate()
 	db.CoachR().Truncate()
