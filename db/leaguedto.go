@@ -106,7 +106,9 @@ func (lr *LeagueRepo) ById(id string) *models.League {
 func (lr *LeagueRepo) ByIdFull(id string) *models.League {
 	var ldto LeagueDto
 	lr.g.Model(&LeagueDto{}).
+		Preload(teamsRel).
 		Preload(teamsAndPlayersRel).
+		Preload(teamsAndCoachRel).
 		Preload(roundsAndMatchesRel).
 		Preload(tableRowsRel).
 		Find(&ldto, "Id = ?", id)
