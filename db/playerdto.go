@@ -69,9 +69,9 @@ func (p PlayerDto) Player() *models.Player {
 	player.Skill = utils.NewPerc(p.Skill)
 	player.Morale = utils.NewPerc(p.Morale)
 	player.Fame = utils.NewPerc(p.Fame)
-	player.Value = utils.NewEuros(p.Value / moneyMultiplier)
-	player.IdealWage = utils.NewEuros(p.IdealWage / moneyMultiplier)
-	player.Wage = utils.NewEuros(p.Wage / moneyMultiplier)
+	player.Value = toMoney(p.Value)
+	player.IdealWage = toMoney(p.IdealWage)
+	player.Wage = toMoney(p.Wage)
 	player.YContract = p.YContract
 
 	return player
