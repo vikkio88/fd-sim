@@ -12,6 +12,7 @@ const (
 	playerRepoCacheKey = "db_PR"
 	coachRepoCacheKey  = "db_CR"
 
+	gameRepoCacheKey   = "db_GR"
 	leagueRepoCacheKey = "db_LR"
 )
 
@@ -29,10 +30,29 @@ func NewDb(fileName string) *Db {
 	g.AutoMigrate(
 		&LeagueDto{}, &MatchDto{}, &ResultDto{},
 		&TableRowDto{}, &RoundDto{}, &TeamDto{},
-		&PlayerDto{}, &CoachDto{},
+		//For some reason this kills everything
+		&PlayerDto{}, &CoachDto{}, &GameDto{},
 	)
 	cache := map[string]interface{}{}
 	return &Db{g, cache}
+}
+
+func (db *Db) TruncateAll() {
+	//db.GameR().Truncate()
+	db.LeagueR().Truncate()
+	db.TeamR().Truncate()
+	db.PlayerR().Truncate()
+	db.CoachR().Truncate()
+}
+
+func (db *Db) GameR() *GameRepo {
+	if repo, ok := db.cache[gameRepoCacheKey]; ok {
+		return repo.(*GameRepo)
+	}
+	repo := NewGameRepo(db.g)
+	db.cache[gameRepoCacheKey] = repo
+
+	return repo
 }
 
 func (db *Db) LeagueR() *LeagueRepo {
@@ -73,11 +93,4 @@ func (db *Db) CoachR() *CoachRepo {
 	db.cache[coachRepoCacheKey] = repo
 
 	return repo
-}
-
-func (db *Db) TruncateAll() {
-	db.LeagueR().Truncate()
-	db.TeamR().Truncate()
-	db.PlayerR().Truncate()
-	db.CoachR().Truncate()
 }
