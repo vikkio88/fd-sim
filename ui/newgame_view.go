@@ -3,6 +3,7 @@ package ui
 import (
 	"fdsim/enums"
 	"fdsim/generators"
+	"fdsim/models"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -20,13 +21,12 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	countries := vm.GetAllCountries()
 	var ts float64 = 8
 	teamsNumber := binding.BindFloat(&ts)
+	var teamsSlice []*models.Team
 	teams := binding.NewUntypedList()
 	var selectedCountry enums.Country
 
 	pholder := container.NewCenter(widget.NewLabel("No teams yet..."))
-	startGame := widget.NewButtonWithIcon("Start", theme.NavigateNextIcon(), func() {
-		ctx.NavigateTo(Dashboard)
-	})
+	startGame := widget.NewButtonWithIcon("Start", theme.NavigateNextIcon(), func() {})
 	startGame.Disable()
 
 	teamGenBtn := widget.NewButton("Generate Teams", func() {
@@ -36,6 +36,7 @@ func newGameView(ctx *AppContext) *fyne.Container {
 		tg := generators.NewTeamGen(time.Now().Unix())
 		n, _ := teamsNumber.Get()
 		ts := tg.TeamsWithCountry(int(n), selectedCountry)
+		teamsSlice = ts
 		ctx.Db.TeamR().Insert(ts)
 		for _, t := range ts {
 			teams.Append(t)
@@ -43,6 +44,20 @@ func newGameView(ctx *AppContext) *fyne.Container {
 		startGame.Enable()
 	})
 	teamGenBtn.Disable()
+	startGame.OnTapped = func() {
+		teamGenBtn.Disable()
+		// generate and save League
+		name := "Serie A 2023/2024"
+		league := models.NewLeague(name, teamsSlice)
+		ctx.Db.LeagueR().InsertOne(&league)
+		// create savegame
+		startingDate := time.Date(time.Now().Year(), time.July, 1, 0, 0, 0, 0, time.UTC)
+		g := models.NewGame(league.Id, "Test", "Mario", "Rossi", 35, startingDate)
+		//
+
+		ctx.Db.GameR().Create(g)
+		ctx.NavigateToWithParam(Dashboard, g.Id)
+	}
 
 	ctrSelect := widget.NewSelect(countries, func(s string) {
 		idx := slices.Index(countries, s)
