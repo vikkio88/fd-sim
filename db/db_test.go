@@ -15,7 +15,7 @@ func TestLeagueParity(t *testing.T) {
 	t.Skip("Slow")
 	db := d.NewDb("test.db")
 	db.TruncateAll()
-	ts := generators.NewTeamGen(time.Now().Unix()).Teams(4)
+	ts := generators.NewTeamGen(time.Now().Unix()).Teams(10)
 	db.TeamR().Insert(ts)
 
 	l := models.NewLeague("Test", ts)
