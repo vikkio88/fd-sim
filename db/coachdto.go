@@ -67,8 +67,8 @@ func (c CoachDto) Coach() *models.Coach {
 	coach.Skill = utils.NewPerc(c.Skill)
 	coach.Morale = utils.NewPerc(c.Morale)
 	coach.Fame = utils.NewPerc(c.Fame)
-	coach.IdealWage = utils.NewEuros(c.IdealWage / moneyMultiplier)
-	coach.Wage = utils.NewEuros(c.Wage / moneyMultiplier)
+	coach.IdealWage = toMoney(c.IdealWage)
+	coach.Wage = toMoney(c.Wage)
 	coach.YContract = c.YContract
 
 	return coach
