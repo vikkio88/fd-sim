@@ -3,6 +3,7 @@ package models
 import (
 	"fdsim/utils"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -47,7 +48,27 @@ type Game struct {
 	LeagueId string
 }
 
-func NewGame(leagueId, saveName, name, surname string, age int, date time.Time) *Game {
+func (g *Game) Update(name, surname string, age int, date time.Time) {
+	name = formatName(name)
+	surname = formatName(surname)
+
+	saveName := fmt.Sprintf("%s %s", name, surname)
+	g.Id = gameIdGenerator()
+	g.SaveName = saveName
+	g.Name = name
+	g.Surname = surname
+	g.Age = age
+	g.Date = date
+	g.Fame = utils.NewPerc(25) //TODO: move to config
+}
+
+func formatName(name string) string {
+	name = strings.ToLower(name)
+	name = strings.Title(name)
+	return name
+}
+
+func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date time.Time) *Game {
 	return &Game{
 		Idable:   NewIdable(gameIdGenerator()),
 		SaveName: saveName,
