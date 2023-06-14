@@ -10,6 +10,7 @@ const (
 	main      string = "MAIN"
 	setup     string = "SETUP"
 	newGame   string = "NEW_GAME"
+	loadGame  string = "LOAD_GAME"
 	dashboard string = "DASHBOARD"
 
 	teamDetails   string = "TEAM_DETAILS"
@@ -29,6 +30,7 @@ const (
 	Main AppRoute = iota
 	Setup
 	NewGame
+	LoadGame
 	Dashboard
 
 	TeamDetails
@@ -47,6 +49,7 @@ func getMapping() map[AppRoute]string {
 		Main:      main,
 		Setup:     setup,
 		NewGame:   newGame,
+		LoadGame:  loadGame,
 		Dashboard: dashboard,
 
 		TeamDetails:   teamDetails,
@@ -66,6 +69,7 @@ func getReverseMapping() map[string]AppRoute {
 		main:      Main,
 		setup:     Setup,
 		newGame:   NewGame,
+		loadGame:  LoadGame,
 		dashboard: Dashboard,
 
 		teamDetails:   TeamDetails,

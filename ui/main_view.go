@@ -18,6 +18,11 @@ func mainView(ctx *AppContext) *fyne.Container {
 							ctx.NavigateTo(NewGame)
 						},
 					),
+					widget.NewButtonWithIcon("Load Game", theme.LoginIcon(),
+						func() {
+							ctx.Push(LoadGame)
+						},
+					),
 					widget.NewButtonWithIcon("Setup", theme.SettingsIcon(),
 						func() {
 							ctx.Push(Setup)
