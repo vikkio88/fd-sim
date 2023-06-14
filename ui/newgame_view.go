@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	wx "github.com/matwachich/fynex-widgets"
 	"golang.org/x/exp/slices"
 )
 
@@ -42,27 +43,39 @@ func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game)
 	nameEntry.PlaceHolder = "Mario"
 	surnameEntry := widget.NewEntry()
 	surnameEntry.PlaceHolder = "Rossi"
+	dobEntry := wx.NewDateEntry()
 	nextBtn := widget.NewButtonWithIcon("Next", theme.NavigateNextIcon(), func() {
-		saveGame.Update(nameEntry.Text, surnameEntry.Text, 35, getGameStartingDate())
+		dob, _ := dobEntry.GetTime()
+		age := time.Now().Year() - dob.Year()
+		saveGame.Update(nameEntry.Text, surnameEntry.Text, age, getGameStartingDate())
 		stepChange(step, 1)
 	})
 	nextBtn.Disable()
 
 	nameEntry.OnChanged = func(s string) {
 		nextBtn.Disable()
-		if (len(s) > 2) && len(surnameEntry.Text) > 2 {
+		_, errorInDob := dobEntry.GetTime()
+		if (len(s) > 2) && len(surnameEntry.Text) > 2 && errorInDob == nil {
 			nextBtn.Enable()
 		}
 	}
 	surnameEntry.OnChanged = func(s string) {
 		nextBtn.Disable()
-		if (len(s) > 2) && len(nameEntry.Text) > 2 {
+		_, errorInDob := dobEntry.GetTime()
+		if (len(s) > 2) && len(nameEntry.Text) > 2 && errorInDob == nil {
 			nextBtn.Enable()
 		}
 	}
+	dobEntry.OnChanged = func(t time.Time) {
+		if (len(surnameEntry.Text) > 2) && len(nameEntry.Text) > 2 {
+			nextBtn.Enable()
+		}
+	}
+
 	form := widget.NewForm(
 		widget.NewFormItem("Name", nameEntry),
 		widget.NewFormItem("Surname", surnameEntry),
+		widget.NewFormItem("Date of Birth", dobEntry),
 	)
 
 	return NewFborder().
