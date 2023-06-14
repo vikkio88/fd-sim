@@ -38,7 +38,7 @@ func NewDb(fileName string) *Db {
 }
 
 func (db *Db) TruncateAll() {
-	//db.GameR().Truncate()
+	db.GameR().Truncate()
 	db.LeagueR().Truncate()
 	db.TeamR().Truncate()
 	db.PlayerR().Truncate()
