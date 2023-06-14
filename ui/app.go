@@ -120,10 +120,10 @@ func (a *App) Cleanup() {
 
 func setupContext(w fyne.Window) AppContext {
 	//TODO: remove this as it is for testing views
-	// initialRoute := Main
+	initialRoute := Main
 
 	// initialRoute := Test
-	initialRoute := NewGame
+	// initialRoute := NewGame
 
 	return NewAppContext(initialRoute, w)
 }

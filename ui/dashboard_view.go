@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -26,6 +27,45 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 			ctx.NavigateTo(Main)
 		}, ctx.GetWindow())
 	})
+
+	toLeague := widget.NewButtonWithIcon("League", theme.ListIcon(), func() {
+		ctx.PushWithParam(League, game.LeagueId)
+	})
+
+	toCalendar := widget.NewButtonWithIcon("Calendar", theme.GridIcon(), func() {
+
+	})
+	toCalendar.Disable()
+
+	toPersonal := widget.NewButtonWithIcon("Profile", theme.AccountIcon(), func() {
+
+	})
+	toTeamMgmt := widget.NewButtonWithIcon("Team", widgets.Icon("team").Resource, func() {
+
+	})
+	toTeamMgmt.Disable()
+
+	navigation := container.NewCenter(
+		container.NewPadded(
+			container.NewGridWithRows(2,
+				container.NewGridWithColumns(2,
+					toLeague, toCalendar,
+				),
+				container.NewGridWithColumns(2,
+					toPersonal, toTeamMgmt,
+				),
+			),
+		),
+	)
+	newsMailsTabs := container.NewAppTabs(
+		container.NewTabItem("News", widget.NewLabel("Here there will be news...")),
+		container.NewTabItem("Emails", widget.NewLabel("Here there will be emails...")),
+	)
+	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
+
+	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {})
+	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {})
+
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -45,13 +85,15 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 					),
 				)),
 		).
+		Bottom(
+			NewFborder().Right(
+				container.NewHBox(
+					nextDay,
+					nextWeek,
+				)).Get(),
+		).
 		Get(
-			container.NewCenter(
-				widget.NewButton("League", func() {
-					// ctx.PushWithParam(League, )
-					ctx.Push(League)
-				}),
-			),
+			main,
 		)
 	// 	container.NewVBox(
 	// 		widget.NewLabel("Dashboard"),
