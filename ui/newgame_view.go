@@ -18,6 +18,68 @@ import (
 )
 
 func newGameView(ctx *AppContext) *fyne.Container {
+	saveGame := &models.Game{}
+
+	step := 0
+	stepV := binding.BindInt(&step)
+	steps := map[int]func(*AppContext, binding.Int, *models.Game) *fyne.Container{
+		0: playerDetailsStep,
+		1: teamGenerationStep,
+	}
+	content := container.NewMax(steps[step](ctx, stepV, saveGame))
+	stepV.AddListener(binding.NewDataListener(func() {
+		step, _ := stepV.Get()
+		content.RemoveAll()
+		content.Add(steps[step](ctx, stepV, saveGame))
+	}))
+
+	return content
+}
+
+func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game) *fyne.Container {
+
+	nameEntry := widget.NewEntry()
+	nameEntry.PlaceHolder = "Mario"
+	surnameEntry := widget.NewEntry()
+	surnameEntry.PlaceHolder = "Rossi"
+	nextBtn := widget.NewButtonWithIcon("Next", theme.NavigateNextIcon(), func() {
+		saveGame.Update(nameEntry.Text, surnameEntry.Text, 35, getGameStartingDate())
+		stepChange(step, 1)
+	})
+	nextBtn.Disable()
+
+	nameEntry.OnChanged = func(s string) {
+		nextBtn.Disable()
+		if (len(s) > 2) && len(surnameEntry.Text) > 2 {
+			nextBtn.Enable()
+		}
+	}
+	surnameEntry.OnChanged = func(s string) {
+		nextBtn.Disable()
+		if (len(s) > 2) && len(nameEntry.Text) > 2 {
+			nextBtn.Enable()
+		}
+	}
+	form := widget.NewForm(
+		widget.NewFormItem("Name", nameEntry),
+		widget.NewFormItem("Surname", surnameEntry),
+	)
+
+	return NewFborder().
+		Top(centered(h1("New Career"))).
+		Bottom(NewFborder().Right(nextBtn).Get()).
+		Get(
+			container.NewPadded(
+				container.NewVBox(
+					widget.NewIcon(theme.AccountIcon()),
+					form,
+				),
+			),
+		)
+
+}
+
+func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game) *fyne.Container {
 	countries := vm.GetAllCountries()
 	var ts float64 = 8
 	teamsNumber := binding.BindFloat(&ts)
@@ -47,16 +109,13 @@ func newGameView(ctx *AppContext) *fyne.Container {
 	startGame.OnTapped = func() {
 		teamGenBtn.Disable()
 		// generate and save League
-		name := "Serie A 2023/2024"
+		// this might be coming from country
+		name := fmt.Sprintf("Serie A %s", getSeasonYears())
 		league := models.NewLeague(name, teamsSlice)
 		ctx.Db.LeagueR().InsertOne(&league)
-		// create savegame
-		startingDate := time.Date(time.Now().Year(), time.July, 1, 0, 0, 0, 0, time.UTC)
-		g := models.NewGame(league.Id, "Test", "Mario", "Rossi", 35, startingDate)
-		//
-
-		ctx.Db.GameR().Create(g)
-		ctx.NavigateToWithParam(Dashboard, g.Id)
+		saveGame.LeagueId = league.Id
+		ctx.Db.GameR().Create(saveGame)
+		ctx.NavigateToWithParam(Dashboard, saveGame.Id)
 	}
 
 	ctrSelect := widget.NewSelect(countries, func(s string) {
@@ -85,19 +144,22 @@ func newGameView(ctx *AppContext) *fyne.Container {
 		),
 	)
 
+	back := widget.NewButtonWithIcon("Back", theme.NavigateBackIcon(), func() {
+		stepChange(step, -1)
+	})
+
 	return NewFborder().
 		Top(
-			centered(widget.NewLabel("New Game")),
+			centered(h1("Team Generation")),
 		).
 		Bottom(
-			NewFborder().Right(startGame).Get(),
+			NewFborder().Left(back).Right(startGame).Get(),
 		).
 		Get(
 			NewFborder().
 				Top(inputs).
 				Get(teamLst, pholder),
 		)
-
 }
 
 func simpleTeamListRow() fyne.CanvasObject {
@@ -137,4 +199,19 @@ func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.Ca
 		mx.Objects[1].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Label).SetText(fmt.Sprintf("%d", team.Roster.Len()))
 		mx.Objects[2].(*fyne.Container).Objects[0].(*widgets.StarRating).SetValues(vm.PercFToStars(team.Roster.AvgSkill()))
 	}
+}
+
+func stepChange(step binding.Int, modification int) {
+	i, _ := step.Get()
+	i += modification
+	step.Set(i)
+}
+
+func getGameStartingDate() time.Time {
+	return time.Date(time.Now().Year(), time.July, 1, 0, 0, 0, 0, time.UTC)
+}
+
+func getSeasonYears() string {
+	year := time.Now().Year()
+	return fmt.Sprintf("%d/%d", year, year+1)
 }
