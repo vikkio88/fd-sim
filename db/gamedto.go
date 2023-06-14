@@ -37,7 +37,7 @@ func DtoFromGame(game *models.Game) GameDto {
 		Age:      game.Age,
 		Fame:     game.Fame.Val(),
 		Date:     game.Date,
-		TeamID:   &game.LeagueId,
+		LeagueID: &game.LeagueId,
 	}
 
 	if game.Team != nil {
