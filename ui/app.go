@@ -43,6 +43,7 @@ func NewApp() App {
 			Main:      func() *fyne.Container { return mainView(&ctx) },
 			Setup:     func() *fyne.Container { return setupView(&ctx) },
 			NewGame:   func() *fyne.Container { return newGameView(&ctx) },
+			LoadGame:  func() *fyne.Container { return loadGameView(&ctx) },
 			Dashboard: func() *fyne.Container { return dashboardView(&ctx) },
 
 			TeamDetails:   func() *fyne.Container { return teamDetailsView(&ctx) },
