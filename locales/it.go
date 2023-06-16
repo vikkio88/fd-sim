@@ -6,7 +6,7 @@ var ItalianTeams = []string{
 
 var ItalianCities = []string{
 	"Roma", "Milano", "Napoli", "Torino", "Palermo", "Genoa", "Bologna", "Firenze", "Bari", "Catania",
-	"Venice", "Verona", "Messina", "Padua", "Trieste", "Taranto", "Brescia", "Reggio Calabria", "Modena", "Prato",
+	"Venezia", "Verona", "Messina", "Padova", "Trieste", "Taranto", "Brescia", "Reggio Calabria", "Modena", "Prato",
 	"Parma", "Perugia", "Livorno", "Ravenna", "Cagliari", "Foggia", "Reggio Emilia", "Salerno", "Rimini", "Ferrara",
 }
 
