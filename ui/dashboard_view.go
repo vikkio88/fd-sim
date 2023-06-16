@@ -2,8 +2,10 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/libs"
 	"fdsim/widgets"
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -63,7 +65,21 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 
-	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {})
+	// nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {})
+	nextDay := widget.NewButtonWithIcon("Simulate Round", theme.MediaSkipNextIcon(), func() {
+		//TODO: move this to a simulation helper
+		league := ctx.Db.LeagueR().ByIdFull(game.LeagueId)
+		r, ok := league.NextRound()
+		if !ok {
+			dialog.ShowInformation("Finished!", "No more rounds to play!", ctx.GetWindow())
+			return
+		}
+		rng := libs.NewRng(time.Now().Unix())
+		r.Simulate(rng)
+		league.Update(r)
+		ctx.Db.LeagueR().PostRoundUpdate(r, league)
+		dialog.ShowInformation("Finished!", fmt.Sprintf("Simulated round %d", r.Index+1), ctx.GetWindow())
+	})
 	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {})
 
 	return NewFborder().
@@ -95,14 +111,4 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		Get(
 			main,
 		)
-	// 	container.NewVBox(
-	// 		widget.NewLabel("Dashboard"),
-	// 		widget.NewLabel(fmt.Sprintf("%s %s (%d)", fd.Name, fd.Surname, fd.Age)),
-	// 		starsFromPerc(fd.Fame),
-	// 		widget.NewButton("League", func() {
-	// 			// ctx.PushWithParam(League, )
-	// 			ctx.Push(League)
-	// 		}),
-	// 	),
-	// )
 }
