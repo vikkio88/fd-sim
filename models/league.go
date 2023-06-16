@@ -77,6 +77,20 @@ func (r *RPH) Round(teamsMap map[string]*Team) *Round {
 	return NewRound(r.Id, r.Index, matches)
 }
 
+func (r *RPH) RoundTPH(teamsMap map[string]*Team) *RPHTPH {
+	matches := make([]MPHTPH, len(r.Matches))
+	for i, mph := range r.Matches {
+		home, ok := teamsMap[mph.Home]
+		away, ok2 := teamsMap[mph.Away]
+		if !ok || !ok2 {
+			panic("Empty team map")
+		}
+		matches[i] = *mph.MPHTPH(mph.Id, home.PH(), away.PH())
+
+	}
+	return &RPHTPH{Id: r.Id, Index: r.Index, Matches: matches}
+}
+
 // Match Placeholder
 type MPH struct {
 	Id   string
@@ -84,14 +98,39 @@ type MPH struct {
 	Away string
 }
 
+// Round PH With Team PH
+type RPHTPH struct {
+	Id      string
+	Index   int
+	Matches []MPHTPH
+}
+
+// Match with TeamPH
+type MPHTPH struct {
+	Id     string
+	Home   TPH
+	Away   TPH
+	Result *Result
+}
+
+func (m *MPH) MPHTPH(Id string, home, away TPH) *MPHTPH {
+	return &MPHTPH{
+		Id:   m.Id,
+		Home: home,
+		Away: away,
+	}
+}
+
 func (r *MPH) Match(Id string, home, away *Team) *Match {
 	return NewMatchWithId(Id, home, away)
 }
 
+type TeamMap map[string]*Team
+
 type League struct {
 	Idable
 	Name    string
-	TeamMap map[string]*Team
+	TeamMap TeamMap
 	teams   []*Team
 	// Rounds Placeholders
 	Rounds []RPH
@@ -146,12 +185,21 @@ func NewLeague(name string, teams []*Team) League {
 	}
 }
 
+func (l *League) RoundsPH() []*RPHTPH {
+	rounds := make([]*RPHTPH, len(l.Rounds))
+	for i, r := range l.Rounds {
+		rounds[i] = r.RoundTPH(l.TeamMap)
+	}
+	return rounds
+}
+
+func (l *League) TableRows() []*TPHRow {
+	return l.Table.TPHRows(l.TeamMap)
+}
+
 func (l *League) Teams() []*Team {
 	return l.teams
 }
-
-// Add a function to match teams or tph with rows
-// func (l *League) TableTPH()
 
 func (l *League) IsFinished() bool {
 	return l.RPointer >= l.totalRounds

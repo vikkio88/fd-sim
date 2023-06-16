@@ -10,6 +10,13 @@ const (
 	DrawPoints = 1
 )
 
+// TeamPlaceholder and Table Row Wrapper
+type TPHRow struct {
+	Index int
+	Team  TPH
+	Row   *Row
+}
+
 type Row struct {
 	Team         string
 	Played       int
@@ -145,6 +152,19 @@ func (t *Table) Rows() []*Row {
 	rows := make([]*Row, t.count)
 	for i, id := range t.order {
 		rows[i] = t.rows[id]
+	}
+
+	return rows
+}
+
+func (t *Table) TPHRows(mappings TeamMap) []*TPHRow {
+	rows := make([]*TPHRow, len(t.order))
+	for i, id := range t.order {
+		rows[i] = &TPHRow{
+			Index: i,
+			Team:  mappings[id].PH(),
+			Row:   t.rows[id],
+		}
 	}
 
 	return rows

@@ -58,8 +58,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		),
 	)
 	newsMailsTabs := container.NewAppTabs(
-		container.NewTabItem("News", widget.NewLabel("Here there will be news...")),
-		container.NewTabItem("Emails", widget.NewLabel("Here there will be emails...")),
+		container.NewTabItemWithIcon("News", theme.DocumentIcon(), widget.NewLabel("Here there will be news...")),
+		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), widget.NewLabel("Here there will be emails...")),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 

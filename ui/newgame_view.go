@@ -195,7 +195,6 @@ func simpleTeamListRow() fyne.CanvasObject {
 }
 
 func makeSimpleTeamRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
-
 	return func(di binding.DataItem, co fyne.CanvasObject) {
 		team := vm.TeamFromDi(di)
 		c := co.(*fyne.Container)

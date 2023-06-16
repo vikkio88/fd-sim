@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"fdsim/conf"
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
@@ -15,13 +18,18 @@ func loadGameView(ctx *AppContext) *fyne.Container {
 			return len(games)
 		},
 		func() fyne.CanvasObject {
-			return NewFborder().Right(widget.NewButtonWithIcon("Load", theme.LoginIcon(), func() {})).Get(widget.NewLabel("SaveGame"))
+			return widget.NewCard("", "", NewFborder().
+				Right(widget.NewButtonWithIcon("Load", theme.LoginIcon(), func() {})).
+				Left(widget.NewLabel("Date")).
+				Get(centered(widget.NewLabel("SaveGame"))))
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			g := games[lii]
-			container := co.(*fyne.Container)
-			container.Objects[0].(*widget.Label).SetText(g.SaveName)
-			container.Objects[1].(*widget.Button).OnTapped = func() {
+			card := co.(*widget.Card)
+			container := card.Content.(*fyne.Container)
+			container.Objects[0].(*fyne.Container).Objects[0].(*widget.Label).SetText(fmt.Sprintf("Player: %s", g.SaveName))
+			container.Objects[1].(*widget.Label).SetText(g.Date.Format(conf.GameDateFormat))
+			container.Objects[2].(*widget.Button).OnTapped = func() {
 				ctx.NavigateToWithParam(Dashboard, g.Id)
 			}
 		},
