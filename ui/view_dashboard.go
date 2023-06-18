@@ -3,6 +3,7 @@ package ui
 import (
 	"fdsim/conf"
 	"fdsim/libs"
+	"fdsim/models"
 	"fdsim/widgets"
 	"fmt"
 	"time"
@@ -77,7 +78,13 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		rng := libs.NewRng(time.Now().Unix())
 		r.Simulate(rng)
 		league.Update(r)
+		oldStats := ctx.Db.LeagueR().GetStats(league.Id)
+		stats := models.StatsFromRoundResult(r, game.LeagueId)
+		newStats := models.MergeStats(oldStats, stats)
+
 		ctx.Db.LeagueR().PostRoundUpdate(r, league)
+		ctx.Db.LeagueR().UpdateStats(newStats)
+
 		dialog.ShowInformation("Finished!", fmt.Sprintf("Simulated round %d", r.Index+1), ctx.GetWindow())
 	})
 	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {})
