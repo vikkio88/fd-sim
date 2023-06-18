@@ -53,7 +53,7 @@ func NewApp() App {
 			Match:         func() *fyne.Container { return matchView(&ctx) },
 
 			//TEST ROUTE
-			Test: func() *fyne.Container { return TestView(&ctx) },
+			Test: func() *fyne.Container { return testView(&ctx) },
 		},
 	}
 }

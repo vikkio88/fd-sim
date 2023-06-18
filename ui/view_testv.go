@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func TestView(ctx *AppContext) *fyne.Container {
+func testView(ctx *AppContext) *fyne.Container {
 	return container.NewCenter(
 		container.NewVBox(
 			container.NewHBox(
