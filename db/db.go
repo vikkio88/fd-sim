@@ -30,8 +30,8 @@ func NewDb(fileName string) *Db {
 	g.AutoMigrate(
 		&LeagueDto{}, &MatchDto{}, &ResultDto{},
 		&TableRowDto{}, &RoundDto{}, &TeamDto{},
-		//For some reason this kills everything
 		&PlayerDto{}, &CoachDto{}, &GameDto{},
+		&StatRowDto{},
 	)
 	cache := map[string]interface{}{}
 	return &Db{g, cache}

@@ -120,3 +120,14 @@ func (lr *LeagueRepo) RoundByIndex(league *models.League, index int) *models.Rou
 	lr.g.Model(&RoundDto{}).Preload("Matches.Result").Where("`index` = ? AND league_id = ?", index, league.Id).Find(&rdto)
 	return rdto.Round(league.TeamMap)
 }
+
+func (lr *LeagueRepo) GetStats(leagueId string) models.StatsMap {
+	var sdtos []StatRowDto
+	lr.g.Model(&StatRowDto{}).Where("league_id = ?", leagueId).Find(&sdtos)
+	return StatsMapFromDtos(sdtos)
+}
+
+func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
+	sdtos := DtosFromStatsMap(stats)
+	lr.g.Save(sdtos)
+}
