@@ -54,6 +54,13 @@ func DtoFromTeam(team *models.Team) TeamDto {
 	}
 }
 
+func (t TeamDto) TeamPH() *models.TPH {
+	return &models.TPH{
+		Id:   t.Id,
+		Name: t.Name,
+	}
+}
+
 func (t TeamDto) Team() *models.Team {
 	ts := &models.Team{
 		Name:          t.Name,

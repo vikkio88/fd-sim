@@ -10,9 +10,9 @@ type StatRowDto struct {
 	Goals    int
 	Score    float64
 
-	Player PlayerDto `gorm:"foreignKey:player_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Team   TeamDto   `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	League LeagueDto `gorm:"foreignKey:league_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Player *PlayerDto `gorm:"foreignKey:player_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Team   *TeamDto   `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	League *LeagueDto `gorm:"foreignKey:league_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func DtosFromStatsMap(stats models.StatsMap) []StatRowDto {
@@ -36,6 +36,17 @@ func DtoFromStatRow(row *models.StatRow) StatRowDto {
 }
 
 func (row StatRowDto) StatRow() *models.StatRow {
+	var player *models.PNPH = nil
+	var team *models.TPH = nil
+
+	if row.Player != nil {
+		player = row.Player.PlayerPH()
+	}
+
+	if row.Team != nil {
+		team = row.Team.TeamPH()
+	}
+
 	return &models.StatRow{
 		PlayerId: row.PlayerId,
 		TeamId:   row.TeamId,
@@ -43,7 +54,19 @@ func (row StatRowDto) StatRow() *models.StatRow {
 		Played:   row.Played,
 		Goals:    row.Goals,
 		Score:    row.Score,
+
+		Player: player,
+		Team:   team,
 	}
+}
+
+func StatRowsFromDtos(rows []StatRowDto) []*models.StatRow {
+	result := make([]*models.StatRow, len(rows))
+	for i, r := range rows {
+		result[i] = r.StatRow()
+	}
+
+	return result
 }
 
 func StatsMapFromDtos(rows []StatRowDto) models.StatsMap {

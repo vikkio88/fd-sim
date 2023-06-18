@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fdsim/conf"
 	"fdsim/models"
 
 	"gorm.io/gorm"
@@ -121,6 +122,18 @@ func (lr *LeagueRepo) RoundByIndex(league *models.League, index int) *models.Rou
 	return rdto.Round(league.TeamMap)
 }
 
+func (lr *LeagueRepo) BestScorers(leagueId string) []*models.StatRow {
+	var sdtos []StatRowDto
+	lr.g.Model(&StatRowDto{}).
+		Preload("Player").
+		Preload("Team").
+		Where("league_id = ?", leagueId).
+		Order("goals desc, played asc, team_id asc").
+		Limit(conf.StatsRowsLimit).
+		Find(&sdtos)
+
+	return StatRowsFromDtos(sdtos)
+}
 func (lr *LeagueRepo) GetStats(leagueId string) models.StatsMap {
 	var sdtos []StatRowDto
 	lr.g.Model(&StatRowDto{}).Where("league_id = ?", leagueId).Find(&sdtos)

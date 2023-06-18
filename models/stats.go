@@ -2,7 +2,9 @@ package models
 
 type StatRow struct {
 	PlayerId string
+	Player   *PNPH
 	TeamId   string
+	Team     *TPH
 	LeagueId string
 	Played   int
 	Goals    int
@@ -24,6 +26,9 @@ func NewStatRow(player, team, league string, played, goals int, score float64) *
 		Played:   played,
 		Goals:    goals,
 		Score:    score,
+
+		Player: nil,
+		Team:   nil,
 	}
 }
 
@@ -33,6 +38,9 @@ func NewStatRowBase(player, team, league string) *StatRow {
 		TeamId:   team,
 		LeagueId: league,
 		Played:   1,
+
+		Player: nil,
+		Team:   nil,
 	}
 }
 

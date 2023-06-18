@@ -49,6 +49,14 @@ func (p *Player) PH() PPH {
 	}
 }
 
+// Player Placeholder name
+type PNPH struct {
+	Id      string
+	Name    string
+	Surname string
+}
+
+// Player Placeholder without names
 type PPH struct {
 	sPH
 	Id  string

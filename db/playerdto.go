@@ -56,6 +56,13 @@ func DtoFromPlayerWithTeam(player *models.Player, teamId string) PlayerDto {
 	return p
 }
 
+func (p PlayerDto) PlayerPH() *models.PNPH {
+	return &models.PNPH{
+		Id:      p.Id,
+		Name:    p.Name,
+		Surname: p.Surname,
+	}
+}
 func (p PlayerDto) Player() *models.Player {
 	player := &models.Player{
 		Role: p.Role,
