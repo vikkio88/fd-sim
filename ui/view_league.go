@@ -50,8 +50,8 @@ func makeRounds(rounds []*models.RPHTPH, results models.ResultsPHMap, navigate f
 		cToPlay.AddObject(makeRound(r))
 	}
 
-	for _, r := range playedRounds {
-		cPlayed.AddObject(makeRoundWithResults(r, results, navigate))
+	for i := len(playedRounds) - 1; i > 0; i-- {
+		cPlayed.AddObject(makeRoundWithResults(playedRounds[i], results, navigate))
 	}
 
 	return container.NewAppTabs(
