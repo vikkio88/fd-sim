@@ -180,6 +180,20 @@ func (r *Roster) Players() []*Player {
 	return maps.Values(r.players)
 }
 
+func (r *Roster) PlayersByRole() []*Player {
+	players := make([]*Player, r.Len())
+	roles := AllPlayerRoles()
+	count := 0
+	for _, role := range roles {
+		for _, pph := range r.indexByRole[role] {
+			p, _ := r.Player(pph.Id)
+			players[count] = p
+			count++
+		}
+	}
+	return players
+}
+
 type TeamStats struct {
 	Skill  float64
 	Morale float64
