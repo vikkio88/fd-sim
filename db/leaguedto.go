@@ -144,7 +144,7 @@ func (lr *LeagueRepo) GetMatchById(matchId string) *models.MatchComplete {
 
 func (lr *LeagueRepo) GetStatsForPlayer(playerId, leagueId string) *models.StatRow {
 	var stat StatRowDto
-	lr.g.Model(&StatRowDto{}).Where("player_id = ? and league_id = ?", playerId, leagueId).First(&stat)
+	lr.g.Model(&StatRowDto{}).Where("player_id = ? and league_id = ?", playerId, leagueId).Find(&stat)
 	return stat.StatRow()
 }
 
