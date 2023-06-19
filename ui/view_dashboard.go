@@ -16,9 +16,8 @@ import (
 )
 
 func dashboardView(ctx *AppContext) *fyne.Container {
-	// gamestate
 	gameId := ctx.RouteParam.(string)
-	game := ctx.Db.GameR().ById(gameId)
+	game := ctx.InitGameState(gameId)
 	fd := game.FootDirector()
 	saveBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {})
 	exitBtn := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {

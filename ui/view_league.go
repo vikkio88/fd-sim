@@ -20,8 +20,9 @@ func leagueView(ctx *AppContext) *fyne.Container {
 		makeTableView(rows, navigate),
 	)
 	rounds := league.RoundsPH()
-	roundsView := makeRounds(rounds, navigate)
-	statsView := container.NewCenter(widget.NewLabel("Stats"))
+	results := ctx.Db.LeagueR().GetAllResults()
+	roundsView := makeRounds(rounds, results, navigate, league.RPointer)
+	statsView := makeStats(ctx, leagueId)
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Table", theme.ListIcon(), leagueTable),
 		container.NewTabItemWithIcon("Rounds", theme.GridIcon(), roundsView),
@@ -34,15 +35,32 @@ func leagueView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeRounds(rounds []*models.RPHTPH, navigate func(AppRoute, any)) fyne.CanvasObject {
-	c := container.NewGridWrap(fyne.NewSize(350, 250))
+func makeRounds(rounds []*models.RPHTPH, results models.ResultsPHMap, navigate func(AppRoute, any), roundPointer int) fyne.CanvasObject {
+	cToPlay := container.NewGridWrap(fyne.NewSize(350, 250))
+	cPlayed := container.NewCenter(widget.NewLabel("Nothing yet..."))
 
-	for _, r := range rounds {
-		c.AddObject(makeRound(r))
+	playedRounds := rounds[:roundPointer]
+	if len(playedRounds) > 0 {
+
+		cPlayed = container.NewGridWrap(fyne.NewSize(350, 250))
+	}
+	toPlayRounds := rounds[roundPointer:]
+
+	for _, r := range toPlayRounds {
+		cToPlay.AddObject(makeRound(r))
 	}
 
-	return container.NewVScroll(c)
+	for _, r := range playedRounds {
+		cPlayed.AddObject(makeRoundWithResults(r, results, navigate))
+	}
+
+	return container.NewAppTabs(
+		container.NewTabItem("Upcoming Matches", container.NewVScroll(cToPlay)),
+		container.NewTabItem("Played", container.NewVScroll(cPlayed)),
+	)
+
 }
+
 func makeRound(round *models.RPHTPH) fyne.CanvasObject {
 	matchList := widget.NewList(
 		func() int {
@@ -59,6 +77,35 @@ func makeRound(round *models.RPHTPH) fyne.CanvasObject {
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			m := round.Matches[lii]
 			co.(*fyne.Container).Objects[0].(*widget.Label).SetText(m.Home.Name)
+			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
+		})
+	c := widget.NewCard("", fmt.Sprintf("Round %d", round.Index+1), matchList)
+	return container.NewPadded(c)
+}
+
+func makeRoundWithResults(round *models.RPHTPH, results models.ResultsPHMap, navigate func(AppRoute, any)) fyne.CanvasObject {
+	matchList := widget.NewList(
+		func() int {
+			return len(round.Matches)
+		},
+		func() fyne.CanvasObject {
+			return container.NewGridWithColumns(3,
+				widget.NewLabel(""),
+				centered(widget.NewHyperlink("vs", nil)),
+				widget.NewLabel(""),
+			)
+
+		},
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			m := round.Matches[lii]
+			co.(*fyne.Container).Objects[0].(*widget.Label).SetText(m.Home.Name)
+			if result, ok := results[m.Id]; ok {
+				resHL := co.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				resHL.SetText(result.String())
+				resHL.OnTapped = func() {
+					navigate(MatchDetails, m.Id)
+				}
+			}
 			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
 		})
 	c := widget.NewCard("", fmt.Sprintf("Round %d", round.Index+1), matchList)
@@ -82,7 +129,6 @@ func makeTableView(table []*models.TPHRow, navigate func(AppRoute, any)) *fyne.C
 		columns,
 	)
 
-	header.DisableSorting = true
 	return NewFborder().
 		Top(header).
 		Get(
@@ -123,6 +169,63 @@ func teamTableRow(layout *widgets.ColumnsLayout) func() fyne.CanvasObject {
 			widget.NewLabel("GS"),
 			widget.NewLabel("GC"),
 			widget.NewLabel("Points"),
+		)
+	}
+}
+
+func makeStats(ctx *AppContext, leagueId string) fyne.CanvasObject {
+	stats := ctx.Db.LeagueR().BestScorers(leagueId)
+	columns := widgets.NewColumnsLayout([]float32{-1, 350, 250, 100, 100})
+	header := statsHeader(columns)
+
+	return NewFborder().
+		Top(header).
+		Get(widget.NewList(
+			func() int {
+				return len(stats)
+			},
+			scorerTableRow(columns),
+			func(lii widget.ListItemID, co fyne.CanvasObject) {
+				statRow := stats[lii]
+				c := co.(*fyne.Container)
+				c.Objects[0].(*widget.Label).SetText(fmt.Sprintf("%d.", statRow.Index+1))
+				playerHL := c.Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				playerHL.SetText(statRow.Player.String())
+				playerHL.OnTapped = func() {
+					ctx.PushWithParam(PlayerDetails, statRow.Player.Id)
+				}
+				teamHL := c.Objects[2].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				teamHL.SetText(statRow.Team.Name)
+				teamHL.OnTapped = func() {
+					ctx.PushWithParam(TeamDetails, statRow.Team.Id)
+				}
+				c.Objects[3].(*widget.Label).SetText(fmt.Sprintf("%d", statRow.Played))
+				c.Objects[4].(*widget.Label).SetText(fmt.Sprintf("%d", statRow.Goals))
+			}),
+		)
+}
+
+func statsHeader(columns *widgets.ColumnsLayout) *widgets.ListHeader {
+	return widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("", fyne.TextAlignCenter),
+			widgets.NewListCol("Player", fyne.TextAlignCenter),
+			widgets.NewListCol("Team", fyne.TextAlignCenter),
+			widgets.NewListCol("Played", fyne.TextAlignLeading),
+			widgets.NewListCol("Goals", fyne.TextAlignLeading),
+		},
+		columns,
+	)
+}
+
+func scorerTableRow(layout *widgets.ColumnsLayout) func() fyne.CanvasObject {
+	return func() fyne.CanvasObject {
+		return container.New(layout,
+			widget.NewLabel("#"),
+			centered(widget.NewHyperlink("", nil)),
+			centered(widget.NewHyperlink("", nil)),
+			widget.NewLabel("Played"),
+			widget.NewLabel("Goals"),
 		)
 	}
 }

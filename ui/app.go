@@ -49,8 +49,7 @@ func NewApp() App {
 			TeamDetails:   func() *fyne.Container { return teamDetailsView(&ctx) },
 			PlayerDetails: func() *fyne.Container { return playerDetailsView(&ctx) },
 			League:        func() *fyne.Container { return leagueView(&ctx) },
-			Round:         func() *fyne.Container { return roundView(&ctx) },
-			Match:         func() *fyne.Container { return matchView(&ctx) },
+			MatchDetails:  func() *fyne.Container { return matchDetailsView(&ctx) },
 
 			//TEST ROUTE
 			Test: func() *fyne.Container { return testView(&ctx) },

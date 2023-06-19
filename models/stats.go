@@ -1,5 +1,9 @@
 package models
 
+type StatRowPH struct {
+	Index int
+	StatRow
+}
 type StatRow struct {
 	PlayerId string
 	Player   *PNPH

@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type Res12X uint8
 
 const (
@@ -8,11 +10,29 @@ const (
 	RX
 )
 
+type ResultsPHMap map[string]*ResultPH
+
+type ResultPH struct {
+	MatchId   string
+	GoalsHome int
+	GoalsAway int
+}
+
+func (r *ResultPH) String() string {
+	return fmt.Sprintf("%d - %d", r.GoalsHome, r.GoalsAway)
+
+}
+
 type Result struct {
 	GoalsHome   int
 	GoalsAway   int
 	ScorersHome []string
 	ScorersAway []string
+}
+
+func (r *Result) String() string {
+	return fmt.Sprintf("%d - %d", r.GoalsHome, r.GoalsAway)
+
 }
 
 func NewResult(goalsHome, goalsAway int, scorersHome, scorersAway []string) *Result {

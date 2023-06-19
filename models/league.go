@@ -102,6 +102,7 @@ type MPH struct {
 type RPHTPH struct {
 	Id      string
 	Index   int
+	Played  bool
 	Matches []MPHTPH
 }
 
@@ -162,7 +163,7 @@ func NewLeagueWithData(id, name string, teams []*Team) *League {
 	}
 }
 
-func NewLeague(name string, teams []*Team) League {
+func NewLeague(name string, teams []*Team) *League {
 	if len(teams)%2 != 0 {
 		panic("Teams need to be an even number!")
 	}
@@ -173,7 +174,7 @@ func NewLeague(name string, teams []*Team) League {
 		teamIds[i] = t.Id
 	}
 	rounds := NewRoundsCalendar(teamIds)
-	return League{
+	return &League{
 		Idable:      NewIdable(leagueIdGenerator()),
 		Name:        name,
 		TeamMap:     teamMap,
@@ -205,6 +206,7 @@ func (l *League) IsFinished() bool {
 	return l.RPointer >= l.totalRounds
 }
 
+// returns the next round and a bool representing whether there are more rounds
 func (l *League) NextRound() (*Round, bool) {
 	if l.IsFinished() {
 		return nil, false
@@ -214,6 +216,5 @@ func (l *League) NextRound() (*Round, bool) {
 
 func (l *League) Update(round *Round) {
 	l.Table.Update(round)
-	//l. Update Stats
 	l.RPointer++
 }

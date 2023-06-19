@@ -122,17 +122,43 @@ func (lr *LeagueRepo) RoundByIndex(league *models.League, index int) *models.Rou
 	return rdto.Round(league.TeamMap)
 }
 
-func (lr *LeagueRepo) BestScorers(leagueId string) []*models.StatRow {
+// map of matchids and result placeholders
+func (lr *LeagueRepo) GetAllResults() models.ResultsPHMap {
+	var dtos []ResultDto
+	lr.g.Model(&ResultDto{}).Find(&dtos)
+
+	return ResultsMapPHFromDtos(dtos)
+}
+
+func (lr *LeagueRepo) GetMatchById(matchId string) *models.MatchComplete {
+	var m MatchDto
+	lr.g.Model(&MatchDto{}).
+		Preload("Round").
+		Preload("HomeTeam.Players").
+		Preload("AwayTeam.Players").
+		Preload("Result").
+		Find(&m, "id = ?", matchId)
+
+	return m.MatchComplete()
+}
+
+func (lr *LeagueRepo) GetStatsForPlayer(playerId, leagueId string) *models.StatRow {
+	var stat StatRowDto
+	lr.g.Model(&StatRowDto{}).Where("player_id = ? and league_id = ?", playerId, leagueId).First(&stat)
+	return stat.StatRow()
+}
+
+func (lr *LeagueRepo) BestScorers(leagueId string) []*models.StatRowPH {
 	var sdtos []StatRowDto
 	lr.g.Model(&StatRowDto{}).
-		Preload("Player").
-		Preload("Team").
-		Where("league_id = ?", leagueId).
+		Preload(playerRel).
+		Preload(teamRel).
+		Where("league_id = ? and goals > 0", leagueId).
 		Order("goals desc, played asc, team_id asc").
 		Limit(conf.StatsRowsLimit).
 		Find(&sdtos)
 
-	return StatRowsFromDtos(sdtos)
+	return StatRowsPhFromDtos(sdtos)
 }
 func (lr *LeagueRepo) GetStats(leagueId string) models.StatsMap {
 	var sdtos []StatRowDto

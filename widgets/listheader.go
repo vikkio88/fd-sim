@@ -61,6 +61,7 @@ func NewListHeader(cols []ListColumn, layout *ColumnsLayout) *ListHeader {
 		columns:          cols,
 		columnsLayout:    layout,
 		columnsContainer: container.New(layout),
+		DisableSorting:   true,
 	}
 	l.columnVisible = make([]bool, len(cols))
 	for i := range l.columnVisible {

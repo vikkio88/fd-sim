@@ -13,6 +13,7 @@ type MatchDto struct {
 	AwayTeam TeamDto    `gorm:"foreignKey:Away"`
 	Result   *ResultDto `gorm:"foreignKey:match_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	RoundId  string
+	Round    RoundDto `gorm:"foreignKey:round_id"`
 
 	LineupHome *string
 	LineupAway *string
@@ -53,6 +54,32 @@ func DtoFromMatchPH(match models.MPH, roundId string) MatchDto {
 		Result:  nil,
 		RoundId: roundId,
 	}
+}
+
+func (m *MatchDto) MatchComplete() *models.MatchComplete {
+	var result *models.Result = nil
+	if m.Result != nil {
+		result = m.Result.Result()
+	}
+	res := models.MatchComplete{
+		Id:         m.Id,
+		Home:       m.HomeTeam.Team(),
+		Away:       m.AwayTeam.Team(),
+		LineupHome: []string{},
+		LineupAway: []string{},
+		Result:     result,
+		RoundIndex: m.Round.Index,
+	}
+
+	if m.LineupHome != nil {
+		res.LineupHome = strings.Split(*m.LineupHome, pIdSeparator)
+	}
+
+	if m.LineupAway != nil {
+		res.LineupAway = strings.Split(*m.LineupAway, pIdSeparator)
+	}
+
+	return &res
 }
 
 func (m *MatchDto) MatchResult(home, away models.TPH) *models.MatchResult {

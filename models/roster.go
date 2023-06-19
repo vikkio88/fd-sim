@@ -20,15 +20,17 @@ const (
 	rCK_PW = "rck:plsWage"
 )
 
+type PlayersMap map[string]*Player
+
 type Roster struct {
-	players     map[string]*Player
+	players     PlayersMap
 	cache       map[string]interface{}
 	indexByRole map[Role][]PPH
 }
 
 func NewRoster() *Roster {
 	return &Roster{
-		players:     map[string]*Player{},
+		players:     PlayersMap{},
 		cache:       map[string]interface{}{},
 		indexByRole: NewRolePPHMap(),
 	}

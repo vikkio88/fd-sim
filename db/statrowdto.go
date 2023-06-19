@@ -60,10 +60,13 @@ func (row StatRowDto) StatRow() *models.StatRow {
 	}
 }
 
-func StatRowsFromDtos(rows []StatRowDto) []*models.StatRow {
-	result := make([]*models.StatRow, len(rows))
+func StatRowsPhFromDtos(rows []StatRowDto) []*models.StatRowPH {
+	result := make([]*models.StatRowPH, len(rows))
 	for i, r := range rows {
-		result[i] = r.StatRow()
+		result[i] = &models.StatRowPH{
+			StatRow: *r.StatRow(),
+			Index:   i,
+		}
 	}
 
 	return result

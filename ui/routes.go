@@ -16,9 +16,8 @@ const (
 	teamDetails   string = "TEAM_DETAILS"
 	playerDetails string = "PLAYER_DETAILS"
 
-	league string = "LEAGUE"
-	round  string = "ROUND"
-	match  string = "MATCH"
+	league       string = "LEAGUE"
+	matchDetails string = "MATCH_DETAILS"
 
 	test string = "TEST"
 	quit string = "QUIT"
@@ -37,8 +36,7 @@ const (
 	PlayerDetails
 
 	League
-	Round
-	Match
+	MatchDetails
 
 	Test
 	Quit
@@ -55,9 +53,8 @@ func getMapping() map[AppRoute]string {
 		TeamDetails:   teamDetails,
 		PlayerDetails: playerDetails,
 
-		League: league,
-		Round:  round,
-		Match:  match,
+		League:       league,
+		MatchDetails: matchDetails,
 
 		Test: test,
 		Quit: quit,
@@ -75,9 +72,8 @@ func getReverseMapping() map[string]AppRoute {
 		teamDetails:   TeamDetails,
 		playerDetails: PlayerDetails,
 
-		league: League,
-		round:  Round,
-		match:  Match,
+		league:       League,
+		matchDetails: MatchDetails,
 
 		test: Test,
 		quit: Quit,

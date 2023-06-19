@@ -23,6 +23,17 @@ func matchIdGenerator() string {
 	return fmt.Sprintf("%s_%s", matchInMemoryId, ulid.Make())
 }
 
+// Complete Match info used in Match Details
+type MatchComplete struct {
+	Id         string
+	Home       *Team
+	Away       *Team
+	LineupHome []string
+	LineupAway []string
+	Result     *Result
+	RoundIndex int
+}
+
 type Match struct {
 	Idable
 	Home       TPH
@@ -32,6 +43,7 @@ type Match struct {
 	result     *Result
 }
 
+// TODO: Doc where this is used
 type MatchResult struct {
 	Id         string
 	Home       TPH

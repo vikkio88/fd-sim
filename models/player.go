@@ -56,6 +56,10 @@ type PNPH struct {
 	Surname string
 }
 
+func (p *PNPH) String() string {
+	return fmt.Sprintf("%s %s", p.Name, p.Surname)
+}
+
 // Player Placeholder without names
 type PPH struct {
 	sPH

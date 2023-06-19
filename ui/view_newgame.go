@@ -125,7 +125,7 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		// this might be coming from country
 		name := fmt.Sprintf("Serie A %s", getSeasonYears())
 		league := models.NewLeague(name, teamsSlice)
-		ctx.Db.LeagueR().InsertOne(&league)
+		ctx.Db.LeagueR().InsertOne(league)
 		saveGame.LeagueId = league.Id
 		ctx.Db.GameR().Create(saveGame)
 		ctx.NavigateToWithParam(Dashboard, saveGame.Id)

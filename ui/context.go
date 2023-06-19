@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/db"
+	"fdsim/models"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
@@ -24,6 +25,8 @@ type AppContext struct {
 	//
 
 	Db *db.Db
+
+	gameState *models.Game
 
 	NavStack *NavStack
 
@@ -102,4 +105,21 @@ func (c *AppContext) CacheViewOnStack(content fyne.CanvasObject) {
 	}
 
 	i.SetContent(content)
+}
+
+// GameState utils
+func (c *AppContext) InitGameState(gameId string) *models.Game {
+	if c.gameState == nil {
+		c.gameState = c.Db.GameR().ById(gameId)
+	}
+
+	return c.gameState
+}
+
+// returns the save game and a bool telling you whether it has been init
+func (c *AppContext) GetGameState() (*models.Game, bool) {
+	if c.gameState == nil {
+		return nil, false
+	}
+	return c.gameState, true
 }

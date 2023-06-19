@@ -24,10 +24,35 @@ func DtoFromResult(r *models.Result, matchId string) *ResultDto {
 	}
 }
 
+func ResultsMapPHFromDtos(res []ResultDto) models.ResultsPHMap {
+	result := models.ResultsPHMap{}
+
+	for _, r := range res {
+		result[r.MatchId] = r.ResultPH()
+	}
+	return result
+}
+
+func (r *ResultDto) ResultPH() *models.ResultPH {
+	return &models.ResultPH{
+		MatchId:   r.MatchId,
+		GoalsHome: r.GoalsHome,
+		GoalsAway: r.GoalsAway,
+	}
+}
 func (r *ResultDto) Result() *models.Result {
+
 	return models.NewResult(
 		r.GoalsHome, r.GoalsAway,
-		strings.Split(r.ScorersHome, pIdSeparator),
-		strings.Split(r.ScorersAway, pIdSeparator),
+		getScorers(r.ScorersHome),
+		getScorers(r.ScorersAway),
 	)
+}
+
+func getScorers(scorersJoined string) []string {
+	if scorersJoined == "" {
+		return []string{}
+	}
+
+	return strings.Split(scorersJoined, pIdSeparator)
 }
