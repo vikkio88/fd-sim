@@ -106,7 +106,12 @@ func (tr *TeamsRepo) Insert(teams []*models.Team) {
 
 func (tr *TeamsRepo) ById(id string) *models.Team {
 	var t TeamDto
-	tr.g.Model(&TeamDto{}).Preload(playersRel).Preload("Coach").Find(&t, "Id = ?", id)
+	tr.g.Model(&TeamDto{}).Preload(playersRel).
+		// Tried to db order players but it wont work
+		/*, func(db *gorm.DB) *gorm.DB {
+			return db.Order(`skill DESC`)
+		}*/
+		Preload("Coach").Find(&t, "Id = ?", id)
 
 	return t.Team()
 }
