@@ -16,7 +16,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	id := ctx.RouteParam.(string)
 	team := ctx.Db.TeamR().ById(id)
 	roster := binding.NewUntypedList()
-	for _, p := range team.Roster.Players() {
+	for _, p := range team.Roster.PlayersByRole() {
 		roster.Append(p)
 	}
 
