@@ -62,3 +62,17 @@ func starsFromPerc(perc utils.Perc) fyne.CanvasObject {
 func starsFromf64(value float64) fyne.CanvasObject {
 	return widgets.NewStarRatingFromFloat(vm.PercFToStars(value))
 }
+
+func valueLabel(label string, value fyne.CanvasObject) *fyne.Container {
+	labelLbl := boldLabel(label)
+	return container.NewGridWithColumns(2,
+		centered(labelLbl),
+		value,
+	)
+}
+func boldLabel(label string) *widget.Label {
+	labelLbl := widget.NewLabel(label)
+	labelLbl.TextStyle = fyne.TextStyle{Bold: true}
+
+	return labelLbl
+}

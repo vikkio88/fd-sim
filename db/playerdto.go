@@ -26,6 +26,8 @@ type PlayerDto struct {
 	TeamId    *string
 	Wage      int64
 	YContract uint8
+
+	Team *TeamDto `gorm:"foreignKey:team_id"`
 }
 
 func DtoFromPlayer(player *models.Player) PlayerDto {
@@ -63,6 +65,7 @@ func (p PlayerDto) PlayerPH() *models.PNPH {
 		Surname: p.Surname,
 	}
 }
+
 func (p PlayerDto) Player() *models.Player {
 	player := &models.Player{
 		Role: p.Role,
@@ -82,6 +85,35 @@ func (p PlayerDto) Player() *models.Player {
 	player.YContract = p.YContract
 
 	return player
+}
+
+func (p PlayerDto) PlayerWithTeam() *models.PlayerWithTeam {
+	player := models.Player{
+		Role: p.Role,
+	}
+
+	player.Id = p.Id
+	player.Name = p.Name
+	player.Surname = p.Surname
+	player.Age = p.Age
+	player.Country = p.Country
+	player.Skill = utils.NewPerc(p.Skill)
+	player.Morale = utils.NewPerc(p.Morale)
+	player.Fame = utils.NewPerc(p.Fame)
+	player.Value = toMoney(p.Value)
+	player.IdealWage = toMoney(p.IdealWage)
+	player.Wage = toMoney(p.Wage)
+	player.YContract = p.YContract
+
+	var team *models.TPH = nil
+	if p.Team != nil {
+		team = p.Team.TeamPH()
+	}
+
+	return &models.PlayerWithTeam{
+		Player: player,
+		Team:   team,
+	}
 }
 
 type PlayerRepo struct {
@@ -109,11 +141,11 @@ func (pr *PlayerRepo) Insert(players []*models.Player) {
 	pr.g.Create(&pdtos)
 }
 
-func (pr *PlayerRepo) ById(id string) *models.Player {
+func (pr *PlayerRepo) ById(id string) *models.PlayerWithTeam {
 	var p PlayerDto
-	pr.g.Model(&PlayerDto{}).Find(&p, "Id = ?", id)
+	pr.g.Model(&PlayerDto{}).Preload(teamRel).Find(&p, "Id = ?", id)
 
-	return p.Player()
+	return p.PlayerWithTeam()
 }
 
 func (pr *PlayerRepo) Truncate() {

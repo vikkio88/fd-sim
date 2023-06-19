@@ -28,64 +28,68 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		moraleIcon = widgets.Icon("sad_face")
 	}
 
-	main := container.NewVBox(
-		container.NewGridWithColumns(3,
-			centered(widgets.FlagIcon(player.Country)),
-			centered(widget.NewLabel(player.Role.String())),
-			centered(starsFromPerc(player.Skill)),
-		),
+	main := container.NewGridWithRows(2,
 		container.NewGridWithColumns(2,
-			centered(widget.NewLabel("Fame")),
-			centered(starsFromPerc(player.Fame)),
-		),
-		container.NewGridWithColumns(2,
-			centered(widget.NewLabel("Value")),
-			centered(widget.NewLabel(player.Value.StringKMB())),
-		),
-		container.NewGridWithColumns(2,
-			centered(widget.NewLabel("Contract")),
-			widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
-		),
-		container.NewGridWithColumns(2,
-			centered(widget.NewLabel("Morale")),
-			moraleIcon,
-		),
-	)
+			widget.NewCard("", "Team Info",
+				container.NewVBox(
+					centered(widget.NewLabel(player.Team.Name)),
+					valueLabel("Fame:",
+						centered(starsFromPerc(player.Fame)),
+					),
+					valueLabel("Value:",
+						centered(widget.NewLabel(player.Value.StringKMB())),
+					),
+					valueLabel("Contract:",
+						widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
+					),
+					valueLabel("Morale:",
+						moraleIcon,
+					),
+				),
+			),
+			widget.NewCard("", "Personal Info",
+				container.NewVBox(
+					valueLabel("Age:",
+						centered(widget.NewLabel(fmt.Sprintf("%d", player.Age))),
+					),
+					valueLabel("Role:",
+						centered(widget.NewLabel(player.Role.String())),
+					),
+					container.NewGridWithColumns(3,
+						centered(boldLabel("Nationality:")),
+						centered(widgets.FlagIcon(player.Country)),
+						centered(widget.NewLabel(fmt.Sprintf("(%s)", player.Country.Nationality()))),
+					),
+					valueLabel("Skill:",
+						centered(starsFromPerc(player.Skill)),
+					),
+				),
+			),
+		))
 
 	if showStats {
 		stats := ctx.Db.LeagueR().GetStatsForPlayer(player.Id, g.LeagueId)
 		statsWrapper := widget.NewCard(
 			"", "Season stats",
 			container.NewVBox(
-				container.NewGridWithColumns(2,
-					centered(widget.NewLabel("Played")),
+				valueLabel("Played:",
 					centered(widget.NewLabel(fmt.Sprintf("%d", stats.Played))),
 				),
-				container.NewGridWithColumns(2,
-					centered(widget.NewLabel("Goals")),
+				valueLabel("Goals:",
 					centered(widget.NewLabel(fmt.Sprintf("%d", stats.Goals))),
 				),
-				container.NewGridWithColumns(2,
-					centered(widget.NewLabel("Score")),
+				valueLabel("Score:",
 					centered(widget.NewLabel(fmt.Sprintf("%.2f", stats.Score))),
 				),
 			))
-
-		main.AddObject(widget.NewSeparator())
 		main.AddObject(statsWrapper)
 	}
 
 	return NewFborder().
 		Top(
-			NewFborder().Left(backButton(ctx)).
-				Get(
-					centered(
-						container.NewHBox(
-							h1(player.String()),
-							small(fmt.Sprintf("%d", player.Age)),
-						),
-					),
-				),
+			NewFborder().
+				Left(backButton(ctx)).
+				Get(centered(h1(player.String()))),
 		).
 		Get(main)
 }

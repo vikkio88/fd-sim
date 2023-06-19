@@ -21,6 +21,10 @@ type Player struct {
 	Value utils.Money
 	skillable
 }
+type PlayerWithTeam struct {
+	Player
+	Team *TPH
+}
 
 func NewPlayer(name, surname string, age int, country enums.Country, role Role) Player {
 	return Player{
