@@ -21,11 +21,13 @@ func DtoFromRound(r *models.Round, leagueId string) RoundDto {
 	for i, m := range r.Matches {
 		ms[i] = DtoFromMatch(m, r.Id)
 	}
+
 	return RoundDto{
 		Id:        r.Id,
 		Index:     r.Index,
 		LeagueId:  leagueId,
 		Matches:   ms,
+		Date:      r.Date,
 		WasPlayed: r.WasPlayed,
 	}
 }
