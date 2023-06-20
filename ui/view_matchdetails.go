@@ -6,7 +6,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -30,11 +29,11 @@ func matchDetailsView(ctx *AppContext) *fyne.Container {
 	}
 
 	return NewFborder().
-		Top(NewFborder().Left(backButton(ctx)).Get(centered(
-			container.NewVBox(
-				h2(fmt.Sprintf("Round %d", match.RoundIndex+1)),
+		Top(
+			NewFborder().Left(backButton(ctx)).Get(
+				h1(fmt.Sprintf("Round %d", match.RoundIndex+1)),
 			),
-		))).
+		).
 		Get(
 			container.NewGridWithColumns(3,
 				home,
@@ -47,10 +46,11 @@ func matchDetailsView(ctx *AppContext) *fyne.Container {
 // TODO: could add lineup
 func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result, isHomeTeam bool, navigate func(AppRoute, any)) fyne.CanvasObject {
 	// TODO: rewrite HL so you can size it rather than using buttons
-	teamLbl := h1(team.Name)
-	detailsBtn := widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {
+	teamBtn := widget.NewButton(team.Name, func() {
 		navigate(TeamDetails, team.Id)
 	})
+
+	teamBtn.Importance = widget.LowImportance
 
 	content := container.NewMax()
 
@@ -60,7 +60,7 @@ func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result
 			scorers = result.ScorersAway
 		}
 		content.Add(NewFborder().
-			Top(centered(widget.NewLabel("Scorers"))).
+			// Top(centered(widget.NewLabel("Scorers"))).
 			Get(
 				widget.NewList(
 					func() int {
@@ -84,11 +84,10 @@ func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result
 	}
 
 	return NewFborder().
-		Top(centered(
-			container.NewVBox(
-				teamLbl,
-				centered(detailsBtn),
-			))).
+		Top(
+			container.NewMax(
+				teamBtn,
+			)).
 		Get(
 			content,
 		)
