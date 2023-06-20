@@ -69,6 +69,7 @@ func (m *MatchDto) MatchComplete() *models.MatchComplete {
 		LineupAway: []string{},
 		Result:     result,
 		RoundIndex: m.Round.Index,
+		RoundDate:  m.Round.Date,
 	}
 
 	if m.LineupHome != nil {

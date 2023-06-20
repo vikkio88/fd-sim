@@ -2,108 +2,16 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/oklog/ulid/v2"
 )
-
-// Round Placeholder
-type RPH struct {
-	Id      string
-	Index   int
-	Matches []MPH
-}
-
-func NewRoundsCalendar(teamIds []string) []RPH {
-	var firstHalf []RPH
-	var secondHalf []RPH
-	numberOfTeams := len(teamIds)
-	totalRounds := numberOfTeams - 1
-	matchesPerRound := numberOfTeams / 2
-
-	for round := 0; round < totalRounds; round++ {
-		var tempRoundFirstHalf []MPH
-		var tempRoundSecondHalf []MPH
-
-		for match := 0; match < matchesPerRound; match++ {
-			home := (round + match) % (numberOfTeams - 1)
-			away := (numberOfTeams - 1 - match + round) % (numberOfTeams - 1)
-
-			if match == 0 {
-				away = numberOfTeams - 1
-			}
-
-			tempRoundFirstHalf = append(tempRoundFirstHalf, MPH{
-				Id:   matchIdGenerator(),
-				Home: teamIds[home],
-				Away: teamIds[away],
-			})
-
-			tempRoundSecondHalf = append(tempRoundSecondHalf, MPH{
-				Id:   matchIdGenerator(),
-				Home: teamIds[away],
-				Away: teamIds[home],
-			})
-		}
-
-		firstHalf = append(firstHalf, RPH{
-			Id:      roundIdGenerator(),
-			Index:   round,
-			Matches: tempRoundFirstHalf,
-		})
-
-		secondHalf = append(secondHalf, RPH{
-			Id:      roundIdGenerator(),
-			Index:   round + totalRounds,
-			Matches: tempRoundSecondHalf,
-		})
-	}
-
-	firstHalf = append(firstHalf, secondHalf...)
-
-	return firstHalf
-}
-
-func (r *RPH) Round(teamsMap map[string]*Team) *Round {
-	matches := make([]*Match, len(r.Matches))
-	for i, mph := range r.Matches {
-		home, ok := teamsMap[mph.Home]
-		away, ok2 := teamsMap[mph.Away]
-		if !ok || !ok2 {
-			panic("Empty team map")
-		}
-		matches[i] = mph.Match(mph.Id, home, away)
-
-	}
-	return NewRound(r.Id, r.Index, matches)
-}
-
-func (r *RPH) RoundTPH(teamsMap map[string]*Team) *RPHTPH {
-	matches := make([]MPHTPH, len(r.Matches))
-	for i, mph := range r.Matches {
-		home, ok := teamsMap[mph.Home]
-		away, ok2 := teamsMap[mph.Away]
-		if !ok || !ok2 {
-			panic("Empty team map")
-		}
-		matches[i] = *mph.MPHTPH(mph.Id, home.PH(), away.PH())
-
-	}
-	return &RPHTPH{Id: r.Id, Index: r.Index, Matches: matches}
-}
 
 // Match Placeholder
 type MPH struct {
 	Id   string
 	Home string
 	Away string
-}
-
-// Round PH With Team PH
-type RPHTPH struct {
-	Id      string
-	Index   int
-	Played  bool
-	Matches []MPHTPH
 }
 
 // Match with TeamPH
@@ -163,7 +71,8 @@ func NewLeagueWithData(id, name string, teams []*Team) *League {
 	}
 }
 
-func NewLeague(name string, teams []*Team) *League {
+// SeasonStart comes from League Generation at the beginning of the League
+func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 	if len(teams)%2 != 0 {
 		panic("Teams need to be an even number!")
 	}
@@ -173,7 +82,7 @@ func NewLeague(name string, teams []*Team) *League {
 		teamMap[t.Id] = t
 		teamIds[i] = t.Id
 	}
-	rounds := NewRoundsCalendar(teamIds)
+	rounds := NewRoundsCalendar(teamIds, seasonStartDate)
 	return &League{
 		Idable:      NewIdable(leagueIdGenerator()),
 		Name:        name,

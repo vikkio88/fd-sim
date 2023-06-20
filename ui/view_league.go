@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fdsim/conf"
 	"fdsim/models"
 	"fdsim/widgets"
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -13,6 +15,7 @@ import (
 
 func leagueView(ctx *AppContext) *fyne.Container {
 	leagueId := ctx.RouteParam.(string)
+	saveGame, _ := ctx.GetGameState()
 	league := ctx.Db.LeagueR().ByIdFull(leagueId)
 	navigate := ctx.PushWithParam
 	rows := league.TableRows()
@@ -21,7 +24,7 @@ func leagueView(ctx *AppContext) *fyne.Container {
 	)
 	rounds := league.RoundsPH()
 	results := ctx.Db.LeagueR().GetAllResults()
-	roundsView := makeRounds(rounds, results, navigate, league.RPointer)
+	roundsView := makeRounds(rounds, results, navigate, league.RPointer, saveGame.StartDate)
 	statsView := makeStats(ctx, leagueId)
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Table", theme.ListIcon(), leagueTable),
@@ -35,14 +38,21 @@ func leagueView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeRounds(rounds []*models.RPHTPH, results models.ResultsPHMap, navigate func(AppRoute, any), roundPointer int) fyne.CanvasObject {
-	cToPlay := container.NewGridWrap(fyne.NewSize(350, 250))
+func makeRounds(
+	rounds []*models.RPHTPH,
+	results models.ResultsPHMap,
+	navigate func(AppRoute, any),
+	roundPointer int,
+	startDate time.Time,
+) fyne.CanvasObject {
+	roundCardSize := fyne.NewSize(420, 250)
+	cToPlay := container.NewGridWrap(roundCardSize)
 	cPlayed := container.NewCenter(widget.NewLabel("Nothing yet..."))
 
 	playedRounds := rounds[:roundPointer]
 	if len(playedRounds) > 0 {
 
-		cPlayed = container.NewGridWrap(fyne.NewSize(350, 250))
+		cPlayed = container.NewGridWrap(roundCardSize)
 	}
 	toPlayRounds := rounds[roundPointer:]
 
@@ -79,11 +89,14 @@ func makeRound(round *models.RPHTPH) fyne.CanvasObject {
 			co.(*fyne.Container).Objects[0].(*widget.Label).SetText(m.Home.Name)
 			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
 		})
-	c := widget.NewCard("", fmt.Sprintf("Round %d", round.Index+1), matchList)
-	return container.NewPadded(c)
+	return roundCard(round, matchList)
 }
 
-func makeRoundWithResults(round *models.RPHTPH, results models.ResultsPHMap, navigate func(AppRoute, any)) fyne.CanvasObject {
+func makeRoundWithResults(
+	round *models.RPHTPH,
+	results models.ResultsPHMap,
+	navigate func(AppRoute, any),
+) fyne.CanvasObject {
 	matchList := widget.NewList(
 		func() int {
 			return len(round.Matches)
@@ -108,7 +121,21 @@ func makeRoundWithResults(round *models.RPHTPH, results models.ResultsPHMap, nav
 			}
 			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
 		})
-	c := widget.NewCard("", fmt.Sprintf("Round %d", round.Index+1), matchList)
+	return roundCard(round, matchList)
+}
+
+func roundCard(round *models.RPHTPH, matchList *widget.List) fyne.CanvasObject {
+	roundIndex := round.Index + 1
+
+	c := widget.NewCard(
+		"",
+		fmt.Sprintf(
+			"Round %d - %s", //TODO: add round Date
+			roundIndex,
+			round.Date.Format(conf.GameDateFormat),
+		),
+		matchList,
+	)
 	return container.NewPadded(c)
 }
 

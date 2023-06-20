@@ -42,13 +42,16 @@ type Game struct {
 	YContract  uint8
 	Board      utils.Perc
 	Supporters utils.Perc
-	Date       time.Time
+
+	Date time.Time
+	// The current season startdate
+	StartDate time.Time
 
 	Team     *TPH
 	LeagueId string
 }
 
-func (g *Game) Update(name, surname string, age int, date time.Time) {
+func (g *Game) Update(name, surname string, age int, startDate time.Time) {
 	name = formatName(name)
 	surname = formatName(surname)
 
@@ -58,7 +61,8 @@ func (g *Game) Update(name, surname string, age int, date time.Time) {
 	g.Name = name
 	g.Surname = surname
 	g.Age = age
-	g.Date = date
+	g.Date = startDate
+	g.StartDate = startDate
 	g.Fame = utils.NewPerc(25) //TODO: move to config
 }
 

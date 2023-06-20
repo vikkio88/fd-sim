@@ -4,6 +4,7 @@ import (
 	"fdsim/libs"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/oklog/ulid/v2"
 )
@@ -31,7 +32,9 @@ type MatchComplete struct {
 	LineupHome []string
 	LineupAway []string
 	Result     *Result
+
 	RoundIndex int
+	RoundDate  time.Time
 }
 
 type Match struct {

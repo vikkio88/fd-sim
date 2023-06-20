@@ -18,7 +18,7 @@ func TestLeagueParity(t *testing.T) {
 	ts := generators.NewTeamGen(time.Now().Unix()).Teams(10)
 	db.TeamR().Insert(ts)
 
-	l := models.NewLeague("Test", ts)
+	l := models.NewLeague("Test", ts, time.Now())
 	db.LeagueR().InsertOne(l)
 
 	dbRestoreLeague := db.LeagueR().ByIdFull(l.Id)
@@ -95,7 +95,7 @@ func TestSingleMatchFetching(t *testing.T) {
 	ts := generators.NewTeamGenSeeded(rng).Teams(2)
 	db.TeamR().Insert(ts)
 
-	l := models.NewLeague("Test", ts)
+	l := models.NewLeague("Test", ts, time.Now())
 	db.LeagueR().InsertOne(l)
 
 	league := db.LeagueR().ByIdFull(l.Id)

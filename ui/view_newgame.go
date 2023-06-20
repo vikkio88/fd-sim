@@ -4,6 +4,7 @@ import (
 	"fdsim/enums"
 	"fdsim/generators"
 	"fdsim/models"
+	"fdsim/utils"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -124,7 +125,8 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		// generate and save League
 		// this might be coming from country
 		name := fmt.Sprintf("Serie A %s", getSeasonYears())
-		league := models.NewLeague(name, teamsSlice)
+		// Generating League
+		league := models.NewLeague(name, teamsSlice, saveGame.StartDate)
 		ctx.Db.LeagueR().InsertOne(league)
 		saveGame.LeagueId = league.Id
 		ctx.Db.GameR().Create(saveGame)
@@ -220,7 +222,7 @@ func stepChange(step binding.Int, modification int) {
 }
 
 func getGameStartingDate() time.Time {
-	return time.Date(time.Now().Year(), time.July, 1, 0, 0, 0, 0, time.UTC)
+	return utils.NewDate(time.Now().Year(), time.July, 1)
 }
 
 func getSeasonYears() string {

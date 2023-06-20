@@ -1,10 +1,14 @@
 package models_test
 
 import (
+	"fdsim/conf"
 	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
+	"fdsim/utils"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +21,7 @@ func TestRoundBuilder(t *testing.T) {
 		models.NewMatch(teams[0], teams[1]),
 		models.NewMatch(teams[2], teams[3]),
 	}
-	round := models.NewRound("", 0, matches)
+	round := models.NewRound("", 0, time.Now(), matches)
 	r, ok := round.Results()
 	assert.Nil(t, r)
 	assert.False(t, ok)
@@ -35,7 +39,7 @@ func TestRoundStats(t *testing.T) {
 	matches := []*models.Match{
 		models.NewMatch(teams[0], teams[1]),
 	}
-	round := models.NewRound("", 0, matches)
+	round := models.NewRound("", 0, time.Now(), matches)
 	round.Simulate(rng)
 
 	rows := models.StatsFromRoundResult(round, "leagueId")
@@ -55,7 +59,7 @@ func TestRoundStats(t *testing.T) {
 	matches = []*models.Match{
 		models.NewMatch(teams[1], teams[0]),
 	}
-	round = models.NewRound("", 0, matches)
+	round = models.NewRound("", 0, time.Now(), matches)
 	round.Simulate(rng)
 	res, _ = round.Matches[0].Result()
 	goals2 := res.GoalsHome + res.GoalsAway
@@ -69,4 +73,14 @@ func TestRoundStats(t *testing.T) {
 	}
 
 	assert.Equal(t, goalsAcc2, goals+goals2)
+}
+
+func TestRoundDates(t *testing.T) {
+	// t.Skip("Slow")
+	teams := 20
+	startDate := utils.GetFirstSunday(2023, time.September)
+	rounds := (teams - 1) * 2
+	for i := 1; i < rounds; i++ {
+		fmt.Printf("Round %d - %s\n", i, models.GetRoundDateByIndex(startDate, i, i > 17).Format(conf.GameDateFormat))
+	}
 }

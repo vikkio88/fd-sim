@@ -15,6 +15,7 @@ import (
 func h1(text string) *canvas.Text {
 	txt := canvas.NewText(text, theme.ForegroundColor())
 	txt.TextSize = 20
+	txt.Alignment = fyne.TextAlignCenter
 	return txt
 }
 

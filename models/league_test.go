@@ -25,7 +25,7 @@ func TestLeagueBuilder(t *testing.T) {
 	rng := libs.NewRng(5)
 	tg := generators.NewTeamGenSeeded(rng)
 	ts := tg.TeamsWithCountry(4, enums.IT)
-	l := models.NewLeague("Serie A", ts)
+	l := models.NewLeague("Serie A", ts, time.Now())
 	assert.Equal(t, len(l.Rounds), ((4 - 1) * 2))
 	for _, r := range l.Rounds {
 		assert.Equal(t, len(r.Matches), 2)
@@ -36,13 +36,13 @@ func TestLeagueBuilder(t *testing.T) {
 
 	ts = tg.TeamsWithCountry(3, enums.IT)
 	assertPanic(t, func() {
-		models.NewLeague("Serie A", ts)
+		models.NewLeague("Serie A", ts, time.Now())
 	})
 }
 
 func TestCalendarBuilder(t *testing.T) {
 	teamIds := []string{"Juventus", "Milan"}
-	calendar := models.NewRoundsCalendar(teamIds)
+	calendar := models.NewRoundsCalendar(teamIds, time.Now())
 	assert.Len(t, calendar, 2)
 	for i, r := range calendar {
 		assert.Equal(t, i, r.Index)
@@ -50,7 +50,7 @@ func TestCalendarBuilder(t *testing.T) {
 	}
 
 	teamIds = []string{"Juventus", "Milan", "Crotone", "Palermo"}
-	calendar = models.NewRoundsCalendar(teamIds)
+	calendar = models.NewRoundsCalendar(teamIds, time.Now())
 	assert.Len(t, calendar, 6)
 	for i, r := range calendar {
 		assert.Equal(t, i, r.Index)
@@ -66,7 +66,7 @@ func TestLeagueSimulation(t *testing.T) {
 	rng := libs.NewRng(time.Now().Unix())
 	tg := generators.NewTeamGenSeeded(rng)
 	ts := tg.TeamsWithCountry(teams, enums.IT)
-	l := models.NewLeague("Serie A", ts)
+	l := models.NewLeague("Serie A", ts, time.Now())
 
 	for i := 0; i < len(l.Rounds); i++ {
 		assert.False(t, l.IsFinished())

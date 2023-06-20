@@ -15,7 +15,9 @@ type GameDto struct {
 	Surname  string
 	Age      int
 	Fame     int
-	Date     time.Time
+
+	StartDate time.Time
+	Date      time.Time
 
 	Wage       int64
 	YContract  uint8
@@ -30,14 +32,15 @@ type GameDto struct {
 
 func DtoFromGame(game *models.Game) GameDto {
 	g := GameDto{
-		Id:       game.Id,
-		SaveName: game.SaveName,
-		Name:     game.Name,
-		Surname:  game.Surname,
-		Age:      game.Age,
-		Fame:     game.Fame.Val(),
-		Date:     game.Date,
-		LeagueID: &game.LeagueId,
+		Id:        game.Id,
+		SaveName:  game.SaveName,
+		Name:      game.Name,
+		Surname:   game.Surname,
+		Age:       game.Age,
+		Fame:      game.Fame.Val(),
+		Date:      game.Date,
+		StartDate: game.StartDate,
+		LeagueID:  &game.LeagueId,
 	}
 
 	if game.Team != nil {
@@ -59,6 +62,7 @@ func (g *GameDto) Game() *models.Game {
 	game.Fame = utils.NewPerc(g.Fame)
 	game.LeagueId = *g.LeagueID
 	game.Date = g.Date
+	game.StartDate = g.StartDate
 
 	if g.Team != nil {
 		teamPh := g.Team.Team().PH()

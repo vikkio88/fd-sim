@@ -1,12 +1,16 @@
 package db
 
-import "fdsim/models"
+import (
+	"fdsim/models"
+	"time"
+)
 
 type RoundDto struct {
 	Id        string `gorm:"primarykey;size:16"`
 	Index     int
 	Matches   []MatchDto `gorm:"foreignKey:round_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	WasPlayed bool
+	Date      time.Time
 
 	LeagueId string
 }
@@ -35,6 +39,7 @@ func DtoFromRoundPH(r models.RPH, leagueId string) RoundDto {
 		Id:       r.Id,
 		Index:    r.Index,
 		LeagueId: leagueId,
+		Date:     r.Date,
 		Matches:  ms,
 	}
 }
@@ -62,6 +67,7 @@ func (r *RoundDto) RoundPH() models.RPH {
 	return models.RPH{
 		Id:      r.Id,
 		Index:   r.Index,
+		Date:    r.Date,
 		Matches: ms,
 	}
 }
