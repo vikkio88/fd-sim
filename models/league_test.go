@@ -42,7 +42,7 @@ func TestLeagueBuilder(t *testing.T) {
 
 func TestCalendarBuilder(t *testing.T) {
 	teamIds := []string{"Juventus", "Milan"}
-	calendar := models.NewRoundsCalendar(teamIds, time.Now())
+	calendar := models.NewRoundsCalendar(teamIds, 2023)
 	assert.Len(t, calendar, 2)
 	for i, r := range calendar {
 		assert.Equal(t, i, r.Index)
@@ -50,7 +50,7 @@ func TestCalendarBuilder(t *testing.T) {
 	}
 
 	teamIds = []string{"Juventus", "Milan", "Crotone", "Palermo"}
-	calendar = models.NewRoundsCalendar(teamIds, time.Now())
+	calendar = models.NewRoundsCalendar(teamIds, 2023)
 	assert.Len(t, calendar, 6)
 	for i, r := range calendar {
 		assert.Equal(t, i, r.Index)

@@ -4,13 +4,9 @@ import "time"
 
 func GetFirstSunday(year int, month time.Month) time.Time {
 	firstDay := NewDate(year, month, 1)
-	offsetBackward := int(firstDay.Weekday() - time.Sunday)
-	offset := offsetBackward
-	offsetForward := int(time.Saturday + 1 - firstDay.Weekday())
-	if offsetBackward > offsetForward {
-		offset = offsetForward
-	}
-	firstSunday := firstDay.AddDate(0, 0, offset)
+	dayOfWeek := firstDay.Weekday()
+	daysToAdd := (7 - int(dayOfWeek) + int(time.Sunday)) % 7
+	firstSunday := firstDay.AddDate(0, 0, daysToAdd)
 
 	return firstSunday
 }

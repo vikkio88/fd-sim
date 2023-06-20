@@ -82,7 +82,7 @@ func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 		teamMap[t.Id] = t
 		teamIds[i] = t.Id
 	}
-	rounds := NewRoundsCalendar(teamIds, seasonStartDate)
+	rounds := NewRoundsCalendar(teamIds, seasonStartDate.Year())
 	return &League{
 		Idable:      NewIdable(leagueIdGenerator()),
 		Name:        name,

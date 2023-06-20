@@ -112,11 +112,14 @@ func (r *RPH) RoundTPH(teamsMap map[string]*Team) *RPHTPH {
 	return &RPHTPH{Id: r.Id, Index: r.Index, Matches: matches, Date: r.Date}
 }
 
-func NewRoundsCalendar(teamIds []string, seasonStartDate time.Time) []RPH {
-	startDate := utils.GetLastSunday(seasonStartDate.Year(), time.August)
+func NewRoundsCalendar(teamIds []string, seasonStartYear int) []RPH {
 	var firstHalf []RPH
 	var secondHalf []RPH
 	numberOfTeams := len(teamIds)
+	initialMonth := time.September
+	if numberOfTeams > 18 {
+		initialMonth = time.August
+	}
 	totalRounds := numberOfTeams - 1
 	matchesPerRound := numberOfTeams / 2
 
@@ -148,7 +151,7 @@ func NewRoundsCalendar(teamIds []string, seasonStartDate time.Time) []RPH {
 		firstHalf = append(firstHalf, RPH{
 			Id:      roundIdGenerator(),
 			Index:   round,
-			Date:    GetRoundDateByIndex(startDate, round, false),
+			Date:    GetRoundDateByIndex(seasonStartYear, initialMonth, round, false),
 			Matches: tempRoundFirstHalf,
 		})
 
@@ -156,7 +159,7 @@ func NewRoundsCalendar(teamIds []string, seasonStartDate time.Time) []RPH {
 			Id:    roundIdGenerator(),
 			Index: round + totalRounds,
 			// here is round and not round+total because I start anew from Jan
-			Date:    GetRoundDateByIndex(startDate, round, true),
+			Date:    GetRoundDateByIndex(seasonStartYear, initialMonth, round, true),
 			Matches: tempRoundSecondHalf,
 		})
 	}
@@ -166,15 +169,17 @@ func NewRoundsCalendar(teamIds []string, seasonStartDate time.Time) []RPH {
 	return firstHalf
 }
 
-func GetRoundDateByIndex(roundsStartDate time.Time, index int, secondHalf bool) time.Time {
+func GetRoundDateByIndex(initialYear int, initialMonth time.Month, index int, secondHalf bool) time.Time {
 	offset := 7 * index
-	date := roundsStartDate.AddDate(0, 2, offset)
-	if secondHalf {
-		nextYear := roundsStartDate.Year() + 1
-		// get the first Sunday of January
-		jan := utils.GetFirstSunday(nextYear, time.January)
-		date = jan.AddDate(0, 0, offset)
+	if initialMonth == time.August && !secondHalf {
+		return utils.GetLastSunday(initialYear, initialMonth).AddDate(0, 0, offset)
 	}
 
-	return date
+	if !secondHalf {
+		return utils.GetFirstSunday(initialYear, initialMonth).AddDate(0, 0, offset)
+	}
+
+	nextYear := initialYear + 1
+	firstSundayOfJan := utils.GetFirstSunday(nextYear, time.January)
+	return firstSundayOfJan.AddDate(0, 0, 7+offset)
 }

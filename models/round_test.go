@@ -5,7 +5,6 @@ import (
 	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
-	"fdsim/utils"
 	"fmt"
 	"testing"
 	"time"
@@ -76,11 +75,23 @@ func TestRoundStats(t *testing.T) {
 }
 
 func TestRoundDates(t *testing.T) {
-	// t.Skip("Slow")
-	teams := 20
-	startDate := utils.GetFirstSunday(2023, time.September)
-	rounds := (teams - 1) * 2
-	for i := 1; i < rounds; i++ {
-		fmt.Printf("Round %d - %s\n", i, models.GetRoundDateByIndex(startDate, i, i > 17).Format(conf.GameDateFormat))
+	t.Skip("Slow")
+	teams := 18
+	for i := 0; i <= teams-1; i++ {
+		fmt.Printf(
+			"Round %d - %s\n",
+			i,
+			models.
+				GetRoundDateByIndex(2023, time.September, i, false).
+				Format(conf.GameDateFormat),
+		)
+
+		fmt.Printf(
+			"Round %d - %s\n",
+			teams-1+i,
+			models.
+				GetRoundDateByIndex(2023, time.September, i, true).
+				Format(conf.GameDateFormat),
+		)
 	}
 }
