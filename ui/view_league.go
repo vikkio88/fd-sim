@@ -51,7 +51,6 @@ func makeRounds(
 
 	playedRounds := rounds[:roundPointer]
 	if len(playedRounds) > 0 {
-
 		cPlayed = container.NewGridWrap(roundCardSize)
 	}
 	toPlayRounds := rounds[roundPointer:]
@@ -60,7 +59,7 @@ func makeRounds(
 		cToPlay.AddObject(makeRound(r))
 	}
 
-	for i := len(playedRounds) - 1; i > 0; i-- {
+	for i := len(playedRounds) - 1; i >= 0; i-- {
 		cPlayed.AddObject(makeRoundWithResults(playedRounds[i], results, navigate))
 	}
 
@@ -130,7 +129,7 @@ func roundCard(round *models.RPHTPH, matchList *widget.List) fyne.CanvasObject {
 	c := widget.NewCard(
 		"",
 		fmt.Sprintf(
-			"Round %d - %s", //TODO: add round Date
+			"Round %d - %s",
 			roundIndex,
 			round.Date.Format(conf.GameDateFormat),
 		),
