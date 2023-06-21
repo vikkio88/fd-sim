@@ -33,13 +33,22 @@ func TestSimulatorAdvancingTime(t *testing.T) {
 	game := NewMockedGame(startDate, startDate)
 	sim := services.NewSimulator(game, db_test.NewMockDbSeeded(0))
 	days := 1
-	sim.Simulate(days)
+	events := sim.Simulate(days)
 	assert.True(t, game.StartDate.Equal(startDate))
 	assert.Equal(t, 2, game.Date.Day())
+	assert.Empty(t, events)
 
 	days = 7
-	sim.Simulate(days)
+	events = sim.Simulate(days)
 	assert.True(t, game.StartDate.Equal(startDate))
 	assert.Equal(t, 9, game.Date.Day())
 	assert.Equal(t, time.July, game.Date.Month())
+	assert.Empty(t, events)
+
+	days = 30 * 2
+	events = sim.Simulate(days)
+	assert.True(t, game.StartDate.Equal(startDate))
+	assert.Equal(t, 7, game.Date.Day())
+	assert.Equal(t, time.September, game.Date.Month())
+	assert.NotEmpty(t, events)
 }
