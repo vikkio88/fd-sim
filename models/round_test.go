@@ -46,6 +46,7 @@ func TestRoundStats(t *testing.T) {
 	// this should be 0-2
 	res, _ := round.Matches[0].Result()
 	goals := res.GoalsHome + res.GoalsAway
+	//TODO: this sometimes goes to 0-0
 	assert.GreaterOrEqual(t, goals, 1)
 	goalsAcc := 0
 	for _, r := range rows {
