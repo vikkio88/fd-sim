@@ -4,8 +4,6 @@ import (
 	"fdsim/enums"
 	"fdsim/models"
 	"fdsim/utils"
-
-	"gorm.io/gorm"
 )
 
 type TeamDto struct {
@@ -75,73 +73,6 @@ func (t TeamDto) Team() *models.Team {
 
 	for _, p := range t.Players {
 		ts.Roster.AddPlayer(p.Player())
-	}
-	return ts
-}
-
-type TeamsRepo struct {
-	g *gorm.DB
-}
-
-func NewTeamsRepo(g *gorm.DB) *TeamsRepo {
-	return &TeamsRepo{
-		g,
-	}
-}
-
-func (tr *TeamsRepo) InsertOne(t *models.Team) {
-	tdto := DtoFromTeam(t)
-
-	tr.g.Create(&tdto)
-}
-
-func (tr *TeamsRepo) Insert(teams []*models.Team) {
-	tdtos := make([]TeamDto, len(teams))
-	for i, t := range teams {
-		tdtos[i] = DtoFromTeam(t)
-	}
-
-	tr.g.Create(&tdtos)
-}
-
-func (tr *TeamsRepo) ById(id string) *models.Team {
-	var t TeamDto
-	tr.g.Model(&TeamDto{}).Preload(playersRel).
-		// Tried to db order players but it wont work
-		/*, func(db *gorm.DB) *gorm.DB {
-			return db.Order(`skill DESC`)
-		}*/
-		Preload("Coach").Find(&t, "Id = ?", id)
-
-	return t.Team()
-}
-
-func (tr *TeamsRepo) Truncate() {
-	tr.g.Where("1 = 1").Delete(&TeamDto{})
-}
-
-func (tr *TeamsRepo) DeleteOne(id string) {
-	tr.g.Where("Id = ?", id).Delete(&TeamDto{})
-}
-
-func (tr *TeamsRepo) Delete(ids []string) {
-	tr.g.Delete(&TeamDto{}, ids)
-}
-
-func (tr *TeamsRepo) Count() int64 {
-	var c int64
-	tr.g.Model(&TeamDto{}).Count(&c)
-
-	return c
-}
-
-func (tr *TeamsRepo) All() []*models.Team {
-	var tdtos []TeamDto
-	tr.g.Model(&TeamDto{}).Preload(playersRel).Find(&tdtos)
-
-	ts := make([]*models.Team, len(tdtos))
-	for i, t := range tdtos {
-		ts[i] = t.Team()
 	}
 	return ts
 }

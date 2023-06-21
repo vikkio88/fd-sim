@@ -7,33 +7,6 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// Match Placeholder
-type MPH struct {
-	Id   string
-	Home string
-	Away string
-}
-
-// Match with TeamPH
-type MPHTPH struct {
-	Id     string
-	Home   TPH
-	Away   TPH
-	Result *Result
-}
-
-func (m *MPH) MPHTPH(Id string, home, away TPH) *MPHTPH {
-	return &MPHTPH{
-		Id:   m.Id,
-		Home: home,
-		Away: away,
-	}
-}
-
-func (r *MPH) Match(Id string, home, away *Team) *Match {
-	return NewMatchWithId(Id, home, away)
-}
-
 type TeamMap map[string]*Team
 
 type League struct {
