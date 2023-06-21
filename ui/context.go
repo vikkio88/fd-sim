@@ -24,7 +24,7 @@ type AppContext struct {
 	RouteMode  ViewMode
 	//
 
-	Db *db.Db
+	Db db.IDb
 
 	gameState *models.Game
 

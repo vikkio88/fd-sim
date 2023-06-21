@@ -64,7 +64,7 @@ func (a *App) getView() *fyne.Container {
 
 	if a.ctx.RouteMode == Pop {
 		a.log("POP cached view")
-		//todo: this is crap, I need to make everything fyne.CanvasObject
+		//TODO: this is crap, I need to make everything fyne.CanvasObject
 		return a.ctx.NavStack.GetPopContent().(*fyne.Container)
 	}
 

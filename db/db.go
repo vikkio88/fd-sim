@@ -21,7 +21,7 @@ type Db struct {
 	cache map[string]interface{}
 }
 
-func NewDb(fileName string) *Db {
+func NewDb(fileName string) IDb {
 	g, err := gorm.Open(sqlite.Open(fmt.Sprintf("%s?_foreign_keys=on", fileName)), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -45,7 +45,7 @@ func (db *Db) TruncateAll() {
 	db.CoachR().Truncate()
 }
 
-func (db *Db) GameR() *GameRepo {
+func (db *Db) GameR() IGameRepo {
 	if repo, ok := db.cache[gameRepoCacheKey]; ok {
 		return repo.(*GameRepo)
 	}
@@ -55,7 +55,7 @@ func (db *Db) GameR() *GameRepo {
 	return repo
 }
 
-func (db *Db) LeagueR() *LeagueRepo {
+func (db *Db) LeagueR() ILeagueRepo {
 	if repo, ok := db.cache[leagueRepoCacheKey]; ok {
 		return repo.(*LeagueRepo)
 	}
@@ -65,9 +65,9 @@ func (db *Db) LeagueR() *LeagueRepo {
 	return repo
 }
 
-func (db *Db) TeamR() *TeamsRepo {
+func (db *Db) TeamR() ITeamRepo {
 	if repo, ok := db.cache[teamRepoCacheKey]; ok {
-		return repo.(*TeamsRepo)
+		return repo.(*TeamRepo)
 	}
 	repo := NewTeamsRepo(db.g)
 	db.cache[teamRepoCacheKey] = repo
@@ -75,7 +75,7 @@ func (db *Db) TeamR() *TeamsRepo {
 	return repo
 }
 
-func (db *Db) PlayerR() *PlayerRepo {
+func (db *Db) PlayerR() IPlayerRepo {
 	if repo, ok := db.cache[playerRepoCacheKey]; ok {
 		return repo.(*PlayerRepo)
 	}
@@ -85,7 +85,7 @@ func (db *Db) PlayerR() *PlayerRepo {
 	return repo
 }
 
-func (db *Db) CoachR() *CoachRepo {
+func (db *Db) CoachR() ICoachRepo {
 	if repo, ok := db.cache[coachRepoCacheKey]; ok {
 		return repo.(*CoachRepo)
 	}
