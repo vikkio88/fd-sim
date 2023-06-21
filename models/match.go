@@ -286,3 +286,30 @@ func startingGoals(a, b float64) (int, int) {
 func diffChance(a, b float64) int {
 	return int(math.Min(100, math.Max(chanceMin, chanceMin+chanceMax*(b-a)/100)))
 }
+
+// Match Placeholder
+type MPH struct {
+	Id   string
+	Home string
+	Away string
+}
+
+// Match with TeamPH
+type MPHTPH struct {
+	Id     string
+	Home   TPH
+	Away   TPH
+	Result *Result
+}
+
+func (m *MPH) MPHTPH(Id string, home, away TPH) *MPHTPH {
+	return &MPHTPH{
+		Id:   m.Id,
+		Home: home,
+		Away: away,
+	}
+}
+
+func (r *MPH) Match(Id string, home, away *Team) *Match {
+	return NewMatchWithId(Id, home, away)
+}
