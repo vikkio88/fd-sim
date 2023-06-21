@@ -2,11 +2,9 @@ package ui
 
 import (
 	"fdsim/conf"
-	"fdsim/libs"
-	"fdsim/models"
+	"fdsim/services"
 	"fdsim/widgets"
 	"fmt"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -64,29 +62,19 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), widget.NewLabel("Here there will be emails...")),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
+	sim := services.NewSimulator(ctx.gameState, ctx.Db)
 
-	// nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {})
-	nextDay := widget.NewButtonWithIcon("Simulate Round", theme.MediaSkipNextIcon(), func() {
-		//TODO: move this to a simulation helper
-		league := ctx.Db.LeagueR().ByIdFull(game.LeagueId)
-		r, ok := league.NextRound()
-		if !ok {
-			dialog.ShowInformation("Finished!", "No more rounds to play!", ctx.GetWindow())
-			return
-		}
-		rng := libs.NewRng(time.Now().Unix())
-		r.Simulate(rng)
-		league.Update(r)
-		oldStats := ctx.Db.LeagueR().GetStats(league.Id)
-		stats := models.StatsFromRoundResult(r, game.LeagueId)
-		newStats := models.MergeStats(oldStats, stats)
-
-		ctx.Db.LeagueR().PostRoundUpdate(r, league)
-		ctx.Db.LeagueR().UpdateStats(newStats)
-
-		dialog.ShowInformation("Finished!", fmt.Sprintf("Simulated round %d", r.Index+1), ctx.GetWindow())
+	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {
+		events := sim.Simulate(1)
+		fmt.Println(events)
+		dialog.ShowInformation("Done", "Done", ctx.GetWindow())
 	})
-	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {})
+
+	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {
+		events := sim.Simulate(7)
+		fmt.Println(events)
+		dialog.ShowInformation("Done", "Done", ctx.GetWindow())
+	})
 
 	return NewFborder().
 		Top(
