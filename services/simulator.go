@@ -30,7 +30,7 @@ func NewSimulator(game *models.Game, db db.IDb) *Simulator {
 func (sim *Simulator) Simulate(days int) []Event {
 	events := []Event{}
 	for i := 1; i <= days; i++ {
-		newDate := sim.game.Date.AddDate(0, 0, i)
+		newDate := sim.game.Date.AddDate(0, 0, 1)
 
 		if sim.checkForMatches(newDate) {
 			league := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
