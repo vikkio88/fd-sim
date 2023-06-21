@@ -29,7 +29,6 @@ func NewSimulator(game *models.Game, db db.IDb) *Simulator {
 
 func (sim *Simulator) Simulate(days int) []Event {
 	events := []Event{}
-
 	for i := 1; i <= days; i++ {
 		newDate := sim.game.Date.AddDate(0, 0, i)
 
@@ -46,6 +45,9 @@ func (sim *Simulator) Simulate(days int) []Event {
 		}
 
 		// here there will be logic for events triggering
+
+		// set new date
+		sim.game.Date = newDate
 	}
 
 	return events

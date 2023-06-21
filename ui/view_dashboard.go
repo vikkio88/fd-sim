@@ -8,6 +8,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -16,6 +17,9 @@ import (
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
+	dateStr := binding.NewString()
+	dateStr.Set(game.Date.Format(conf.GameDateFormat))
+
 	fd := game.FootDirector()
 	saveBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {})
 	exitBtn := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
@@ -62,16 +66,19 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), widget.NewLabel("Here there will be emails...")),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
-	sim := services.NewSimulator(ctx.gameState, ctx.Db)
+	sim := services.NewSimulator(game, ctx.Db)
 
 	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {
+		//TODO: move game date and info to bindable data
 		events := sim.Simulate(1)
+		dateStr.Set(game.Date.Format(conf.GameDateFormat))
 		fmt.Println(events)
 		dialog.ShowInformation("Done", "Done", ctx.GetWindow())
 	})
 
 	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {
 		events := sim.Simulate(7)
+		dateStr.Set(game.Date.Format(conf.GameDateFormat))
 		fmt.Println(events)
 		dialog.ShowInformation("Done", "Done", ctx.GetWindow())
 	})
@@ -87,7 +94,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 						),
 					),
 				).
-				Right(widget.NewLabel(game.Date.Format(conf.GameDateFormat))).
+				Right(widget.NewLabelWithData(dateStr)).
 				Get(centered(
 					container.NewVBox(
 						widget.NewLabel(fmt.Sprintf("%s %s (%d)", fd.Name, fd.Surname, fd.Age)),

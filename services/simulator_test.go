@@ -31,9 +31,15 @@ func TestSimulatorBuilder(t *testing.T) {
 func TestSimulatorAdvancingTime(t *testing.T) {
 	startDate := utils.NewDate(2023, time.July, 1)
 	game := NewMockedGame(startDate, startDate)
-	sim := services.NewSimulator(game, NewMockDb())
+	sim := services.NewSimulator(game, db_test.NewMockDbSeeded(0))
 	days := 1
 	sim.Simulate(days)
 	assert.True(t, game.StartDate.Equal(startDate))
 	assert.Equal(t, 2, game.Date.Day())
+
+	days = 7
+	sim.Simulate(days)
+	assert.True(t, game.StartDate.Equal(startDate))
+	assert.Equal(t, 9, game.Date.Day())
+	assert.Equal(t, time.July, game.Date.Month())
 }
