@@ -34,7 +34,7 @@ func (sim *Simulator) Simulate(days int) []*Event {
 	events := []*Event{}
 	for i := 1; i <= days; i++ {
 		newDate := sim.game.Date.AddDate(0, 0, 1)
-		fmt.Printf("Simulating day %s\n", newDate.Format(conf.GameDateFormat))
+		fmt.Printf("Simulating day %s\n", newDate.Format(conf.DateFormatGame))
 
 		if sim.checkForMatches(newDate) {
 			fmt.Printf("Had Matches\n")
@@ -92,8 +92,11 @@ func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []
 		}
 	}
 
-	//persist on db
+	//persist notifications on db
+	sim.db.GameR().AddEmails(emails)
+	sim.db.GameR().AddNews(news)
 
+	// return new ones to UI
 	return emails, news
 }
 

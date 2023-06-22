@@ -31,7 +31,7 @@ func NewDb(fileName string) IDb {
 		&LeagueDto{}, &MatchDto{}, &ResultDto{},
 		&TableRowDto{}, &RoundDto{}, &TeamDto{},
 		&PlayerDto{}, &CoachDto{}, &GameDto{},
-		&StatRowDto{},
+		&StatRowDto{}, &NewsDto{}, &EmailDto{},
 	)
 	cache := map[string]interface{}{}
 	return &Db{g, cache}

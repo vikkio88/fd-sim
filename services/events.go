@@ -59,14 +59,13 @@ func (a EventType) String() string {
 }
 
 func (a EventType) Event(date time.Time, objects []string) *Event {
-
 	switch a {
 	case RoundPlayed:
 		{
 			desc := fmt.Sprintf("Round %s played", objects[0])
 			event := NewEvent(date, desc)
 
-			event.TriggerNews = models.NewNews(date, desc, "Sportsweek", desc, []models.Link{})
+			event.TriggerNews = models.NewNews(desc, "Sportsweek", desc, date, []models.Link{})
 			return event
 		}
 	case LeagueFinished:
@@ -74,7 +73,7 @@ func (a EventType) Event(date time.Time, objects []string) *Event {
 			desc := "League Finished"
 			event := NewEvent(date, desc)
 
-			event.TriggerNews = models.NewNews(date, desc, "Sportsweek", desc,
+			event.TriggerNews = models.NewNews(desc, "Sportsweek", desc, date,
 				[]models.Link{
 					models.NewLink(objects[0], "LEAGUE", &objects[1]),
 				},

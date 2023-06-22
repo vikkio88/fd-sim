@@ -20,7 +20,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
 	dateStr := binding.NewString()
-	dateStr.Set(game.Date.Format(conf.GameDateFormat))
+	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 
 	emails := binding.NewUntypedList()
 	news := binding.NewUntypedList()
@@ -124,13 +124,47 @@ func makeNewsTab(news binding.UntypedList) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		news,
 		func() fyne.CanvasObject {
-			return widget.NewLabel("")
+
+			// return container.NewMax(
+			// 	container.NewVBox(
+			// 		centered(widget.NewLabel("")),
+			// 		container.NewHBox(
+			// 			widget.NewButtonWithIcon("", theme.ConfirmIcon(), func() {}),
+			// 			widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
+			// 			widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {}),
+			// 		),
+			// 	))
+			return container.NewMax(
+				NewFborder().
+					Right(container.NewHBox(
+						widget.NewButtonWithIcon("", theme.ConfirmIcon(), func() {}),
+						widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
+						widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {}),
+					)).
+					Get(
+						centered(widget.NewLabel("")),
+					),
+			)
 		},
 		func(di binding.DataItem, co fyne.CanvasObject) {
 			news := vm.NewsFromDi(di)
-			co.(*widget.Label).SetText(news.String())
-			// if is unread
-			co.(*widget.Label).TextStyle = fyne.TextStyle{Bold: true}
+			newsContainer := co.(*fyne.Container).Objects[0].(*fyne.Container)
+			mainLbl := newsContainer.Objects[0].(*fyne.Container).Objects[0].(*widget.Label)
+			mainLbl.SetText(news.String())
+			mainLbl.TextStyle = fyne.TextStyle{Bold: !news.Read}
+			checkBtn := newsContainer.Objects[1].(*fyne.Container).Objects[0].(*widget.Button)
+			checkBtn.OnTapped = func() {
+				mainLbl.TextStyle = fyne.TextStyle{Bold: false}
+				mainLbl.Refresh()
+			}
+			deleteBtn := newsContainer.Objects[1].(*fyne.Container).Objects[1].(*widget.Button)
+			deleteBtn.OnTapped = func() {
+				fmt.Println("Delete")
+			}
+			detailsBtn := newsContainer.Objects[1].(*fyne.Container).Objects[2].(*widget.Button)
+			detailsBtn.OnTapped = func() {
+				fmt.Println("Details")
+			}
 		})
 	return list
 }
@@ -153,7 +187,7 @@ func makeEmailsTab(emails binding.UntypedList) fyne.CanvasObject {
 }
 
 func simTriggers(dateStr binding.String, news, emails binding.UntypedList, game *models.Game, sim *services.Simulator, events []*services.Event) {
-	dateStr.Set(game.Date.Format(conf.GameDateFormat))
+	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 	newEmails, newNews := sim.SettleEventsTriggers(events)
 	for _, e := range newEmails {
 		emails.Prepend(e)

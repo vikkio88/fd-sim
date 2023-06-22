@@ -62,6 +62,56 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// AddEmails implements db.IGameRepo.
+func (*MockGameR) AddEmails([]*models.Email) {
+	panic("unimplemented")
+}
+
+// AddNews implements db.IGameRepo.
+func (*MockGameR) AddNews([]*models.News) {
+	panic("unimplemented")
+}
+
+// DeleteEmail implements db.IGameRepo.
+func (*MockGameR) DeleteEmail(id string) {
+	panic("unimplemented")
+}
+
+// DeleteNews implements db.IGameRepo.
+func (*MockGameR) DeleteNews(id string) {
+	panic("unimplemented")
+}
+
+// GetEmailById implements db.IGameRepo.
+func (*MockGameR) GetEmailById(id string) *models.Email {
+	panic("unimplemented")
+}
+
+// GetEmails implements db.IGameRepo.
+func (*MockGameR) GetEmails() []*models.Email {
+	panic("unimplemented")
+}
+
+// GetNews implements db.IGameRepo.
+func (*MockGameR) GetNews() []*models.News {
+	panic("unimplemented")
+}
+
+// GetNewsById implements db.IGameRepo.
+func (*MockGameR) GetNewsById(id string) *models.News {
+	panic("unimplemented")
+}
+
+// MarkEmailAsRead implements db.IGameRepo.
+func (*MockGameR) MarkEmailAsRead(id string) {
+	panic("unimplemented")
+}
+
+// MarkNewsAsRead implements db.IGameRepo.
+func (*MockGameR) MarkNewsAsRead(id string) {
+	panic("unimplemented")
+}
+
 func (r *MockGameR) Truncate() {
 	panic("not implemented")
 }

@@ -84,7 +84,7 @@ func TestRoundDates(t *testing.T) {
 			i,
 			models.
 				GetRoundDateByIndex(2023, time.September, i, false).
-				Format(conf.GameDateFormat),
+				Format(conf.DateFormatGame),
 		)
 
 		fmt.Printf(
@@ -92,7 +92,7 @@ func TestRoundDates(t *testing.T) {
 			teams-1+i,
 			models.
 				GetRoundDateByIndex(2023, time.September, i, true).
-				Format(conf.GameDateFormat),
+				Format(conf.DateFormatGame),
 		)
 	}
 }

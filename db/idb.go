@@ -22,6 +22,16 @@ type IGameRepo interface {
 	ById(id string) *models.Game
 	Create(game *models.Game)
 	Update(game *models.Game)
+	AddEmails([]*models.Email)
+	GetEmails() []*models.Email
+	GetEmailById(id string) *models.Email
+	DeleteEmail(id string)
+	MarkEmailAsRead(id string)
+	AddNews([]*models.News)
+	GetNews() []*models.News
+	GetNewsById(id string) *models.News
+	DeleteNews(id string)
+	MarkNewsAsRead(id string)
 }
 
 // ILeagueRepo ...

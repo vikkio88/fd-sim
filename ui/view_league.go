@@ -131,7 +131,7 @@ func roundCard(round *models.RPHTPH, matchList *widget.List) fyne.CanvasObject {
 		fmt.Sprintf(
 			"Round %d - %s",
 			roundIndex,
-			round.Date.Format(conf.GameDateFormat),
+			round.Date.Format(conf.DateFormatGame),
 		),
 		matchList,
 	)
