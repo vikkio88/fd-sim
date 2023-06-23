@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/conf"
 	"fmt"
 	"time"
 
@@ -47,5 +48,5 @@ func NewEmailWithId(id, from, subject, body string, date time.Time, links []Link
 }
 
 func (e Email) String() string {
-	return fmt.Sprintf("%s - %s - %s", e.Sender, e.Date, e.Subject)
+	return fmt.Sprintf("%s - %s - %s", e.Sender, e.Date.Format(conf.DateFormatShort), e.Subject)
 }

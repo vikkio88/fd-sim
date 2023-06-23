@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/conf"
+	d "fdsim/db"
 	"fdsim/models"
 	"fdsim/services"
 	"fdsim/vm"
@@ -14,16 +15,16 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"golang.org/x/exp/slices"
 )
 
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
+	news, emails := loadNotifications(ctx.Db)
+
 	dateStr := binding.NewString()
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
-
-	emails := binding.NewUntypedList()
-	news := binding.NewUntypedList()
 
 	fd := game.FootDirector()
 	saveBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {})
@@ -68,11 +69,19 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	)
 
 	newsMailsTabs := container.NewAppTabs(
-		container.NewTabItemWithIcon("News", theme.DocumentIcon(), makeNewsTab(news)),
-		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), makeEmailsTab(emails)),
+		container.NewTabItemWithIcon("News", theme.DocumentIcon(), makeNewsTab(news, ctx.Db)),
+		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), makeEmailsTab(emails, ctx.Db)),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 	sim := services.NewSimulator(game, ctx.Db)
+
+	testTrigger := widget.NewButtonWithIcon("Trigger", theme.InfoIcon(), func() {
+		email := models.NewEmail("Bla@bla.com", "Some Stuff", "Do things", game.Date, []models.Link{})
+		emails.Prepend(email)
+
+		n := models.NewNews("Something Happened", "Corriere della Sera", "Some Stuff", game.Date, []models.Link{})
+		news.Prepend(n)
+	})
 
 	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {
 		events := sim.Simulate(1)
@@ -107,6 +116,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		Bottom(
 			NewFborder().Right(
 				container.NewHBox(
+					testTrigger,
 					nextDay,
 					nextWeek,
 				)).Get(),
@@ -116,73 +126,125 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeNewsTab(news binding.UntypedList) fyne.CanvasObject {
-	// if news.Length() < 1 {
-	// 	return widget.NewLabel("No news...")
-	// }
+func loadNotifications(db d.IDb) (binding.UntypedList, binding.UntypedList) {
+	emailsDb := db.GameR().GetEmails()
+	newsDb := db.GameR().GetNews()
+	emails := binding.NewUntypedList()
+	for _, e := range emailsDb {
+		emails.Prepend(e)
+	}
 
+	news := binding.NewUntypedList()
+	for _, n := range newsDb {
+		news.Prepend(n)
+	}
+	return news, emails
+}
+
+func makeNewsTab(news binding.UntypedList, db d.IDb) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		news,
 		func() fyne.CanvasObject {
-
-			// return container.NewMax(
-			// 	container.NewVBox(
-			// 		centered(widget.NewLabel("")),
-			// 		container.NewHBox(
-			// 			widget.NewButtonWithIcon("", theme.ConfirmIcon(), func() {}),
-			// 			widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
-			// 			widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {}),
-			// 		),
-			// 	))
 			return container.NewMax(
 				NewFborder().
-					Right(container.NewHBox(
-						widget.NewButtonWithIcon("", theme.ConfirmIcon(), func() {}),
+					Left(widget.NewIcon(theme.DocumentIcon())).
+					Right(
 						widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
-						widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {}),
-					)).
+					).
 					Get(
-						centered(widget.NewLabel("")),
+						container.NewVBox(
+							widget.NewLabel(""),
+							// widget.NewLabel(""),
+						),
 					),
 			)
 		},
 		func(di binding.DataItem, co fyne.CanvasObject) {
-			news := vm.NewsFromDi(di)
+			newsI := vm.NewsFromDi(di)
 			newsContainer := co.(*fyne.Container).Objects[0].(*fyne.Container)
-			mainLbl := newsContainer.Objects[0].(*fyne.Container).Objects[0].(*widget.Label)
-			mainLbl.SetText(news.String())
-			mainLbl.TextStyle = fyne.TextStyle{Bold: !news.Read}
-			checkBtn := newsContainer.Objects[1].(*fyne.Container).Objects[0].(*widget.Button)
-			checkBtn.OnTapped = func() {
-				mainLbl.TextStyle = fyne.TextStyle{Bold: false}
-				mainLbl.Refresh()
+			newsInfoCtr := newsContainer.Objects[0].(*fyne.Container) //.Objects[0].(*fyne.Container)
+			mainLbl := newsInfoCtr.Objects[0].(*widget.Label)
+			mainLbl.SetText(newsI.String())
+			mainLbl.TextStyle = fyne.TextStyle{Bold: !newsI.Read}
+			mainLbl.Refresh()
+
+			leftIcon := newsContainer.Objects[1].(*widget.Icon)
+			if newsI.Read {
+				leftIcon.SetResource(theme.FileTextIcon())
 			}
-			deleteBtn := newsContainer.Objects[1].(*fyne.Container).Objects[1].(*widget.Button)
+			deleteBtn := newsContainer.Objects[2].(*widget.Button)
 			deleteBtn.OnTapped = func() {
-				fmt.Println("Delete")
-			}
-			detailsBtn := newsContainer.Objects[1].(*fyne.Container).Objects[2].(*widget.Button)
-			detailsBtn.OnTapped = func() {
-				fmt.Println("Details")
+				db.GameR().DeleteNews(newsI.Id)
+				items, _ := news.Get()
+				index := slices.IndexFunc(items, func(item any) bool {
+					e := item.(*models.News)
+					return e.Id == newsI.Id
+				})
+				items = append(items[:index], items[index+1:]...)
+				news.Set(items)
 			}
 		})
+
+	list.OnSelected = func(id widget.ListItemID) {
+		di, _ := news.GetItem(id)
+		news := vm.NewsFromDi(di)
+		news.Read = true
+		list.Refresh()
+		db.GameR().MarkNewsAsRead(news.Id)
+	}
 	return list
 }
 
-func makeEmailsTab(emails binding.UntypedList) fyne.CanvasObject {
-	// if emails.Length() < 1 {
-	// 	return widget.NewLabel("No emails...")
-	// }
-
+func makeEmailsTab(emails binding.UntypedList, db d.IDb) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		emails,
 		func() fyne.CanvasObject {
-			return widget.NewLabel("")
+			return container.NewMax(
+				NewFborder().
+					Left(widget.NewIcon(theme.MailComposeIcon())).
+					Right(
+						widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
+					).
+					Get(
+						container.NewVBox(
+							widget.NewLabel(""),
+						),
+					),
+			)
 		},
 		func(di binding.DataItem, co fyne.CanvasObject) {
 			email := vm.EmailFromDi(di)
-			co.(*widget.Label).SetText(email.String())
+			emailCtr := co.(*fyne.Container).Objects[0].(*fyne.Container)
+			mailInfoCtr := emailCtr.Objects[0].(*fyne.Container) //.Objects[0].(*fyne.Container)
+			mainLbl := mailInfoCtr.Objects[0].(*widget.Label)
+			mainLbl.SetText(email.String())
+			mainLbl.TextStyle = fyne.TextStyle{Bold: !email.Read}
+			mainLbl.Refresh()
+
+			leftIcon := emailCtr.Objects[1].(*widget.Icon)
+			if email.Read {
+				leftIcon.SetResource(widgets.Icon("email_read").Resource)
+			}
+			deleteBtn := emailCtr.Objects[2].(*widget.Button)
+			deleteBtn.OnTapped = func() {
+				// db.GameR().DeleteEmail(email.Id)
+				items, _ := emails.Get()
+				index := slices.IndexFunc(items, func(item any) bool {
+					e := item.(*models.Email)
+					return e.Id == email.Id
+				})
+				items = append(items[:index], items[index+1:]...)
+				emails.Set(items)
+			}
 		})
+
+	list.OnSelected = func(id widget.ListItemID) {
+		di, _ := emails.GetItem(id)
+		email := vm.EmailFromDi(di)
+		email.Read = true
+		list.Refresh()
+		db.GameR().MarkNewsAsRead(email.Id)
+	}
 	return list
 }
 

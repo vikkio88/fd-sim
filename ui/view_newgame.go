@@ -95,7 +95,7 @@ func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game)
 
 func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game) *fyne.Container {
 	countries := vm.GetAllCountries()
-	var ts float64 = 8
+	var ts float64 = 20
 	teamsNumber := binding.BindFloat(&ts)
 	var teamsSlice []*models.Team
 	teams := binding.NewUntypedList()

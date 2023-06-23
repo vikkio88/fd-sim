@@ -58,23 +58,33 @@ func (repo *GameRepo) AddEmails(emails []*models.Email) {
 		dtos[i] = DtoFromEmail(e)
 
 	}
-	repo.g.Model(&EmailDto{}).Create(dtos)
+	repo.g.Model(&EmailDto{}).Create(&dtos)
 }
 
 func (repo *GameRepo) GetEmails() []*models.Email {
-	return []*models.Email{}
+	var dtos []EmailDto
+	repo.g.Model(&EmailDto{}).Find(&dtos)
+
+	result := make([]*models.Email, len(dtos))
+	for i, dto := range dtos {
+		result[i] = dto.Email()
+	}
+
+	return result
 }
 
-func (*GameRepo) GetEmailById(id string) *models.Email {
-	return nil
+func (repo *GameRepo) GetEmailById(id string) *models.Email {
+	var dto EmailDto
+	repo.g.Model(&EmailDto{}).First(&dto, "id = ?", id)
+	return dto.Email()
 }
 
-func (*GameRepo) MarkEmailAsRead(id string) {
-
+func (repo *GameRepo) MarkEmailAsRead(id string) {
+	repo.g.Model(&EmailDto{}).Where("id = ?", id).Update("read", true)
 }
 
-func (*GameRepo) DeleteEmail(id string) {
-
+func (repo *GameRepo) DeleteEmail(id string) {
+	repo.g.Where("id = ?", id).Delete(&EmailDto{})
 }
 
 func (repo *GameRepo) AddNews(news []*models.News) {
@@ -86,21 +96,31 @@ func (repo *GameRepo) AddNews(news []*models.News) {
 		dtos[i] = DtoFromNews(n)
 
 	}
-	repo.g.Model(&NewsDto{}).Create(dtos)
+	repo.g.Model(&NewsDto{}).Create(&dtos)
 }
 
-func (*GameRepo) GetNews() []*models.News {
-	return []*models.News{}
+func (repo *GameRepo) GetNews() []*models.News {
+	var dtos []NewsDto
+	repo.g.Model(&NewsDto{}).Find(&dtos)
+
+	result := make([]*models.News, len(dtos))
+	for i, dto := range dtos {
+		result[i] = dto.News()
+	}
+
+	return result
 }
 
-func (*GameRepo) GetNewsById(id string) *models.News {
-	return nil
+func (repo *GameRepo) GetNewsById(id string) *models.News {
+	var dto NewsDto
+	repo.g.Model(&NewsDto{}).First(&dto, "id = ?", id)
+	return dto.News()
 }
 
-func (*GameRepo) MarkNewsAsRead(id string) {
-
+func (repo *GameRepo) MarkNewsAsRead(id string) {
+	repo.g.Model(&NewsDto{}).Where("id = ?", id).Update("read", true)
 }
 
-func (*GameRepo) DeleteNews(id string) {
-
+func (repo *GameRepo) DeleteNews(id string) {
+	repo.g.Where("id = ?", id).Delete(&NewsDto{})
 }

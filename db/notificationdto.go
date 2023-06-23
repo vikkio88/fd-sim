@@ -20,7 +20,7 @@ func serialiseActions(actions []models.Action) *string {
 }
 
 type NewsDto struct {
-	Id        string
+	Id        string `gorm:"primarykey"`
 	Date      time.Time
 	Title     string
 	NewsPaper string
@@ -41,8 +41,20 @@ func DtoFromNews(news *models.News) NewsDto {
 	}
 }
 
+func (news *NewsDto) News() *models.News {
+	return &models.News{
+		Id:        news.Id,
+		Date:      news.Date,
+		Title:     news.Title,
+		NewsPaper: news.NewsPaper,
+		Body:      news.Body,
+		Links:     unserialiseLinks(news.Links),
+		Read:      news.Read,
+	}
+}
+
 type EmailDto struct {
-	Id      string
+	Id      string `gorm:"primarykey"`
 	Read    bool
 	Sender  string
 	Subject string
@@ -62,5 +74,18 @@ func DtoFromEmail(email *models.Email) EmailDto {
 		Date:    email.Date,
 		Links:   serialiseLinks(email.Links),
 		Actions: serialiseActions(email.Actions),
+	}
+}
+
+func (email *EmailDto) Email() *models.Email {
+	return &models.Email{
+		Id:      email.Id,
+		Read:    email.Read,
+		Sender:  email.Sender,
+		Subject: email.Subject,
+		Body:    email.Body,
+		Date:    email.Date,
+		Links:   unserialiseLinks(email.Links),
+		Actions: unserialiseActions(email.Actions),
 	}
 }

@@ -47,5 +47,5 @@ func NewNewsWithId(id, title, newsPaper, body string, date time.Time, links []Li
 }
 
 func (n News) String() string {
-	return fmt.Sprintf("%s - %s - %s", n.Title, n.Date.Format(conf.DateFormatShort), n.NewsPaper)
+	return fmt.Sprintf("%s - %s", n.Title, n.Date.Format(conf.DateFormatShort))
 }
