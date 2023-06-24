@@ -75,12 +75,22 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 	sim := services.NewSimulator(game, ctx.Db)
 
-	testTrigger := widget.NewButtonWithIcon("Trigger", theme.InfoIcon(), func() {
+	trigNotifyNoDb := widget.NewButtonWithIcon("Notif NODB", theme.InfoIcon(), func() {
 		email := models.NewEmail("Bla@bla.com", "Some Stuff", "Do things", game.Date, []models.Link{})
 		emails.Prepend(email)
 
 		n := models.NewNews("Something Happened", "Corriere della Sera", "Some Stuff", game.Date, []models.Link{})
 		news.Prepend(n)
+	})
+
+	trigNotifyDb := widget.NewButtonWithIcon("Notif DB", theme.InfoIcon(), func() {
+		email := models.NewEmail("someguy@bla.com", "Yo YO", "Do some stuff things", game.Date, []models.Link{})
+		emails.Prepend(email)
+		ctx.Db.GameR().AddEmails([]*models.Email{email})
+
+		n := models.NewNews("Something Happened", "Corriere della Sera", "Some Stuff", game.Date, []models.Link{})
+		news.Prepend(n)
+		ctx.Db.GameR().AddNews([]*models.News{n})
 	})
 
 	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {
@@ -116,7 +126,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		Bottom(
 			NewFborder().Right(
 				container.NewHBox(
-					testTrigger,
+					trigNotifyNoDb,
+					trigNotifyDb,
 					nextDay,
 					nextWeek,
 				)).Get(),
