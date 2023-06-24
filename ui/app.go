@@ -45,6 +45,8 @@ func NewApp() App {
 			NewGame:   func() *fyne.Container { return newGameView(&ctx) },
 			LoadGame:  func() *fyne.Container { return loadGameView(&ctx) },
 			Dashboard: func() *fyne.Container { return dashboardView(&ctx) },
+			Email:     func() *fyne.Container { return notificationView(&ctx, Email) },
+			News:      func() *fyne.Container { return notificationView(&ctx, News) },
 
 			TeamDetails:   func() *fyne.Container { return teamDetailsView(&ctx) },
 			PlayerDetails: func() *fyne.Container { return playerDetailsView(&ctx) },

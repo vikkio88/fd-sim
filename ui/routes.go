@@ -12,6 +12,8 @@ const (
 	newGame   string = "NEW_GAME"
 	loadGame  string = "LOAD_GAME"
 	dashboard string = "DASHBOARD"
+	email     string = "EMAIL_DETAIL"
+	news      string = "NEWS_DETAIL"
 
 	teamDetails   string = "TEAM_DETAILS"
 	playerDetails string = "PLAYER_DETAILS"
@@ -31,6 +33,8 @@ const (
 	NewGame
 	LoadGame
 	Dashboard
+	Email
+	News
 
 	TeamDetails
 	PlayerDetails
@@ -49,6 +53,8 @@ func getMapping() map[AppRoute]string {
 		NewGame:   newGame,
 		LoadGame:  loadGame,
 		Dashboard: dashboard,
+		Email:     email,
+		News:      news,
 
 		TeamDetails:   teamDetails,
 		PlayerDetails: playerDetails,
@@ -68,6 +74,8 @@ func getReverseMapping() map[string]AppRoute {
 		newGame:   NewGame,
 		loadGame:  LoadGame,
 		dashboard: Dashboard,
+		email:     Email,
+		news:      News,
 
 		teamDetails:   TeamDetails,
 		playerDetails: PlayerDetails,

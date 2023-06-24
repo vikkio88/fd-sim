@@ -67,10 +67,10 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 			),
 		),
 	)
-
+	navigate := ctx.PushWithParam
 	newsMailsTabs := container.NewAppTabs(
-		container.NewTabItemWithIcon("News", theme.DocumentIcon(), makeNewsTab(news, ctx.Db)),
-		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), makeEmailsTab(emails, ctx.Db)),
+		container.NewTabItemWithIcon("News", theme.DocumentIcon(), makeNewsTab(news, ctx.Db, navigate)),
+		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), makeEmailsTab(emails, ctx.Db, navigate)),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 	sim := services.NewSimulator(game, ctx.Db)
@@ -141,7 +141,7 @@ func loadNotifications(db d.IDb) (binding.UntypedList, binding.UntypedList) {
 	return news, emails
 }
 
-func makeNewsTab(news binding.UntypedList, db d.IDb) fyne.CanvasObject {
+func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any)) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		news,
 		func() fyne.CanvasObject {
@@ -188,14 +188,18 @@ func makeNewsTab(news binding.UntypedList, db d.IDb) fyne.CanvasObject {
 	list.OnSelected = func(id widget.ListItemID) {
 		di, _ := news.GetItem(id)
 		news := vm.NewsFromDi(di)
-		news.Read = true
-		list.Refresh()
-		db.GameR().MarkNewsAsRead(news.Id)
+		if !news.Read {
+			news.Read = true
+			list.Refresh()
+			db.GameR().MarkNewsAsRead(news.Id)
+		}
+		list.UnselectAll()
+		navigate(News, news.Id)
 	}
 	return list
 }
 
-func makeEmailsTab(emails binding.UntypedList, db d.IDb) fyne.CanvasObject {
+func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute, any)) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		emails,
 		func() fyne.CanvasObject {
@@ -227,7 +231,7 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb) fyne.CanvasObject {
 			}
 			deleteBtn := emailCtr.Objects[2].(*widget.Button)
 			deleteBtn.OnTapped = func() {
-				// db.GameR().DeleteEmail(email.Id)
+				db.GameR().DeleteEmail(email.Id)
 				items, _ := emails.Get()
 				index := slices.IndexFunc(items, func(item any) bool {
 					e := item.(*models.Email)
@@ -241,9 +245,13 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb) fyne.CanvasObject {
 	list.OnSelected = func(id widget.ListItemID) {
 		di, _ := emails.GetItem(id)
 		email := vm.EmailFromDi(di)
-		email.Read = true
-		list.Refresh()
-		db.GameR().MarkNewsAsRead(email.Id)
+		if !email.Read {
+			email.Read = true
+			list.Refresh()
+			db.GameR().MarkNewsAsRead(email.Id)
+		}
+		list.UnselectAll()
+		navigate(Email, email.Id)
 	}
 	return list
 }
