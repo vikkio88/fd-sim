@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -45,7 +46,12 @@ func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
 		widget.NewCard(
 			email.Subject,
 			fmt.Sprintf("%s - %s", email.Date.Format(conf.DateFormatShort), email.Sender),
-			widget.NewRichText(&widget.TextSegment{Text: email.Body}),
+			widget.NewRichText(
+				widgets.NewTSegment(email.Body),
+				widgets.NewHyperlinkSegment("Test", func() { ctx.Push(Test) }),
+				widgets.NewTSegment(" "),
+				widgets.NewTSegment("Yo"),
+			),
 		),
 	)
 }
