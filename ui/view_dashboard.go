@@ -86,7 +86,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	trigNotifyDb := widget.NewButtonWithIcon("Notif DB", theme.InfoIcon(), func() {
 		email := models.NewEmail(
 			"someguylink@bla.com", "Here you go some Links!",
-			"Do some stuff things LINK other text", game.Date,
+			fmt.Sprintf("Do some stuff things %s other text", conf.LinkBodyPH),
+			game.Date,
 			[]models.Link{models.NewLink("Test", Test.String(), nil)},
 		)
 		emails.Prepend(email)

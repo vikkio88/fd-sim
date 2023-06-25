@@ -55,7 +55,7 @@ func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
 }
 
 func parseBody(body string, links []models.Link, ctx *AppContext) *widget.RichText {
-	segments := strings.Split(body, "LINK")
+	segments := strings.Split(body, conf.LinkBodyPH)
 	bodyRichText := widget.NewRichText()
 	for i, t := range segments {
 		bodyRichText.Segments = append(bodyRichText.Segments, widgets.NewTSegment(t))
