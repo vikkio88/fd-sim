@@ -294,7 +294,7 @@ type MPH struct {
 	Away string
 }
 
-// Match with TeamPH
+// MatchPH with TeamPH But with no Lineup
 type MPHTPH struct {
 	Id     string
 	Home   TPH
