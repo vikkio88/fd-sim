@@ -29,7 +29,7 @@ func leagueIdGenerator() string {
 }
 
 func NewLeagueWithData(id, name string, teams []*Team) *League {
-	teamMap := map[string]*Team{}
+	teamMap := TeamMap{}
 	teamIds := make([]string, len(teams))
 	for i, t := range teams {
 		teamMap[t.Id] = t
@@ -49,12 +49,7 @@ func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 	if len(teams)%2 != 0 {
 		panic("Teams need to be an even number!")
 	}
-	teamMap := map[string]*Team{}
-	teamIds := make([]string, len(teams))
-	for i, t := range teams {
-		teamMap[t.Id] = t
-		teamIds[i] = t.Id
-	}
+	teamMap, teamIds := TeamMapAndIdsFromTeams(teams)
 	rounds := NewRoundsCalendar(teamIds, seasonStartDate.Year())
 	return &League{
 		Idable:      NewIdable(leagueIdGenerator()),
@@ -66,6 +61,16 @@ func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 		totalRounds: (len(teams) * 2) - 2,
 		RPointer:    0,
 	}
+}
+
+func TeamMapAndIdsFromTeams(teams []*Team) (TeamMap, []string) {
+	teamMap := TeamMap{}
+	teamIds := make([]string, len(teams))
+	for i, t := range teams {
+		teamMap[t.Id] = t
+		teamIds[i] = t.Id
+	}
+	return teamMap, teamIds
 }
 
 func (l *League) RoundsPH() []*RPHTPH {
