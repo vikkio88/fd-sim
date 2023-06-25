@@ -84,7 +84,7 @@ type RPH struct {
 	Matches []MPH
 }
 
-func (r *RPH) Round(teamsMap map[string]*Team) *Round {
+func (r *RPH) Round(teamsMap TeamMap) *Round {
 	matches := make([]*Match, len(r.Matches))
 	for i, mph := range r.Matches {
 		home, ok := teamsMap[mph.Home]
@@ -98,7 +98,7 @@ func (r *RPH) Round(teamsMap map[string]*Team) *Round {
 	return NewRound(r.Id, r.Index, r.Date, matches)
 }
 
-func (r *RPH) RoundTPH(teamsMap map[string]*Team) *RPHTPH {
+func (r *RPH) RoundTPH(teamsMap TeamMap) *RPHTPH {
 	matches := make([]MPHTPH, len(r.Matches))
 	for i, mph := range r.Matches {
 		home, ok := teamsMap[mph.Home]
