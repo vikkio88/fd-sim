@@ -76,7 +76,7 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 	sim.db.LeagueR().PostRoundUpdate(round, league)
 	sim.db.LeagueR().UpdateStats(newStats)
 
-	return RoundPlayed.Event(round.Date, []string{fmt.Sprintf("%d", round.Index+1), round.Id})
+	return RoundPlayed.Event(round.Date, []string{fmt.Sprintf("%d", round.Index+1), round.Id, league.Id})
 }
 
 func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []*models.News) {
