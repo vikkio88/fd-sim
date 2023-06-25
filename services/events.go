@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fdsim/conf"
+	"fdsim/enums"
 	"fdsim/models"
 	"fmt"
 	"strings"
@@ -10,7 +12,7 @@ import (
 type EventType uint8
 
 const (
-	// Objects[] { index, id of the round }
+	// Objects[] { index, id of the round, maybe even LeagueId }
 	RoundPlayed EventType = iota
 	// Objects[] { leagueName, leagueid, teamId winner }
 	LeagueFinished
@@ -64,8 +66,26 @@ func (a EventType) Event(date time.Time, objects []string) *Event {
 		{
 			desc := fmt.Sprintf("Round %s played", objects[0])
 			event := NewEvent(date, desc)
+			roundIndex := objects[0]
+			roundId := objects[1]
+			leagueId := objects[2]
 
-			event.TriggerNews = models.NewNews(desc, "Sportsweek", desc, date, []models.Link{})
+			event.TriggerNews = models.NewNews(
+				desc,
+				"Sportsweek",
+				fmt.Sprintf(
+					"The round %s was played today %s, Here you can see the updated League table: %s Here you can see the round results %s",
+					roundIndex,
+					date.Format(conf.DateFormatGame),
+					conf.LinkBodyPH,
+					conf.LinkBodyPH,
+				),
+				date,
+				[]models.Link{
+					models.NewLink("League Table", enums.League, &leagueId),
+					models.NewLink("Round Results", enums.RoundDetails, &roundId),
+				},
+			)
 			return event
 		}
 	case LeagueFinished:
