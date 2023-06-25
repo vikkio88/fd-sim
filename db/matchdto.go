@@ -56,6 +56,20 @@ func DtoFromMatchPH(match models.MPH, roundId string) MatchDto {
 	}
 }
 
+func (m MatchDto) MatchCompletePH() models.MPHTPH {
+	var result *models.Result = nil
+	if m.Result != nil {
+		result = m.Result.Result()
+	}
+	res := models.MPHTPH{
+		Id:     m.Id,
+		Home:   *m.HomeTeam.TeamPH(),
+		Away:   *m.AwayTeam.TeamPH(),
+		Result: result,
+	}
+
+	return res
+}
 func (m *MatchDto) MatchComplete() *models.MatchComplete {
 	var result *models.Result = nil
 	if m.Result != nil {
