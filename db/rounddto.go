@@ -46,7 +46,7 @@ func DtoFromRoundPH(r models.RPH, leagueId string) RoundDto {
 	}
 }
 
-func (r *RoundDto) Round(teams map[string]*models.Team) *models.RoundResult {
+func (r *RoundDto) Round(teams models.TeamMap) *models.RoundResult {
 	matches := make([]*models.MatchResult, len(r.Matches))
 	for i, m := range r.Matches {
 		matches[i] = m.MatchResult(teams[m.Home].PH(), teams[m.Away].PH())
@@ -67,6 +67,20 @@ func (r *RoundDto) RoundPH() models.RPH {
 	}
 
 	return models.RPH{
+		Id:      r.Id,
+		Index:   r.Index,
+		Date:    r.Date,
+		Matches: ms,
+	}
+}
+
+func (r *RoundDto) RoundPHTPH() *models.RPHTPH {
+	ms := make([]models.MPHTPH, len(r.Matches))
+	for i, m := range r.Matches {
+		ms[i] = m.MatchCompletePH()
+	}
+
+	return &models.RPHTPH{
 		Id:      r.Id,
 		Index:   r.Index,
 		Date:    r.Date,
