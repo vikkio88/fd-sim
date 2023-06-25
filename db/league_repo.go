@@ -65,6 +65,17 @@ func (lr *LeagueRepo) ByIdFull(id string) *models.League {
 	return ldto.League()
 }
 
+func (lr *LeagueRepo) RoundWithResults(roundId string) *models.RPHTPH {
+	var dto RoundDto
+	lr.g.Model(&RoundDto{}).
+		Preload("Matches").
+		Preload("Matches.HomeTeam").
+		Preload("Matches.AwayTeam").
+		Preload("Matches.Result").
+		Where("id = ?", roundId).Find(&dto)
+	return dto.RoundPHTPH()
+}
+
 func (lr *LeagueRepo) RoundByIndex(league *models.League, index int) *models.RoundResult {
 	var rdto RoundDto
 	lr.g.Model(&RoundDto{}).Preload("Matches.Result").Where("`index` = ? AND league_id = ?", index, league.Id).Find(&rdto)

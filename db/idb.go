@@ -45,6 +45,8 @@ type ILeagueRepo interface {
 	ByIdFull(id string) *models.League
 	RoundCountByDate(date time.Time) int64
 	RoundByIndex(league *models.League, index int) *models.RoundResult
+	// get Round with all the results
+	RoundWithResults(roundId string) *models.RPHTPH
 	// map of matchids and result placeholders
 	GetAllResults() models.ResultsPHMap
 	GetMatchById(matchId string) *models.MatchComplete

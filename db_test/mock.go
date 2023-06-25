@@ -209,6 +209,11 @@ type MockLeagueRepo struct {
 	Stats       *models.StatsMap
 }
 
+// RoundWithResults implements db.ILeagueRepo.
+func (*MockLeagueRepo) RoundWithResults(roundId string) *models.RPHTPH {
+	panic("unimplemented")
+}
+
 func (r *MockLeagueRepo) Truncate() {
 	panic("not implemented")
 }
