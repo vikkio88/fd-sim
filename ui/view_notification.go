@@ -37,7 +37,7 @@ func makeNews(id string, ctx *AppContext) fyne.CanvasObject {
 		widget.NewCard(
 			news.Title,
 			fmt.Sprintf("%s - %s", news.Date.Format(conf.DateFormatShort), news.NewsPaper),
-			widget.NewRichText(&widget.TextSegment{Text: news.Body}),
+			parseBody(news.Body, news.Links, ctx),
 		),
 	)
 }
