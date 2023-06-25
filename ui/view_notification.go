@@ -2,8 +2,10 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/models"
 	"fdsim/widgets"
 	"fmt"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -42,16 +44,34 @@ func makeNews(id string, ctx *AppContext) fyne.CanvasObject {
 
 func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
 	email := ctx.Db.GameR().GetEmailById(id)
+	emailBody := parseBody(email.Body, email.Links, ctx)
 	return container.NewMax(
 		widget.NewCard(
 			email.Subject,
 			fmt.Sprintf("%s - %s", email.Date.Format(conf.DateFormatShort), email.Sender),
-			widget.NewRichText(
-				widgets.NewTSegment(email.Body),
-				widgets.NewHyperlinkSegment("Test", func() { ctx.Push(Test) }),
-				widgets.NewTSegment(" "),
-				widgets.NewTSegment("Yo"),
-			),
+			emailBody,
 		),
 	)
+}
+
+func parseBody(body string, links []models.Link, ctx *AppContext) *widget.RichText {
+	segments := strings.Split(body, "LINK")
+	bodyRichText := widget.NewRichText()
+	for i, t := range segments {
+		bodyRichText.Segments = append(bodyRichText.Segments, widgets.NewTSegment(t))
+		if len(links) > i {
+			link := links[i]
+			hL := widgets.NewHyperlinkSegment(link.Label, func() {
+				if link.Id != nil {
+					ctx.PushWithParam(RouteFromString(link.Route), *link.Id)
+				} else {
+					ctx.Push(RouteFromString(link.Route))
+				}
+			})
+			bodyRichText.Segments = append(bodyRichText.Segments, hL)
+			bodyRichText.Segments = append(bodyRichText.Segments, widgets.NewTSegment(""))
+		}
+	}
+
+	return bodyRichText
 }

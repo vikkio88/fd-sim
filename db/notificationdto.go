@@ -1,15 +1,34 @@
 package db
 
 import (
+	"encoding/json"
 	"fdsim/models"
+	"fmt"
 	"time"
 )
 
 func unserialiseLinks(links *string) []models.Link {
-	return []models.Link{}
+	if links == nil {
+		return []models.Link{}
+	}
+
+	var result []models.Link
+	data := *links
+	err := json.Unmarshal([]byte(data), &result)
+	if err != nil {
+		fmt.Println("error while loading link", err)
+		return []models.Link{}
+	}
+
+	return result
 }
+
 func serialiseLinks(links []models.Link) *string {
-	return nil
+	var result string
+	data, _ := json.Marshal(links)
+	result = string(data)
+
+	return &result
 }
 
 func unserialiseActions(actions *string) []models.Action {
