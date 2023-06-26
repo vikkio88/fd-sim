@@ -2,6 +2,7 @@ package services
 
 import (
 	"fdsim/conf"
+	"fdsim/data"
 	"fdsim/enums"
 	"fdsim/models"
 	"fmt"
@@ -12,9 +13,9 @@ import (
 type EventType uint8
 
 const (
-	// Objects[] { index, id of the round, maybe even LeagueId }
+	// Needs LeagueId, RoundId and RoundIndex
 	RoundPlayed EventType = iota
-	// Objects[] { leagueName, leagueid, teamId winner }
+	// Needs LeagueId and LeagueName, TeamId and TeamName for Winner
 	LeagueFinished
 
 	Null
@@ -60,29 +61,49 @@ func (a EventType) String() string {
 	return null
 }
 
-func (a EventType) Event(date time.Time, objects []string) *Event {
+type EventParams struct {
+	LeagueId      string
+	LeagueName    string
+	LeagueCountry enums.Country
+	RoundId       string
+	MatchId       string
+	TeamId1       string
+	TeamId2       string
+	PlayerId      string
+	CoachId       string
+	Label1        string
+	Label2        string
+	Label3        string
+	Label4        string
+}
+
+func (a EventType) Event(date time.Time, params EventParams) *Event {
 	switch a {
 	case RoundPlayed:
 		{
-			desc := fmt.Sprintf("Round %s played", objects[0])
+			roundIndex := params.Label1
+			roundId := params.RoundId
+			leagueId := params.LeagueId
+			leagueName := params.LeagueName
+			desc := fmt.Sprintf("%s - Round %s played", leagueName, roundIndex)
 			event := NewEvent(date, desc)
-			roundIndex := objects[0]
-			roundId := objects[1]
-			leagueId := objects[2]
 
 			event.TriggerNews = models.NewNews(
 				desc,
-				"Sportsweek",
+				data.GetNewspaper(params.LeagueCountry),
 				fmt.Sprintf(
-					"The round %s was played today %s, Here you can see the updated League table: %s Here you can see the round results %s",
+					"The %sth round of %s  was played today %s, "+
+						"Here you can see the updated League table:"+
+						" %s Here you can see the round results %s",
 					roundIndex,
+					leagueName,
 					date.Format(conf.DateFormatGame),
 					conf.LinkBodyPH,
 					conf.LinkBodyPH,
 				),
 				date,
 				[]models.Link{
-					models.NewLink("League Table", enums.League, &leagueId),
+					models.NewLink(fmt.Sprintf("%s Table", leagueName), enums.League, &leagueId),
 					models.NewLink("Round Results", enums.RoundDetails, &roundId),
 				},
 			)
@@ -90,12 +111,25 @@ func (a EventType) Event(date time.Time, objects []string) *Event {
 		}
 	case LeagueFinished:
 		{
-			desc := "League Finished"
-			event := NewEvent(date, desc)
+			leagueId := params.LeagueId
+			teamId := params.TeamId1
+			leagueName := params.LeagueName
+			teamName := params.Label1
+			event := NewEvent(date, fmt.Sprintf("%s Finished", leagueName))
+			title := fmt.Sprintf("%s won %s!", teamName, leagueName)
 
-			event.TriggerNews = models.NewNews(desc, "Sportsweek", desc, date,
+			event.TriggerNews = models.NewNews(
+				title,
+				data.GetNewspaper(params.LeagueCountry),
+				fmt.Sprintf(
+					"Today the %s League officially finished, and the winner was %s."+
+						"\nFinal Table: %s Winner %s",
+					leagueName, teamName, conf.LinkBodyPH, conf.LinkBodyPH,
+				),
+				date,
 				[]models.Link{
-					models.NewLink(objects[0], "LEAGUE", &objects[1]),
+					models.NewLink(leagueName, enums.League, &leagueId),
+					models.NewLink(teamName, enums.TeamDetails, &teamId),
 				},
 			)
 			return event

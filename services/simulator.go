@@ -40,14 +40,10 @@ func (sim *Simulator) Simulate(days int) []*Event {
 			fmt.Printf("Had Matches\n")
 			league := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
 			// maybe double check that the round date is the same?
-			round, ok := league.NextRound()
+			round, _ := league.NextRound()
 			fmt.Printf("Simulating Round %d\n", round.Index+1)
-			if !ok {
-				// No More Matches, trigger end of the Season or keep it for the next?
-				events = append(events, LeagueFinished.Event(newDate, []string{league.Name, league.Id}))
-			} else {
-				events = append(events, sim.simulateRound(round, league))
-			}
+			events = append(events, sim.simulateRound(round, league))
+			events = sim.checkIfLeagueFinished(league, events, newDate)
 		}
 
 		// here there will be logic for events triggering
@@ -59,6 +55,26 @@ func (sim *Simulator) Simulate(days int) []*Event {
 	// Saving New Game state
 	sim.db.GameR().Update(sim.game)
 
+	return events
+}
+
+func (*Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
+	if league.IsFinished() {
+		firstRow := league.TableRow(0)
+		events = append(
+			events,
+			LeagueFinished.Event(
+				newDate,
+				EventParams{
+					LeagueId:      league.Id,
+					LeagueName:    league.Name,
+					LeagueCountry: league.Country,
+					TeamId1:       firstRow.Team.Id,
+					Label1:        firstRow.Team.Name,
+				},
+			),
+		)
+	}
 	return events
 }
 
@@ -76,7 +92,16 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 	sim.db.LeagueR().PostRoundUpdate(round, league)
 	sim.db.LeagueR().UpdateStats(newStats)
 
-	return RoundPlayed.Event(round.Date, []string{fmt.Sprintf("%d", round.Index+1), round.Id, league.Id})
+	return RoundPlayed.Event(
+		round.Date,
+		EventParams{
+			LeagueId:      league.Id,
+			LeagueName:    league.Name,
+			LeagueCountry: league.Country,
+			RoundId:       round.Id,
+			Label1:        fmt.Sprintf("%d", round.Index+1),
+		},
+	)
 }
 
 func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []*models.News) {
