@@ -8,6 +8,7 @@ const (
 	FR
 	DE
 	ES
+	INTERNATIONAL
 )
 
 const (
@@ -17,7 +18,8 @@ const (
 	de = "Germany"
 	es = "Spain"
 
-	invalid = "INVALID_COUNTRY"
+	international = "International"
+	invalid       = "INVALID_COUNTRY"
 )
 
 func getMapping() map[Country]string {
@@ -37,6 +39,8 @@ func getNationalityMapping() map[Country]string {
 		FR: "French",
 		DE: "German",
 		ES: "Spanish",
+
+		INTERNATIONAL: "International",
 	}
 }
 
