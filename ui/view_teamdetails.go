@@ -60,33 +60,37 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		),
 	)
 
-	teamDetails := widget.NewCard(
-		"",
-		"Team Details",
-		container.NewVBox(
-			container.NewGridWithColumns(2,
+	teamDetails := container.NewVBox(
+		centered(
+			container.NewHBox(
 				widgets.Icon("city"),
 				widget.NewLabel(fmt.Sprintf("%s (%s)", team.City, team.Country)),
 			),
-			container.NewHBox(
-				widgets.Icon("dumbell"),
-				starsFromf64(team.Roster.AvgSkill()),
+		),
+		container.NewGridWithRows(2,
+			centered(
+				container.NewHBox(
+					widgets.Icon("dumbell"),
+					starsFromf64(team.Roster.AvgSkill()),
+				),
 			),
-			container.NewHBox(
-				widget.NewLabel("Avg Age"),
-				widget.NewLabel(fmt.Sprintf("%.2f", team.Roster.AvgAge())),
+			centered(
+				container.NewHBox(
+					widget.NewLabel("Avg Age"),
+					widget.NewLabel(fmt.Sprintf("%.2f", team.Roster.AvgAge())),
+				),
 			),
+		),
+		container.NewGridWithColumns(2,
 			coach,
 			finances,
 		),
 	)
 
-	main := container.NewHSplit(
-		rosterUi(roster, ctx),
-		teamDetails,
+	main := container.NewAppTabs(
+		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
+		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx)),
 	)
-
-	main.SetOffset(1.0)
 
 	return NewFborder().
 		Top(
