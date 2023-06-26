@@ -1,12 +1,14 @@
 package db
 
 import (
+	"fdsim/enums"
 	"fdsim/models"
 )
 
 type LeagueDto struct {
-	Id   string `gorm:"primarykey;size:16"`
-	Name string
+	Id      string `gorm:"primarykey;size:16"`
+	Name    string
+	Country enums.Country
 
 	Teams     []TeamDto     `gorm:"foreignKey:league_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Rounds    []RoundDto    `gorm:"foreignKey:league_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -26,6 +28,7 @@ func DtoFromLeague(l *models.League) LeagueDto {
 	ldto := LeagueDto{
 		Id:       l.Id,
 		Name:     l.Name,
+		Country:  l.Country,
 		RPointer: l.RPointer,
 
 		Teams: DtoFromTeams(l.Teams(), l.Id),
