@@ -103,6 +103,12 @@ func NewTable(teams []*Team) *Table {
 	}
 }
 
+// returns team_id at index
+func (t *Table) Get(index int) (string, *Row) {
+	tId := t.order[index]
+	return tId, t.rows[tId]
+}
+
 func (t *Table) Update(round *Round) {
 	res, ok := round.Results()
 	if !ok {
