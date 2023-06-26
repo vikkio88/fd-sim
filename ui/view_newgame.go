@@ -39,7 +39,6 @@ func newGameView(ctx *AppContext) *fyne.Container {
 }
 
 func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game) *fyne.Container {
-
 	nameEntry := widget.NewEntry()
 	nameEntry.PlaceHolder = "Mario"
 	surnameEntry := widget.NewEntry()
@@ -52,6 +51,9 @@ func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game)
 		stepChange(step, 1)
 	})
 	nextBtn.Disable()
+	backBtn := widget.NewButtonWithIcon("Back", theme.NavigateBackIcon(), func() {
+		ctx.NavigateTo(Main)
+	})
 
 	nameEntry.OnChanged = func(s string) {
 		nextBtn.Disable()
@@ -81,7 +83,7 @@ func playerDetailsStep(ctx *AppContext, step binding.Int, saveGame *models.Game)
 
 	return NewFborder().
 		Top(centered(h1("New Career"))).
-		Bottom(NewFborder().Right(nextBtn).Get()).
+		Bottom(NewFborder().Left(backBtn).Right(nextBtn).Get()).
 		Get(
 			container.NewPadded(
 				container.NewVBox(
@@ -127,6 +129,7 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		name := fmt.Sprintf("Serie A %s", getSeasonYears())
 		// Generating League
 		league := models.NewLeague(name, teamsSlice, saveGame.StartDate)
+		league.Country = selectedCountry
 		ctx.Db.LeagueR().InsertOne(league)
 		saveGame.LeagueId = league.Id
 		ctx.Db.GameR().Create(saveGame)
