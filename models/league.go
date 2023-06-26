@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/enums"
 	"fmt"
 	"time"
 
@@ -14,6 +15,7 @@ type League struct {
 	Name    string
 	TeamMap TeamMap
 	teams   []*Team
+	Country enums.Country
 	// Rounds Placeholders
 	Rounds []RPH
 	Table  *Table
@@ -83,6 +85,15 @@ func (l *League) RoundsPH() []*RPHTPH {
 
 func (l *League) TableRows() []*TPHRow {
 	return l.Table.TPHRows(l.TeamMap)
+}
+
+func (l *League) TableRow(index int) *TPHRow {
+	team, row := l.Table.Get(index)
+	return &TPHRow{
+		Index: index,
+		Team:  l.TeamMap[team].PH(),
+		Row:   row,
+	}
 }
 
 func (l *League) Teams() []*Team {
