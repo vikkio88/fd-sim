@@ -47,7 +47,7 @@ func NewLeagueWithData(id, name string, teams []*Team) *League {
 }
 
 // SeasonStart comes from League Generation at the beginning of the League
-func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
+func NewLeague(teams []*Team, seasonStartDate time.Time) *League {
 	if len(teams)%2 != 0 {
 		panic("Teams need to be an even number!")
 	}
@@ -55,7 +55,7 @@ func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 	rounds := NewRoundsCalendar(teamIds, seasonStartDate.Year())
 	return &League{
 		Idable:      NewIdable(leagueIdGenerator()),
-		Name:        name,
+		Name:        "PLACEHOLDER",
 		TeamMap:     teamMap,
 		teams:       teams,
 		Table:       NewTable(teams),
@@ -63,6 +63,12 @@ func NewLeague(name string, teams []*Team, seasonStartDate time.Time) *League {
 		totalRounds: (len(teams) * 2) - 2,
 		RPointer:    0,
 	}
+}
+
+func (l *League) UpdateLocales(name string, country enums.Country) {
+	l.Name = name
+	l.Country = country
+
 }
 
 func TeamMapAndIdsFromTeams(teams []*Team) (TeamMap, []string) {

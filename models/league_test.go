@@ -25,7 +25,7 @@ func TestLeagueBuilder(t *testing.T) {
 	rng := libs.NewRng(5)
 	tg := generators.NewTeamGenSeeded(rng)
 	ts := tg.TeamsWithCountry(4, enums.IT)
-	l := models.NewLeague("Serie A", ts, time.Now())
+	l := models.NewLeague(ts, time.Now())
 	assert.Equal(t, len(l.Rounds), ((4 - 1) * 2))
 	for _, r := range l.Rounds {
 		assert.Equal(t, len(r.Matches), 2)
@@ -36,7 +36,7 @@ func TestLeagueBuilder(t *testing.T) {
 
 	ts = tg.TeamsWithCountry(3, enums.IT)
 	assertPanic(t, func() {
-		models.NewLeague("Serie A", ts, time.Now())
+		models.NewLeague(ts, time.Now())
 	})
 }
 
@@ -66,7 +66,7 @@ func TestLeagueSimulation(t *testing.T) {
 	rng := libs.NewRng(time.Now().Unix())
 	tg := generators.NewTeamGenSeeded(rng)
 	ts := tg.TeamsWithCountry(teams, enums.IT)
-	l := models.NewLeague("Serie A", ts, time.Now())
+	l := models.NewLeague(ts, time.Now())
 
 	for i := 0; i < len(l.Rounds); i++ {
 		assert.False(t, l.IsFinished())

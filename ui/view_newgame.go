@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/data"
 	"fdsim/enums"
 	"fdsim/generators"
 	"fdsim/models"
@@ -125,11 +126,12 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 	startGame.OnTapped = func() {
 		teamGenBtn.Disable()
 		// generate and save League
-		// this might be coming from country
-		name := fmt.Sprintf("Serie A %s", getSeasonYears())
 		// Generating League
-		league := models.NewLeague(name, teamsSlice, saveGame.StartDate)
-		league.Country = selectedCountry
+		league := models.NewLeague(teamsSlice, saveGame.StartDate)
+		leagueCountry := selectedCountry
+		leagueName := data.GetLeagueName(leagueCountry)
+		name := fmt.Sprintf("%s %s", leagueName, getSeasonYears())
+		league.UpdateLocales(name, leagueCountry)
 		ctx.Db.LeagueR().InsertOne(league)
 		saveGame.LeagueId = league.Id
 		ctx.Db.GameR().Create(saveGame)

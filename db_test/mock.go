@@ -20,7 +20,7 @@ func NewMockDbSeeded(seed int64) *MockDb {
 	tg := generators.NewTeamGen(seed)
 	ts := tg.Teams(2)
 
-	l := models.NewLeague("Mock", ts, utils.NewDate(2023, time.July, 1))
+	l := models.NewLeague(ts, utils.NewDate(2023, time.July, 1))
 	league := &MockLeagueRepo{League: l}
 	team := &MockTeamRepo{Teams: ts}
 	return &MockDb{
@@ -125,7 +125,7 @@ func (r *MockGameR) Create(game *models.Game) {
 	panic("not implemented")
 }
 func (r *MockGameR) Update(game *models.Game) {
-	panic("not implemented")
+
 }
 
 type MockTeamRepo struct {
