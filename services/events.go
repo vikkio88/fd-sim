@@ -18,6 +18,10 @@ const (
 	// Needs LeagueId and LeagueName, TeamId and TeamName for Winner
 	LeagueFinished
 
+	//TODO: Remove Testing Actions
+	TestingActionYes
+	TestingActionNo
+
 	Null
 )
 
@@ -80,60 +84,54 @@ type EventParams struct {
 func (a EventType) Event(date time.Time, params EventParams) *Event {
 	switch a {
 	case RoundPlayed:
+		return roundPlayedEvent(params, date)
+	case LeagueFinished:
+		return leagueFinishedEvent(params, date)
+
+		//TODO: Remove Tests Action
+	case TestingActionYes:
 		{
-			roundIndex := params.Label1
-			roundId := params.RoundId
-			leagueId := params.LeagueId
-			leagueName := params.LeagueName
-			desc := fmt.Sprintf("%s - Round %s played", leagueName, roundIndex)
+			teamId := params.TeamId1
+			teamName := params.Label1
+
+			desc := fmt.Sprintf("You Replied YES")
 			event := NewEvent(date, desc)
 
 			event.TriggerNews = models.NewNews(
 				desc,
 				data.GetNewspaper(params.LeagueCountry),
 				fmt.Sprintf(
-					"The %sth round of %s  was played today %s, "+
-						"Here you can see the updated League table:"+
-						" %s Here you can see the round results %s",
-					roundIndex,
-					leagueName,
-					date.Format(conf.DateFormatGame),
-					conf.LinkBodyPH,
+					"You replied YES, team was %s",
 					conf.LinkBodyPH,
 				),
 				date,
 				[]models.Link{
-					models.NewLink(fmt.Sprintf("%s Table", leagueName), enums.League, &leagueId),
-					models.NewLink("Round Results", enums.RoundDetails, &roundId),
-				},
-			)
-			return event
-		}
-	case LeagueFinished:
-		{
-			leagueId := params.LeagueId
-			teamId := params.TeamId1
-			leagueName := params.LeagueName
-			teamName := params.Label1
-			event := NewEvent(date, fmt.Sprintf("%s Finished", leagueName))
-			title := fmt.Sprintf("%s won %s!", teamName, leagueName)
-
-			event.TriggerNews = models.NewNews(
-				title,
-				data.GetNewspaper(params.LeagueCountry),
-				fmt.Sprintf(
-					"Today the %s League officially finished, and the winner was %s."+
-						"\nFinal Table: %s Winner %s",
-					leagueName, teamName, conf.LinkBodyPH, conf.LinkBodyPH,
-				),
-				date,
-				[]models.Link{
-					models.NewLink(leagueName, enums.League, &leagueId),
 					models.NewLink(teamName, enums.TeamDetails, &teamId),
 				},
 			)
 			return event
+		}
+	case TestingActionNo:
+		{
+			teamId := params.TeamId1
+			teamName := params.Label1
 
+			desc := fmt.Sprintf("You Replied NO")
+			event := NewEvent(date, desc)
+
+			event.TriggerNews = models.NewNews(
+				desc,
+				data.GetNewspaper(params.LeagueCountry),
+				fmt.Sprintf(
+					"You replied NO, team was %s",
+					conf.LinkBodyPH,
+				),
+				date,
+				[]models.Link{
+					models.NewLink(teamName, enums.TeamDetails, &teamId),
+				},
+			)
+			return event
 		}
 
 	}

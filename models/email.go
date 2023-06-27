@@ -22,7 +22,7 @@ type Email struct {
 	Body    string
 	Date    time.Time
 	Links   []Link
-	Actions []Action
+	Action  *Actionable
 }
 
 func NewEmail(from, subject, body string, date time.Time, links []Link) *Email {
@@ -36,6 +36,18 @@ func NewEmail(from, subject, body string, date time.Time, links []Link) *Email {
 	}
 }
 
+func NewEmailWithAction(from, subject, body string, date time.Time, links []Link, action *Actionable) *Email {
+	return &Email{
+		Id:      emailIdGenerator(),
+		Sender:  from,
+		Subject: subject,
+		Body:    body,
+		Date:    date,
+		Links:   links,
+		Action:  action,
+	}
+}
+
 func NewEmailWithId(id, from, subject, body string, date time.Time, links []Link) *Email {
 	return &Email{
 		Id:      id,
@@ -45,6 +57,14 @@ func NewEmailWithId(id, from, subject, body string, date time.Time, links []Link
 		Date:    date,
 		Links:   links,
 	}
+}
+
+func (e *Email) Answer(choice *Choosable) {
+	if e.Action == nil {
+		return
+	}
+
+	e.Action.Decide(choice)
 }
 
 func (e Email) String() string {

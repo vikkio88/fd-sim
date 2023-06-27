@@ -61,6 +61,11 @@ func (repo *GameRepo) AddEmails(emails []*models.Email) {
 	repo.g.Model(&EmailDto{}).Create(&dtos)
 }
 
+func (repo *GameRepo) UpdateEmail(email *models.Email) {
+	dto := DtoFromEmail(email)
+	repo.g.Model(&EmailDto{}).Where("id = ?", dto.Id).Save(&dto)
+}
+
 func (repo *GameRepo) GetEmails() []*models.Email {
 	var dtos []EmailDto
 	repo.g.Model(&EmailDto{}).Find(&dtos)

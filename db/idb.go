@@ -27,6 +27,7 @@ type IGameRepo interface {
 	GetEmailById(id string) *models.Email
 	DeleteEmail(id string)
 	MarkEmailAsRead(id string)
+	UpdateEmail(*models.Email)
 	AddNews([]*models.News)
 	GetNews() []*models.News
 	GetNewsById(id string) *models.News

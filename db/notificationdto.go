@@ -31,11 +31,31 @@ func serialiseLinks(links []models.Link) *string {
 	return &result
 }
 
-func unserialiseActions(actions *string) []models.Action {
-	return []models.Action{}
+func unserialiseActions(actions *string) *models.Actionable {
+	if actions == nil {
+		return &models.Actionable{}
+	}
+
+	var result models.Actionable
+	data := *actions
+	err := json.Unmarshal([]byte(data), &result)
+	if err != nil {
+		fmt.Println("error while loading actions", err)
+		return &models.Actionable{}
+	}
+
+	return &result
 }
-func serialiseActions(actions []models.Action) *string {
-	return nil
+func serialiseAction(action *models.Actionable) *string {
+	if action == nil {
+		return nil
+	}
+
+	var result string
+	data, _ := json.Marshal(action)
+	result = string(data)
+
+	return &result
 }
 
 type NewsDto struct {
@@ -80,7 +100,7 @@ type EmailDto struct {
 	Body    string
 	Date    time.Time
 	Links   *string
-	Actions *string
+	Action  *string
 }
 
 func DtoFromEmail(email *models.Email) EmailDto {
@@ -92,7 +112,7 @@ func DtoFromEmail(email *models.Email) EmailDto {
 		Body:    email.Body,
 		Date:    email.Date,
 		Links:   serialiseLinks(email.Links),
-		Actions: serialiseActions(email.Actions),
+		Action:  serialiseAction(email.Action),
 	}
 }
 
@@ -105,6 +125,6 @@ func (email *EmailDto) Email() *models.Email {
 		Body:    email.Body,
 		Date:    email.Date,
 		Links:   unserialiseLinks(email.Links),
-		Actions: unserialiseActions(email.Actions),
+		Action:  unserialiseActions(email.Action),
 	}
 }

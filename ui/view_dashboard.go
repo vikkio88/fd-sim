@@ -5,6 +5,7 @@ import (
 	d "fdsim/db"
 	"fdsim/models"
 	"fdsim/services"
+	"fdsim/utils"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -75,12 +76,32 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 	sim := services.NewSimulator(game, ctx.Db)
 
-	trigNotifyNoDb := widget.NewButtonWithIcon("Notif NODB", theme.InfoIcon(), func() {
-		email := models.NewEmail("Bla@bla.com", "Some Stuff", "Do things", game.Date, []models.Link{})
-		emails.Prepend(email)
+	trigNotifyNoDb := widget.NewButtonWithIcon("Trig Act Email", theme.InfoIcon(), func() {
+		randomTeam := ctx.Db.TeamR().All()[0]
+		var money float64 = 10000.0
 
-		n := models.NewNews("Something Happened", "Corriere della Sera", "Some Stuff", game.Date, []models.Link{})
-		news.Prepend(n)
+		email := models.NewEmail(
+			fmt.Sprintf("hr@%s.com", randomTeam.Name),
+			"Testing Actionable",
+			fmt.Sprintf("We are willing to offer you %s  per year. Please consider us for your next job LINK", utils.NewEurosFromF(money).StringKMB()),
+			game.Date,
+			[]models.Link{
+				models.NewLink(randomTeam.Name, TeamDetails.String(), &randomTeam.Id),
+			},
+		)
+
+		email.Action = services.MakeActionable(
+			models.ActionTest,
+			game.Date,
+			services.ActionParameter{
+				TeamId: &randomTeam.Id,
+				Label:  &randomTeam.Name,
+				Value:  &money,
+			},
+		)
+
+		ctx.Db.GameR().AddEmails([]*models.Email{email})
+		emails.Prepend(email)
 	})
 
 	trigNotifyDb := widget.NewButtonWithIcon("Notif DB", theme.InfoIcon(), func() {
@@ -264,7 +285,7 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 		if !email.Read {
 			email.Read = true
 			list.Refresh()
-			db.GameR().MarkNewsAsRead(email.Id)
+			db.GameR().MarkEmailAsRead(email.Id)
 		}
 		list.UnselectAll()
 		navigate(Email, email.Id)

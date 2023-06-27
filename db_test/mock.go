@@ -62,6 +62,10 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// UpdateEmail implements db.IGameRepo.
+func (*MockGameR) UpdateEmail(*models.Email) {
+}
+
 // AddEmails implements db.IGameRepo.
 func (*MockGameR) AddEmails([]*models.Email) {
 	panic("unimplemented")

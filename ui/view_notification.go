@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/conf"
+	"fdsim/db"
 	"fdsim/models"
 	"fdsim/widgets"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -43,15 +45,112 @@ func makeNews(id string, ctx *AppContext) fyne.CanvasObject {
 }
 
 func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
+	game, _ := ctx.GetGameState()
 	email := ctx.Db.GameR().GetEmailById(id)
+
+	body := NewFborder()
+	content := container.NewVBox()
 	emailBody := parseBody(email.Body, email.Links, ctx)
+	content.Add(emailBody)
+
+	if email.Action != nil {
+		makeAction(email, content, body, game, ctx.Db)
+
+	}
 	return container.NewMax(
 		widget.NewCard(
 			email.Subject,
 			fmt.Sprintf("%s - %s", email.Date.Format(conf.DateFormatShort), email.Sender),
-			emailBody,
+			body.Get(content),
 		),
 	)
+}
+
+func makeAction(email *models.Email, content *fyne.Container, body *Fborder, game *models.Game, db db.IDb) {
+	var actionable fyne.CanvasObject
+	var replyBtn *widget.Button
+	answered := email.Action.Decision != nil
+	answeredB := binding.NewBool()
+	replyBtn = widget.NewButton("Reply", func() {
+		fmt.Println(email.Action)
+		answeredB.Set(true)
+		//TODO: Set Decision and store email
+		decision := email.Action.Choices
+		email.Answer(&decision)
+
+		decisionE := *email.Action.Decision
+		dec := models.NewDecisionFromEmail(game.Date, decisionE, email.Id)
+
+		// TODO: Make sure to fix this, if you dont trigger the next
+		// day your actions wont take place
+		game.QueueDecision(dec)
+		db.GameR().UpdateEmail(email)
+	})
+
+	if !answered {
+		actionable = parseAction(email.Action)
+		content.Add(actionable)
+		body.Bottom(rightAligned(replyBtn))
+		answeredB.AddListener(binding.NewDataListener(func() {
+			if email.Action.Decision == nil {
+				return
+			}
+
+			actionable.Hide()
+			content.Add(h1("You replied"))
+			replyBtn.Disable()
+		}))
+	} else {
+		content.Add(h1("You replied"))
+	}
+}
+
+func parseAction(action *models.Actionable) fyne.CanvasObject {
+	return container.NewVBox(
+		widget.NewCard(
+			action.Description,
+			fmt.Sprintf("valid until: %s", action.Expires.Format(conf.DateFormatGame)),
+			makeChoices(action.Choices),
+		),
+	)
+}
+
+func makeChoices(choices models.Choosable) fyne.CanvasObject {
+	c := container.NewVBox()
+
+	if choices.YN != nil {
+		yn := binding.BindBool(choices.YN)
+
+		c.Add(
+			widget.NewCheckWithData("My Answer is YES", yn),
+		)
+
+		return c
+	}
+
+	// In case I want Value
+	// if choices.Value != nil {
+	// 	val := binding.BindFloat(choices.Value)
+	// 	valueStr := ""
+	// 	lbl := binding.BindString(&valueStr)
+	// 	val.AddListener(binding.NewDataListener(
+	// 		func() {
+	// 			v, _ := val.Get()
+	// 			lbl.Set(fmt.Sprintf("%s", utils.NewEurosFromF(v).StringKMB()))
+	// 		},
+	// 	))
+	// 	slider := widget.NewSliderWithData(100, 200000000, val)
+	// 	slider.Step = 1000
+	// 	c.Add(
+	// 		container.NewVBox(
+	// 			widget.NewLabelWithData(lbl),
+	// 			slider,
+	// 		),
+	// 	)
+	// 	return c
+	// }
+
+	return c
 }
 
 func parseBody(body string, links []models.Link, ctx *AppContext) *widget.RichText {

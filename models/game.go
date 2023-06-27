@@ -49,6 +49,8 @@ type Game struct {
 
 	Team     *TPH
 	LeagueId string
+
+	Decisions []*Decision
 }
 
 func (g *Game) Update(name, surname string, age int, startDate time.Time) {
@@ -81,6 +83,8 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		Age:      age,
 		Date:     date,
 		LeagueId: leagueId,
+
+		Decisions: []*Decision{},
 	}
 }
 
@@ -91,7 +95,17 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 		Name:     name,
 		Surname:  surname,
 		Age:      age,
+
+		Decisions: []*Decision{},
 	}
+}
+
+func (g *Game) FreeDecisionQueue() {
+	g.Decisions = []*Decision{}
+}
+
+func (g *Game) QueueDecision(decision *Decision) {
+	g.Decisions = append(g.Decisions, decision)
 }
 
 func (g *Game) FootDirector() FootDirector {

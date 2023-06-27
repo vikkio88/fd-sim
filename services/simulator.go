@@ -35,6 +35,10 @@ func (sim *Simulator) Simulate(days int) []*Event {
 	for i := 1; i <= days; i++ {
 		newDate := sim.game.Date.AddDate(0, 0, 1)
 		fmt.Printf("Simulating day %s\n", newDate.Format(conf.DateFormatGame))
+		for _, d := range sim.game.Decisions {
+			events = append(events, ParseDecision(newDate, &d.Choice))
+		}
+		sim.game.FreeDecisionQueue()
 
 		if sim.checkForMatches(newDate) {
 			fmt.Printf("Had Matches\n")
