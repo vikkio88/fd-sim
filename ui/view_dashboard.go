@@ -19,12 +19,20 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// TODO:  this is a bit shit but works
+var news, emails binding.UntypedList
+var dateStr binding.String
+
+// I made them globals to this package as Simulation needs to update the content of this page
+
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
-	news, emails := loadNotifications(ctx.Db)
+	newsx, emailsx := loadNotifications(ctx.Db)
+	news = newsx
+	emails = emailsx
 
-	dateStr := binding.NewString()
+	dateStr = binding.NewString()
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 
 	fd := game.FootDirector()
@@ -76,7 +84,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
 	sim := services.NewSimulator(game, ctx.Db)
 
-	trigNotifyNoDb := widget.NewButtonWithIcon("Trig Act Email", theme.InfoIcon(), func() {
+	trigAct := widget.NewButtonWithIcon("Trig Act Email", theme.InfoIcon(), func() {
 		randomTeam := ctx.Db.TeamR().All()[0]
 		var money float64 = 10000.0
 
@@ -104,19 +112,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		emails.Prepend(email)
 	})
 
-	trigNotifyDb := widget.NewButtonWithIcon("Notif DB", theme.InfoIcon(), func() {
-		email := models.NewEmail(
-			"someguylink@bla.com", "Here you go some Links!",
-			fmt.Sprintf("Do some stuff things %s other text", conf.LinkBodyPH),
-			game.Date,
-			[]models.Link{models.NewLink("Test", Test.String(), nil)},
-		)
-		emails.Prepend(email)
-		ctx.Db.GameR().AddEmails([]*models.Email{email})
-
-		n := models.NewNews("Something Happened", "Corriere della Sera", "Some Stuff", game.Date, []models.Link{})
-		news.Prepend(n)
-		ctx.Db.GameR().AddNews([]*models.News{n})
+	startSim := widget.NewButtonWithIcon("Simulate", theme.MediaPlayIcon(), func() {
+		ctx.Push(Simulation)
 	})
 
 	nextDay := widget.NewButtonWithIcon("Next Day", theme.MediaSkipNextIcon(), func() {
@@ -152,10 +149,10 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		Bottom(
 			NewFborder().Right(
 				container.NewHBox(
-					trigNotifyNoDb,
-					trigNotifyDb,
+					trigAct,
 					nextDay,
 					nextWeek,
+					startSim,
 				)).Get(),
 		).
 		Get(
@@ -293,7 +290,7 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 	return list
 }
 
-func simTriggers(dateStr binding.String, news, emails binding.UntypedList, game *models.Game, sim *services.Simulator, events []*services.Event) {
+func simTriggers(dateStr binding.String, news, emails binding.UntypedList, game *models.Game, sim *services.Simulator, events []*services.Event) (int, int) {
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 	newEmails, newNews := sim.SettleEventsTriggers(events)
 	for _, e := range newEmails {
@@ -302,4 +299,7 @@ func simTriggers(dateStr binding.String, news, emails binding.UntypedList, game 
 	for _, n := range newNews {
 		news.Prepend(n)
 	}
+
+	// this is used in Simulation as it returns the numbers of news notifications
+	return len(newEmails), len(newNews)
 }

@@ -29,36 +29,52 @@ func NewSimulator(game *models.Game, db db.IDb) *Simulator {
 }
 
 func (sim *Simulator) Simulate(days int) []*Event {
-	// TODO: Here apply actions maybe?
-
 	events := []*Event{}
 	for i := 1; i <= days; i++ {
 		newDate := sim.game.Date.AddDate(0, 0, 1)
+		//this could go to a notification chan
 		fmt.Printf("Simulating day %s\n", newDate.Format(conf.DateFormatGame))
-		for _, d := range sim.game.Decisions {
-			events = append(events, ParseDecision(newDate, &d.Choice))
-		}
-		sim.game.FreeDecisionQueue()
-
-		if sim.checkForMatches(newDate) {
-			fmt.Printf("Had Matches\n")
-			league := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
-			// maybe double check that the round date is the same?
-			round, _ := league.NextRound()
-			fmt.Printf("Simulating Round %d\n", round.Index+1)
-			events = append(events, sim.simulateRound(round, league))
-			events = sim.checkIfLeagueFinished(league, events, newDate)
-		}
-
-		// here there will be logic for events triggering
-
-		// set new date
-		sim.game.Date = newDate
+		events = sim.simulateDate(events, newDate)
 	}
 
 	// Saving New Game state
 	sim.db.GameR().Update(sim.game)
 
+	return events
+}
+
+func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event {
+	// Decisions is a series of queued Choosable taken during the pause stage
+	events = sim.applyDecisions(newDate, events)
+
+	// Check if there are matches during this day
+	if sim.checkForMatches(newDate) {
+		fmt.Printf("Had Matches\n")
+		league := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
+
+		// TODO: maybe double check that the round date is the same?
+		round, _ := league.NextRound()
+
+		fmt.Printf("Simulating Round %d\n", round.Index+1)
+		events = append(events, sim.simulateRound(round, league))
+		events = sim.checkIfLeagueFinished(league, events, newDate)
+	}
+	// here there will be logic for events triggering
+
+	// set new date
+	sim.game.Date = newDate
+	return events
+}
+
+func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Event {
+	// maybe use Decisions as queue and pop
+	for _, d := range sim.game.Decisions {
+		decisionEvent := ParseDecision(newDate, &d.Choice)
+		if decisionEvent != nil {
+			events = append(events, decisionEvent)
+		}
+	}
+	sim.game.FreeDecisionQueue()
 	return events
 }
 

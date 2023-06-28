@@ -55,6 +55,8 @@ func NewApp() App {
 			RoundDetails:  func() *fyne.Container { return roundDetailsView(&ctx) },
 			MatchDetails:  func() *fyne.Container { return matchDetailsView(&ctx) },
 
+			Simulation: func() *fyne.Container { return simulationView(&ctx) },
+
 			//TEST ROUTE
 			Test: func() *fyne.Container { return testView(&ctx) },
 		},
@@ -123,7 +125,9 @@ func (a *App) Cleanup() {
 
 func setupContext(w fyne.Window) AppContext {
 	//TODO: remove this as it is for testing views
+	//TODO: check why Main seems to be rendered twice
 	initialRoute := Main
+	// initialRoute := Simulation
 
 	// initialRoute := Test
 	// initialRoute := NewGame

@@ -16,6 +16,8 @@ const (
 	RoundDetails string = "ROUND_DETAILS"
 	MatchDetails string = "MATCH_DETAILS"
 
+	Simulation string = "SIMULATION"
+
 	Test string = "TEST"
 	Quit string = "QUIT"
 

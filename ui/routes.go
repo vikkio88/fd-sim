@@ -23,6 +23,8 @@ const (
 	RoundDetails
 	MatchDetails
 
+	Simulation
+
 	Test
 	Quit
 )
@@ -43,6 +45,8 @@ func getMapping() map[AppRoute]string {
 		League:       e.League,
 		RoundDetails: e.RoundDetails,
 		MatchDetails: e.MatchDetails,
+
+		Simulation: e.Simulation,
 
 		Test: e.Test,
 		Quit: e.Quit,
@@ -65,6 +69,8 @@ func getReverseMapping() map[string]AppRoute {
 		e.League:       League,
 		e.RoundDetails: RoundDetails,
 		e.MatchDetails: MatchDetails,
+
+		e.Simulation: Simulation,
 
 		e.Test: Test,
 		e.Quit: Quit,

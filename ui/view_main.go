@@ -13,6 +13,11 @@ func mainView(ctx *AppContext) *fyne.Container {
 		Get(
 			container.NewCenter(
 				container.NewVBox(
+					// widget.NewButton("Test Simulation Page",
+					// 	func() {
+					// 		ctx.NavigateTo(Simulation)
+					// 	},
+					// ),
 					widget.NewButton("New Game",
 						func() {
 							ctx.NavigateTo(NewGame)
