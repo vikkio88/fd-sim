@@ -3,6 +3,7 @@ package models
 import "fdsim/enums"
 
 type EventParams struct {
+	Country       enums.Country
 	LeagueId      string
 	LeagueName    string
 	LeagueCountry enums.Country

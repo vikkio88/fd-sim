@@ -13,15 +13,15 @@ import (
 
 func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	leagueId := params.LeagueId
-	teamId := params.TeamId1
 	leagueName := params.LeagueName
-	teamName := params.Label1
+	teamId := params.TeamId
+	teamName := params.TeamName
 	event := NewEvent(date, fmt.Sprintf("%s Finished", leagueName))
 	title := fmt.Sprintf("%s won %s!", teamName, leagueName)
 
 	event.TriggerNews = models.NewNews(
 		title,
-		data.GetNewspaper(params.LeagueCountry),
+		data.GetNewspaper(params.Country),
 		fmt.Sprintf(
 			"Today the %s League officially finished, and the winner was %s."+
 				"\nFinal Table: %s Winner %s",
@@ -46,7 +46,7 @@ func roundPlayedEvent(params models.EventParams, date time.Time) *Event {
 
 	event.TriggerNews = models.NewNews(
 		desc,
-		data.GetNewspaper(params.LeagueCountry),
+		data.GetNewspaper(params.Country),
 		fmt.Sprintf(
 			"The %sth round of %s  was played today %s, "+
 				"Here you can see the updated League table:"+
@@ -94,7 +94,7 @@ func contractAccepted(params models.EventParams, date time.Time) *Event {
 
 	event.TriggerNews = models.NewNews(
 		fmt.Sprintf("%s hired from %s as Football Director", fdName, teamName),
-		"Newsweek",
+		data.GetNewspaper(params.Country),
 		fmt.Sprintf(
 			"A new football director, %s, got hired today from %s. Seems like he signed a %d year(s) contract. %s",
 			fdName, teamName, ycontract, conf.LinkBodyPH,

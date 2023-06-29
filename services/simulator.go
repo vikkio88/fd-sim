@@ -3,7 +3,6 @@ package services
 import (
 	"fdsim/conf"
 	"fdsim/db"
-	"fdsim/enums"
 	"fdsim/libs"
 	"fdsim/models"
 	"fmt"
@@ -81,8 +80,7 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 					ValueInt: 2,
 					ValueF:   money,
 					FdName:   sim.game.FootDirector().String(),
-					//TODO: This is crap, might need to rethink where to store country
-					LeagueCountry: enums.IT,
+					Country:  sim.game.BaseCountry,
 				}),
 		)
 	}
@@ -104,7 +102,7 @@ func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Even
 	return events
 }
 
-func (*Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
+func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
 	if league.IsFinished() {
 		firstRow := league.TableRow(0)
 		events = append(
@@ -112,11 +110,11 @@ func (*Simulator) checkIfLeagueFinished(league *models.League, events []*Event, 
 			LeagueFinished.Event(
 				newDate,
 				models.EventParams{
-					LeagueId:      league.Id,
-					LeagueName:    league.Name,
-					LeagueCountry: league.Country,
-					TeamId1:       firstRow.Team.Id,
-					Label1:        firstRow.Team.Name,
+					Country:    sim.game.BaseCountry,
+					LeagueId:   league.Id,
+					LeagueName: league.Name,
+					TeamId:     firstRow.Team.Id,
+					TeamName:   firstRow.Team.Name,
 				},
 			),
 		)
@@ -141,11 +139,11 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 	return RoundPlayed.Event(
 		round.Date,
 		models.EventParams{
-			LeagueId:      league.Id,
-			LeagueName:    league.Name,
-			LeagueCountry: league.Country,
-			RoundId:       round.Id,
-			Label1:        fmt.Sprintf("%d", round.Index+1),
+			Country:    sim.game.BaseCountry,
+			LeagueId:   league.Id,
+			LeagueName: league.Name,
+			RoundId:    round.Id,
+			Label1:     fmt.Sprintf("%d", round.Index+1),
 		},
 	)
 }
