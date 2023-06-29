@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/enums"
 	"fdsim/utils"
 	"fmt"
 	"strings"
@@ -53,6 +54,10 @@ type Game struct {
 
 	Team     *TPH
 	LeagueId string
+
+	// This is connected to the League Country, it is here
+	// so I can create News without having to fetch League
+	BaseCountry enums.Country
 
 	Decisions []*Decision
 	Flags     Flags

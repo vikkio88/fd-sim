@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fdsim/enums"
 	"fdsim/models"
 	"fdsim/utils"
 	"fmt"
@@ -24,10 +25,11 @@ type GameDto struct {
 	Board      int
 	Supporters int
 
-	TeamID   *string
-	LeagueID *string
-	Team     *TeamDto   `gorm:"foreignKey:team_id"`
-	League   *LeagueDto `gorm:"foreignKey:league_id"`
+	BaseCountry enums.Country
+	TeamID      *string
+	LeagueID    *string
+	Team        *TeamDto   `gorm:"foreignKey:team_id"`
+	League      *LeagueDto `gorm:"foreignKey:league_id"`
 
 	Flags string
 }
@@ -54,16 +56,17 @@ func unserialiseFlags(f string) models.Flags {
 
 func DtoFromGame(game *models.Game) GameDto {
 	g := GameDto{
-		Id:        game.Id,
-		SaveName:  game.SaveName,
-		Name:      game.Name,
-		Surname:   game.Surname,
-		Age:       game.Age,
-		Fame:      game.Fame.Val(),
-		Date:      game.Date,
-		StartDate: game.StartDate,
-		LeagueID:  &game.LeagueId,
-		Flags:     serialiseFlags(game.Flags),
+		Id:          game.Id,
+		SaveName:    game.SaveName,
+		Name:        game.Name,
+		Surname:     game.Surname,
+		Age:         game.Age,
+		Fame:        game.Fame.Val(),
+		Date:        game.Date,
+		StartDate:   game.StartDate,
+		LeagueID:    &game.LeagueId,
+		Flags:       serialiseFlags(game.Flags),
+		BaseCountry: game.BaseCountry,
 	}
 
 	if game.Team != nil {
@@ -82,6 +85,7 @@ func (g *GameDto) Game() *models.Game {
 		g.Id, g.SaveName,
 		g.Name, g.Surname, g.Age,
 	)
+	game.BaseCountry = g.BaseCountry
 	game.Fame = utils.NewPerc(g.Fame)
 	game.LeagueId = *g.LeagueID
 	game.Date = g.Date

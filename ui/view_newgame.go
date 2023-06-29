@@ -134,6 +134,7 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		league.UpdateLocales(name, leagueCountry)
 		ctx.Db.LeagueR().InsertOne(league)
 		saveGame.LeagueId = league.Id
+		saveGame.BaseCountry = leagueCountry
 		ctx.Db.GameR().Create(saveGame)
 		ctx.NavigateToWithParam(Dashboard, saveGame.Id)
 	}
