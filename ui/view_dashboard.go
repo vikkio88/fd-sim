@@ -78,7 +78,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	)
 	navigate := ctx.PushWithParam
 	newsMailsTabs := container.NewAppTabs(
-		container.NewTabItemWithIcon("News", theme.DocumentIcon(), makeNewsTab(news, ctx.Db, navigate)),
+		container.NewTabItemWithIcon("News", widgets.Icon("newspaper").Resource, makeNewsTab(news, ctx.Db, navigate)),
 		container.NewTabItemWithIcon("Emails", theme.MailComposeIcon(), makeEmailsTab(emails, ctx.Db, navigate)),
 	)
 	main := container.NewGridWithColumns(2, navigation, newsMailsTabs)
@@ -98,13 +98,13 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 			},
 		)
 
-		email.Action = services.MakeActionable(
+		email.Action = services.MakeActionableFromType(
 			models.ActionTest,
 			game.Date,
 			services.ActionParameter{
 				TeamId: &randomTeam.Id,
 				Label:  &randomTeam.Name,
-				Value:  &money,
+				ValueF: &money,
 			},
 		)
 
@@ -181,7 +181,6 @@ func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any
 		func() fyne.CanvasObject {
 			return container.NewMax(
 				NewFborder().
-					Left(widget.NewIcon(theme.DocumentIcon())).
 					Right(
 						widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
 					).
@@ -201,12 +200,7 @@ func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any
 			mainLbl.SetText(newsI.String())
 			mainLbl.TextStyle = fyne.TextStyle{Bold: !newsI.Read}
 			mainLbl.Refresh()
-
-			leftIcon := newsContainer.Objects[1].(*widget.Icon)
-			if newsI.Read {
-				leftIcon.SetResource(theme.FileTextIcon())
-			}
-			deleteBtn := newsContainer.Objects[2].(*widget.Button)
+			deleteBtn := newsContainer.Objects[1].(*widget.Button)
 			deleteBtn.OnTapped = func() {
 				db.GameR().DeleteNews(newsI.Id)
 				items, _ := news.Get()
@@ -230,7 +224,18 @@ func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any
 		list.UnselectAll()
 		navigate(News, news.Id)
 	}
-	return list
+	return NewFborder().
+		Top(
+			container.NewPadded(
+				leftAligned(widget.NewButtonWithIcon("All", theme.DeleteIcon(), func() {
+					vm.ClearDataUtList(news)
+					db.GameR().DeleteAllNews()
+				})),
+			),
+		).
+		Get(
+			list,
+		)
 }
 
 func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute, any)) fyne.CanvasObject {

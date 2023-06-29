@@ -106,10 +106,14 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 }
 
 func parseAction(action *models.Actionable) fyne.CanvasObject {
+	validity := ""
+	if !action.Expires.IsZero() {
+		validity = fmt.Sprintf("valid until: %s", action.Expires.Format(conf.DateFormatGame))
+	}
 	return container.NewVBox(
 		widget.NewCard(
 			action.Description,
-			fmt.Sprintf("valid until: %s", action.Expires.Format(conf.DateFormatGame)),
+			validity,
 			makeChoices(action.Choices),
 		),
 	)

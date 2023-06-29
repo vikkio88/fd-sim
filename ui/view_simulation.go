@@ -3,6 +3,7 @@ package ui
 import (
 	"fdsim/models"
 	"fdsim/services"
+	"fdsim/widgets"
 	"fmt"
 	"time"
 
@@ -45,10 +46,12 @@ func simulationView(ctx *AppContext) *fyne.Container {
 		}
 	}()
 	backBtn := backButton(ctx)
+	placeholder := widget.NewLabel("0")
 	var startBtn *widget.Button
 	startBtn = widget.NewButtonWithIcon("Start", theme.MediaPlayIcon(), func() {
 		state.Set("Simulating...")
 		go start(game, sim, dayFinished, stop, quit)
+		placeholder.Hide()
 		backBtn.Disable()
 		startBtn.Disable()
 	})
@@ -84,13 +87,15 @@ func simulationView(ctx *AppContext) *fyne.Container {
 					),
 					centered(
 						container.NewGridWithColumns(2,
-							widget.NewIcon(theme.DocumentIcon()),
+							widget.NewIcon(widgets.Icon("newspaper").Resource),
+							placeholder,
 							widget.NewLabelWithData(news),
 						),
 					),
 					centered(
 						container.NewGridWithColumns(2,
 							widget.NewIcon(theme.MailComposeIcon()),
+							placeholder,
 							widget.NewLabelWithData(emails),
 						),
 					),
@@ -112,7 +117,7 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 				events := sim.Simulate(1)
 				emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
 				messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}
-				time.Sleep(time.Duration(2) * time.Second)
+				time.Sleep(time.Duration(1) * time.Second)
 			}
 		}
 	}

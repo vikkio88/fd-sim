@@ -1,8 +1,10 @@
 package db
 
 import (
+	"encoding/json"
 	"fdsim/models"
 	"fdsim/utils"
+	"fmt"
 	"time"
 )
 
@@ -26,6 +28,28 @@ type GameDto struct {
 	LeagueID *string
 	Team     *TeamDto   `gorm:"foreignKey:team_id"`
 	League   *LeagueDto `gorm:"foreignKey:league_id"`
+
+	Flags string
+}
+
+func serialiseFlags(f models.Flags) string {
+	var result string
+	data, _ := json.Marshal(f)
+	result = string(data)
+
+	return result
+}
+
+func unserialiseFlags(f string) models.Flags {
+	var flags models.Flags
+
+	err := json.Unmarshal([]byte(f), &flags)
+	if err != nil {
+		fmt.Println("Error while getting flags")
+		return models.Flags{}
+	}
+
+	return flags
 }
 
 func DtoFromGame(game *models.Game) GameDto {
@@ -39,6 +63,7 @@ func DtoFromGame(game *models.Game) GameDto {
 		Date:      game.Date,
 		StartDate: game.StartDate,
 		LeagueID:  &game.LeagueId,
+		Flags:     serialiseFlags(game.Flags),
 	}
 
 	if game.Team != nil {
@@ -61,6 +86,7 @@ func (g *GameDto) Game() *models.Game {
 	game.LeagueId = *g.LeagueID
 	game.Date = g.Date
 	game.StartDate = g.StartDate
+	game.Flags = unserialiseFlags(g.Flags)
 
 	if g.Team != nil {
 		teamPh := g.Team.Team().PH()

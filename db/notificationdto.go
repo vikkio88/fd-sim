@@ -31,9 +31,9 @@ func serialiseLinks(links []models.Link) *string {
 	return &result
 }
 
-func unserialiseActions(actions *string) *models.Actionable {
+func unserialiseAction(actions *string) *models.Actionable {
 	if actions == nil {
-		return &models.Actionable{}
+		return nil
 	}
 
 	var result models.Actionable
@@ -41,7 +41,7 @@ func unserialiseActions(actions *string) *models.Actionable {
 	err := json.Unmarshal([]byte(data), &result)
 	if err != nil {
 		fmt.Println("error while loading actions", err)
-		return &models.Actionable{}
+		return nil
 	}
 
 	return &result
@@ -125,6 +125,6 @@ func (email *EmailDto) Email() *models.Email {
 		Body:    email.Body,
 		Date:    email.Date,
 		Links:   unserialiseLinks(email.Links),
-		Action:  unserialiseActions(email.Action),
+		Action:  unserialiseAction(email.Action),
 	}
 }

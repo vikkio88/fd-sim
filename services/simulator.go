@@ -28,6 +28,10 @@ func NewSimulator(game *models.Game, db db.IDb) *Simulator {
 	return NewSimulatorSeeded(game, db, rng)
 }
 
+func (sim *Simulator) persistGameState() {
+	sim.db.GameR().Update(sim.game)
+}
+
 func (sim *Simulator) Simulate(days int) []*Event {
 	events := []*Event{}
 	for i := 1; i <= days; i++ {
@@ -38,7 +42,7 @@ func (sim *Simulator) Simulate(days int) []*Event {
 	}
 
 	// Saving New Game state
-	sim.db.GameR().Update(sim.game)
+	sim.persistGameState()
 
 	return events
 }
@@ -59,7 +63,25 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 		events = append(events, sim.simulateRound(round, league))
 		events = sim.checkIfLeagueFinished(league, events, newDate)
 	}
+
 	// here there will be logic for events triggering
+	// ADD EVENT TRIGGERING HERE
+	x := sim.game.IsUnemployedAndNoOfferPending()
+	y := sim.rng.ChanceI(100)
+	if x && y {
+		randomTeam := sim.db.TeamR().All()[0]
+		var money float64 = 10000.0
+		events = append(events,
+			ContractOffer.Event(
+				newDate,
+				EventParams{
+					TeamId1:  randomTeam.Id,
+					Label1:   randomTeam.Name,
+					valueInt: 2,
+					valueF:   money,
+				}),
+		)
+	}
 
 	// set new date
 	sim.game.Date = newDate
@@ -125,6 +147,7 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 }
 
 func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []*models.News) {
+
 	emails := []*models.Email{}
 	news := []*models.News{}
 	for _, e := range events {
@@ -135,11 +158,15 @@ func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []
 		if e.TriggerEmail != nil {
 			emails = append(emails, e.TriggerEmail)
 		}
+
+		sim.game.Flags = e.TriggerFlags(sim.game.Flags)
+		e.TriggerChanges(sim.game, sim.db)
 	}
 
 	//persist notifications on db
 	sim.db.GameR().AddEmails(emails)
 	sim.db.GameR().AddNews(news)
+	sim.persistGameState()
 
 	// return new ones to UI
 	return emails, news

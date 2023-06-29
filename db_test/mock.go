@@ -62,6 +62,16 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// TruncateNotifications implements db.IGameRepo.
+func (*MockGameR) TruncateNotifications() {
+	panic("unimplemented")
+}
+
+// DeleteAllNews implements db.IGameRepo.
+func (*MockGameR) DeleteAllNews() {
+	panic("unimplemented")
+}
+
 // UpdateEmail implements db.IGameRepo.
 func (*MockGameR) UpdateEmail(*models.Email) {
 }

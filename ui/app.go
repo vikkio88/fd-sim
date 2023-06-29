@@ -127,10 +127,8 @@ func setupContext(w fyne.Window) AppContext {
 	//TODO: remove this as it is for testing views
 	//TODO: check why Main seems to be rendered twice
 	initialRoute := Main
-	// initialRoute := Simulation
 
 	// initialRoute := Test
-	// initialRoute := NewGame
 
 	return NewAppContext(initialRoute, w)
 }

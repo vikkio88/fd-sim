@@ -5,7 +5,7 @@ import "time"
 type ActionType uint8
 
 const (
-	ActionContract ActionType = iota
+	ActionRespondContract ActionType = iota
 	ActionOutTranfer
 	ActionInTranfer
 	ActionPlayerContract
@@ -26,7 +26,8 @@ type Actionable struct {
 type Choosable struct {
 	ActionType ActionType
 	YN         *bool
-	Value      *float64
+	ValueInt   *int
+	ValueF     *float64
 	Label      *string
 	PlayerId   *string
 	TeamId     *string
@@ -62,5 +63,5 @@ func (a *Actionable) AnswerYN(yn *bool) {
 
 func (a *Actionable) AnswerValue(value *float64) {
 	a.setDecision()
-	a.Decision.Value = value
+	a.Decision.ValueF = value
 }

@@ -18,6 +18,7 @@ type IDb interface {
 // IGameRepo ...
 type IGameRepo interface {
 	Truncate()
+	TruncateNotifications()
 	All() []*models.Game
 	ById(id string) *models.Game
 	Create(game *models.Game)
@@ -32,6 +33,7 @@ type IGameRepo interface {
 	GetNews() []*models.News
 	GetNewsById(id string) *models.News
 	DeleteNews(id string)
+	DeleteAllNews()
 	MarkNewsAsRead(id string)
 }
 

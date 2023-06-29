@@ -21,7 +21,10 @@ func testView(ctx *AppContext) *fyne.Container {
 						widgets.FlagIcon(enums.ES),
 						widgets.FlagIcon(enums.DE),
 					),
-					widgets.Icon("email_read"),
+					container.NewHBox(
+						widgets.Icon("newspaper"),
+						widgets.Icon("newspaper_read"),
+					),
 				),
 			),
 		)

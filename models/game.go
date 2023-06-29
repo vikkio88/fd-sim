@@ -51,6 +51,11 @@ type Game struct {
 	LeagueId string
 
 	Decisions []*Decision
+	Flags     Flags
+}
+
+type Flags struct {
+	HasAContractOffer bool
 }
 
 func (g *Game) Update(name, surname string, age int, startDate time.Time) {
@@ -85,6 +90,7 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		LeagueId: leagueId,
 
 		Decisions: []*Decision{},
+		Flags:     Flags{},
 	}
 }
 
@@ -127,4 +133,10 @@ func (g *Game) YourContract() (*YourContract, bool) {
 		Board:      g.Board,
 		Supporters: g.Supporters,
 	}, true
+}
+
+func (g *Game) IsUnemployedAndNoOfferPending() bool {
+	_, hasContract := g.YourContract()
+
+	return !hasContract && !g.Flags.HasAContractOffer
 }

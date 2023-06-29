@@ -10,6 +10,12 @@ type GameRepo struct {
 	g *gorm.DB
 }
 
+// TruncateNotifications implements IGameRepo.
+func (repo *GameRepo) TruncateNotifications() {
+	repo.g.Where("1=1").Delete(&EmailDto{})
+	repo.g.Where("1=1").Delete(&NewsDto{})
+}
+
 func NewGameRepo(g *gorm.DB) *GameRepo {
 	return &GameRepo{
 		g,
@@ -128,4 +134,8 @@ func (repo *GameRepo) MarkNewsAsRead(id string) {
 
 func (repo *GameRepo) DeleteNews(id string) {
 	repo.g.Where("id = ?", id).Delete(&NewsDto{})
+}
+
+func (repo *GameRepo) DeleteAllNews() {
+	repo.g.Where("1 = 1").Delete(&NewsDto{})
 }

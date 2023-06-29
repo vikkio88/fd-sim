@@ -25,6 +25,16 @@ type Email struct {
 	Action  *Actionable
 }
 
+func NewEmailNoLinks(from, subject, body string, date time.Time) *Email {
+	return &Email{
+		Id:      emailIdGenerator(),
+		Sender:  from,
+		Subject: subject,
+		Body:    body,
+		Date:    date,
+		Links:   []Link{},
+	}
+}
 func NewEmail(from, subject, body string, date time.Time, links []Link) *Email {
 	return &Email{
 		Id:      emailIdGenerator(),

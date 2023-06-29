@@ -21,18 +21,22 @@ type ActionParameter struct {
 	Label1    *string
 	Label2    *string
 	Label3    *string
-	Value     *float64
+	ValueInt  *int
+	ValueInt2 *int
+	ValueF    *float64
+	ValueF1   *float64
 	Other     *any
 }
 
-func MakeActionable(at models.ActionType, date time.Time, params ActionParameter) *models.Actionable {
+func MakeActionableFromType(at models.ActionType, date time.Time, params ActionParameter) *models.Actionable {
 	switch at {
-	case models.ActionContract:
+	case models.ActionRespondContract:
 		var yn bool
 		return models.NewActionable("Contract Offer", models.Choosable{
 			ActionType: at,
 			YN:         &yn,
-			Value:      params.Value,
+			ValueInt:   params.ValueInt,
+			ValueF:     params.ValueF,
 			TeamId:     params.TeamId,
 			Label:      params.Label,
 		},
@@ -57,10 +61,33 @@ func MakeActionable(at models.ActionType, date time.Time, params ActionParameter
 	return nil
 }
 
+// can return nil
 func ParseDecision(date time.Time, decision *models.Choosable) *Event {
 	switch decision.ActionType {
+	case models.ActionRespondContract:
+		{
+			// If decided Yes
+			if *decision.YN {
+				return ContractAccepted.Event(date, EventParams{
+					TeamId1:  *decision.TeamId,
+					Label1:   *decision.Label,
+					valueInt: *decision.ValueInt,
+					valueF:   *decision.ValueF,
+				})
+			}
+
+			// if refused only reset the flag
+			resetFlag := NewEmptyEvent()
+			resetFlag.TriggerFlags = func(f models.Flags) models.Flags {
+				f.HasAContractOffer = false
+				return f
+			}
+			return resetFlag
+		}
+	//Testing action
 	case models.ActionTest:
 		{
+			// If decided Yes
 			if *decision.YN {
 				return TestingActionYes.Event(date, EventParams{
 					TeamId1: *decision.TeamId,

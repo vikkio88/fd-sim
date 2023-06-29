@@ -18,6 +18,12 @@ const (
 	// Needs LeagueId and LeagueName, TeamId and TeamName for Winner
 	LeagueFinished
 
+	// Offered Contract to User
+	ContractOffer
+	ContractAccepted
+	// Getting Sacked
+	Sacked
+
 	//TODO: Remove Testing Actions
 	TestingActionYes
 	TestingActionNo
@@ -79,10 +85,18 @@ type EventParams struct {
 	Label2        string
 	Label3        string
 	Label4        string
+	valueInt      int
+	valueInt1     int
+	valueF        float64
+	valueF2       float64
 }
 
-func (a EventType) Event(date time.Time, params EventParams) *Event {
-	switch a {
+func (ev EventType) Event(date time.Time, params EventParams) *Event {
+	switch ev {
+	case ContractOffer:
+		return contractOffered(params, date)
+	case ContractAccepted:
+		return contractAccepted(params, date)
 	case RoundPlayed:
 		return roundPlayedEvent(params, date)
 	case LeagueFinished:
@@ -113,24 +127,16 @@ func (a EventType) Event(date time.Time, params EventParams) *Event {
 		}
 	case TestingActionNo:
 		{
-			teamId := params.TeamId1
 			teamName := params.Label1
 
 			desc := fmt.Sprintf("You Replied NO")
 			event := NewEvent(date, desc)
 
-			event.TriggerNews = models.NewNews(
-				desc,
-				data.GetNewspaper(params.LeagueCountry),
-				fmt.Sprintf(
-					"You replied NO, team was %s",
-					conf.LinkBodyPH,
-				),
-				date,
-				[]models.Link{
-					models.NewLink(teamName, enums.TeamDetails, &teamId),
-				},
-			)
+			event.TriggerEmail = models.NewEmailNoLinks(
+				"spam@spam.com",
+				"Yeah why not?",
+				fmt.Sprintf("Some spam as you said NO to us, %s", teamName),
+				date)
 			return event
 		}
 
