@@ -22,6 +22,10 @@ type FootDirector struct {
 	Fame    utils.Perc
 }
 
+func (f FootDirector) String() string {
+	return fmt.Sprintf("%s %s", f.Name, f.Surname)
+}
+
 type YourContract struct {
 	Team       TPH
 	Wage       utils.Money
@@ -135,6 +139,9 @@ func (g *Game) YourContract() (*YourContract, bool) {
 	}, true
 }
 
+func (g *Game) IsEmployed() bool {
+	return g.Team != nil
+}
 func (g *Game) IsUnemployedAndNoOfferPending() bool {
 	_, hasContract := g.YourContract()
 

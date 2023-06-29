@@ -15,6 +15,7 @@ const (
 	Dashboard
 	Email
 	News
+	TeamMgmt
 
 	TeamDetails
 	PlayerDetails
@@ -38,6 +39,7 @@ func getMapping() map[AppRoute]string {
 		Dashboard: e.Dashboard,
 		Email:     e.Email,
 		News:      e.News,
+		TeamMgmt:  e.TeamMgmt,
 
 		TeamDetails:   e.TeamDetails,
 		PlayerDetails: e.PlayerDetails,
@@ -62,6 +64,7 @@ func getReverseMapping() map[string]AppRoute {
 		e.Dashboard: Dashboard,
 		e.Email:     Email,
 		e.News:      News,
+		e.TeamMgmt:  TeamMgmt,
 
 		e.TeamDetails:   TeamDetails,
 		e.PlayerDetails: PlayerDetails,

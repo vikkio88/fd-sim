@@ -8,6 +8,7 @@ const (
 	Dashboard string = "DASHBOARD"
 	Email     string = "EMAIL_DETAIL"
 	News      string = "NEWS_DETAIL"
+	TeamMgmt  string = "TEAM_MGMT"
 
 	TeamDetails   string = "TEAM_DETAILS"
 	PlayerDetails string = "PLAYER_DETAILS"

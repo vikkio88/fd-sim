@@ -17,7 +17,9 @@ type Event struct {
 
 func NewEmptyEvent() *Event {
 	return &Event{
-		Description: "Empty",
+		Description:    "Empty",
+		TriggerFlags:   func(f models.Flags) models.Flags { return f },
+		TriggerChanges: func(game *models.Game, db db.IDb) {},
 	}
 }
 func NewEvent(date time.Time, description string) *Event {

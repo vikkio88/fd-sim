@@ -23,18 +23,11 @@ type Actionable struct {
 	Decision    *Choosable
 }
 
+// This has to be in sync with services/parameters.go
 type Choosable struct {
 	ActionType ActionType
 	YN         *bool
-	ValueInt   *int
-	ValueF     *float64
-	Label      *string
-	PlayerId   *string
-	TeamId     *string
-	Item1      *string
-	Item2      *string
-	Item3      *string
-	Item4      *string
+	Params     EventParams
 }
 
 func NewActionable(description string, choices Choosable, date time.Time, actionType ActionType) *Actionable {
@@ -59,9 +52,4 @@ func (a *Actionable) Decide(decision *Choosable) {
 func (a *Actionable) AnswerYN(yn *bool) {
 	a.setDecision()
 	a.Decision.YN = yn
-}
-
-func (a *Actionable) AnswerValue(value *float64) {
-	a.setDecision()
-	a.Decision.ValueF = value
 }

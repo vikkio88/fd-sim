@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func leagueFinishedEvent(params EventParams, date time.Time) *Event {
+func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	leagueId := params.LeagueId
 	teamId := params.TeamId1
 	leagueName := params.LeagueName
@@ -36,7 +36,7 @@ func leagueFinishedEvent(params EventParams, date time.Time) *Event {
 	return event
 }
 
-func roundPlayedEvent(params EventParams, date time.Time) *Event {
+func roundPlayedEvent(params models.EventParams, date time.Time) *Event {
 	roundIndex := params.Label1
 	roundId := params.RoundId
 	leagueId := params.LeagueId
@@ -66,11 +66,12 @@ func roundPlayedEvent(params EventParams, date time.Time) *Event {
 	return event
 }
 
-func contractAccepted(params EventParams, date time.Time) *Event {
-	teamId := params.TeamId1
-	teamName := params.Label1
-	ycontract := params.valueInt
-	money := utils.NewEurosFromF(params.valueF)
+func contractAccepted(params models.EventParams, date time.Time) *Event {
+	teamId := params.TeamId
+	teamName := params.TeamName
+	ycontract := params.ValueInt
+	fdName := params.FdName
+	money := utils.NewEurosFromF(params.ValueF)
 
 	title := fmt.Sprintf("%s contract accepted", teamName)
 
@@ -79,10 +80,24 @@ func contractAccepted(params EventParams, date time.Time) *Event {
 		emailAddrFromTeamName(teamName),
 		fmt.Sprintf("Welcome to %s", teamName),
 		fmt.Sprintf(
-			"Thanks for joining us, we are delighted to have you on board."+
+			"Thanks Mr %s for joining us, we are delighted to have you on board."+
 				"Please check our info here: %s CEO of %s",
+			fdName,
 			conf.LinkBodyPH,
 			teamName,
+		),
+		date,
+		[]models.Link{
+			teamLink(teamName, teamId),
+		},
+	)
+
+	event.TriggerNews = models.NewNews(
+		fmt.Sprintf("%s hired from %s as Football Director", fdName, teamName),
+		"Newsweek",
+		fmt.Sprintf(
+			"A new football director, %s, got hired today from %s. Seems like he signed a %d year(s) contract. %s",
+			fdName, teamName, ycontract, conf.LinkBodyPH,
 		),
 		date,
 		[]models.Link{
@@ -104,11 +119,11 @@ func contractAccepted(params EventParams, date time.Time) *Event {
 	return event
 }
 
-func contractOffered(params EventParams, date time.Time) *Event {
-	teamId := params.TeamId1
-	teamName := params.Label1
-	money := utils.NewEurosFromF(params.valueF)
-	years := params.valueInt
+func contractOffered(params models.EventParams, date time.Time) *Event {
+	teamId := params.TeamId
+	teamName := params.TeamName
+	money := utils.NewEurosFromF(params.ValueF)
+	years := params.ValueInt
 
 	title := fmt.Sprintf("%s contract offer", teamName)
 
@@ -129,12 +144,7 @@ func contractOffered(params EventParams, date time.Time) *Event {
 		MakeActionableFromType(
 			models.ActionRespondContract,
 			date,
-			ActionParameter{
-				TeamId:   &teamId,
-				Label:    &teamName,
-				ValueInt: &years,
-				ValueF:   &params.valueF,
-			},
+			params,
 		),
 	)
 

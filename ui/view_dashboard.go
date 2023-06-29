@@ -5,7 +5,6 @@ import (
 	d "fdsim/db"
 	"fdsim/models"
 	"fdsim/services"
-	"fdsim/utils"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -28,6 +27,7 @@ var dateStr binding.String
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
+
 	newsx, emailsx := loadNotifications(ctx.Db)
 	news = newsx
 	emails = emailsx
@@ -60,9 +60,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 
 	})
 	toTeamMgmt := widget.NewButtonWithIcon("Team", widgets.Icon("team").Resource, func() {
-
+		ctx.Push(TeamMgmt)
 	})
-	toTeamMgmt.Disable()
 
 	navigation := container.NewCenter(
 		container.NewPadded(
@@ -86,25 +85,14 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 
 	trigAct := widget.NewButtonWithIcon("Trig Act Email", theme.InfoIcon(), func() {
 		randomTeam := ctx.Db.TeamR().All()[0]
-		var money float64 = 10000.0
 
 		email := models.NewEmail(
 			fmt.Sprintf("hr@%s.com", randomTeam.Name),
 			"Testing Actionable",
-			fmt.Sprintf("We are willing to offer you %s  per year. Please consider us for your next job LINK", utils.NewEurosFromF(money).StringKMB()),
+			fmt.Sprintf("random email, from this team %s", conf.LinkBodyPH),
 			game.Date,
 			[]models.Link{
 				models.NewLink(randomTeam.Name, TeamDetails.String(), &randomTeam.Id),
-			},
-		)
-
-		email.Action = services.MakeActionableFromType(
-			models.ActionTest,
-			game.Date,
-			services.ActionParameter{
-				TeamId: &randomTeam.Id,
-				Label:  &randomTeam.Name,
-				ValueF: &money,
 			},
 		)
 

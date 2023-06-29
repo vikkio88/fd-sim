@@ -71,27 +71,7 @@ func (a EventType) String() string {
 	return null
 }
 
-type EventParams struct {
-	LeagueId      string
-	LeagueName    string
-	LeagueCountry enums.Country
-	RoundId       string
-	MatchId       string
-	TeamId1       string
-	TeamId2       string
-	PlayerId      string
-	CoachId       string
-	Label1        string
-	Label2        string
-	Label3        string
-	Label4        string
-	valueInt      int
-	valueInt1     int
-	valueF        float64
-	valueF2       float64
-}
-
-func (ev EventType) Event(date time.Time, params EventParams) *Event {
+func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 	switch ev {
 	case ContractOffer:
 		return contractOffered(params, date)

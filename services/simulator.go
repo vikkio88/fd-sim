@@ -3,6 +3,7 @@ package services
 import (
 	"fdsim/conf"
 	"fdsim/db"
+	"fdsim/enums"
 	"fdsim/libs"
 	"fdsim/models"
 	"fmt"
@@ -70,15 +71,18 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 	y := sim.rng.ChanceI(100)
 	if x && y {
 		randomTeam := sim.db.TeamR().All()[0]
-		var money float64 = 10000.0
+		var money float64 = 100000
 		events = append(events,
 			ContractOffer.Event(
 				newDate,
-				EventParams{
-					TeamId1:  randomTeam.Id,
-					Label1:   randomTeam.Name,
-					valueInt: 2,
-					valueF:   money,
+				models.EventParams{
+					TeamId:   randomTeam.Id,
+					TeamName: randomTeam.Name,
+					ValueInt: 2,
+					ValueF:   money,
+					FdName:   sim.game.FootDirector().String(),
+					//TODO: This is crap, might need to rethink where to store country
+					LeagueCountry: enums.IT,
 				}),
 		)
 	}
@@ -107,7 +111,7 @@ func (*Simulator) checkIfLeagueFinished(league *models.League, events []*Event, 
 			events,
 			LeagueFinished.Event(
 				newDate,
-				EventParams{
+				models.EventParams{
 					LeagueId:      league.Id,
 					LeagueName:    league.Name,
 					LeagueCountry: league.Country,
@@ -136,7 +140,7 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 
 	return RoundPlayed.Event(
 		round.Date,
-		EventParams{
+		models.EventParams{
 			LeagueId:      league.Id,
 			LeagueName:    league.Name,
 			LeagueCountry: league.Country,
