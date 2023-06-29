@@ -40,7 +40,7 @@ func (repo *GameRepo) All() []*models.Game {
 func (repo *GameRepo) ById(id string) *models.Game {
 	var dto GameDto
 
-	repo.g.Model(&GameDto{}).Find(&dto, "Id = ?", id)
+	repo.g.Model(&GameDto{}).Preload("Team").Find(&dto, "Id = ?", id)
 
 	return dto.Game()
 }
