@@ -64,29 +64,21 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 		events = sim.checkIfLeagueFinished(league, events, newDate)
 	}
 
-	// here there will be logic for events triggering
-	// ADD EVENT TRIGGERING HERE
-	x := sim.game.IsUnemployedAndNoOfferPending()
-	y := sim.rng.ChanceI(100)
-	if x && y {
-		randomTeam := sim.db.TeamR().All()[0]
-		var money float64 = 100000
-		events = append(events,
-			ContractOffer.Event(
-				newDate,
-				models.EventParams{
-					TeamId:   randomTeam.Id,
-					TeamName: randomTeam.Name,
-					ValueInt: 2,
-					ValueF:   money,
-					FdName:   sim.game.FootDirector().String(),
-					Country:  sim.game.BaseCountry,
-				}),
-		)
-	}
+	//Events triggering
+	events = sim.stateTriggeredEvents(events, newDate)
 
 	// set new date
 	sim.game.Date = newDate
+	return events
+}
+
+func (sim *Simulator) stateTriggeredEvents(events []*Event, newDate time.Time) []*Event {
+	isHireable := sim.game.IsUnemployedAndNoOfferPending()
+
+	if isHireable && sim.rng.Chance(sim.game.Fame) {
+		events = triggerJobOffer(sim, events, newDate)
+	}
+
 	return events
 }
 
