@@ -48,6 +48,7 @@ func NewApp() App {
 // or Factory with Cache and a stack to simulate pop push routes
 func (a *App) getView() *fyne.Container {
 	key := a.ctx.CurrentRoute()
+	a.log(fmt.Sprintf("key: %s", key.String()))
 
 	if a.ctx.RouteMode == Pop {
 		a.log("POP cached view")
@@ -61,8 +62,12 @@ func (a *App) getView() *fyne.Container {
 	}
 
 	if content, ok := a.views[key]; ok {
-		a.log("rendering view anew")
+		a.log(
+			fmt.Sprintf("view found %s: rendering view anew", key.String()),
+		)
 		return content()
+	} else {
+		a.log(fmt.Sprintf("view %s not found", key.String()))
 	}
 
 	return a.views[Main]()

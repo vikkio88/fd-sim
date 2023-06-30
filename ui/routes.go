@@ -13,6 +13,10 @@ const (
 	NewGame
 	LoadGame
 	Dashboard
+	Profile
+	Calendar
+	Press
+	Chat
 	Email
 	News
 	TeamMgmt
@@ -37,6 +41,10 @@ func getMapping() map[AppRoute]string {
 		NewGame:   e.NewGame,
 		LoadGame:  e.LoadGame,
 		Dashboard: e.Dashboard,
+		Profile:   e.Profile,
+		Calendar:  e.Calendar,
+		Press:     e.Press,
+		Chat:      e.Chat,
 		Email:     e.Email,
 		News:      e.News,
 		TeamMgmt:  e.TeamMgmt,
@@ -62,6 +70,10 @@ func getReverseMapping() map[string]AppRoute {
 		e.NewGame:   NewGame,
 		e.LoadGame:  LoadGame,
 		e.Dashboard: Dashboard,
+		e.Profile:   Profile,
+		e.Calendar:  Calendar,
+		e.Press:     Press,
+		e.Chat:      Chat,
 		e.Email:     Email,
 		e.News:      News,
 		e.TeamMgmt:  TeamMgmt,

@@ -10,6 +10,10 @@ func makeRouteMap(ctx *AppContext) map[AppRoute]func() *fyne.Container {
 		LoadGame: func() *fyne.Container { return loadGameView(ctx) },
 
 		Dashboard: func() *fyne.Container { return dashboardView(ctx) },
+		Profile:   func() *fyne.Container { return profileView(ctx) },
+		Calendar:  func() *fyne.Container { return calendarView(ctx) },
+		Press:     func() *fyne.Container { return pressView(ctx) },
+		Chat:      func() *fyne.Container { return chatView(ctx) },
 		Email:     func() *fyne.Container { return notificationView(ctx, Email) },
 		News:      func() *fyne.Container { return notificationView(ctx, News) },
 		TeamMgmt:  func() *fyne.Container { return teamMgmtView(ctx) },

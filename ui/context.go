@@ -82,6 +82,7 @@ func (c *AppContext) Push(route AppRoute) {
 	c.NavStack.Push(NewNavStackItem(c.CurrentRoute(), c.RouteParam))
 	c.RouteMode = Push
 	c.RouteParam = nil
+	// TODO: maybe change this to Route itself as it breaks if you forget to map
 	c.Route.Set(route.String())
 }
 
