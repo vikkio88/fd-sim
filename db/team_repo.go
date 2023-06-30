@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/models"
+	"fdsim/utils"
 
 	"gorm.io/gorm"
 )
@@ -41,6 +42,23 @@ func (tr *TeamRepo) ById(id string) *models.Team {
 		Preload("Coach").Find(&t, "Id = ?", id)
 
 	return t.Team()
+}
+
+func (tr *TeamRepo) OneByFame(fame utils.Perc) *models.TPH {
+	var t TeamDto
+	tr.g.Raw(`select t.id, t.name
+	from team_dtos t
+	LEFT JOIN player_dtos p
+	WHERE p.team_id  = t.id GROUP BY (p.team_id) HAVING avg(p.skill) <= ?
+	ORDER by RANDOM()  limit 1`, fame.Val()).Scan(&t)
+
+	return t.TeamPH()
+}
+
+func (tr *TeamRepo) GetRandom() *models.TPH {
+	var t TeamDto
+	tr.g.Order("RANDOM()").Limit(1).First(&t)
+	return t.TeamPH()
 }
 
 func (tr *TeamRepo) Truncate() {

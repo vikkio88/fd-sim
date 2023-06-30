@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/models"
+	"fdsim/utils"
 	"time"
 )
 
@@ -63,6 +64,8 @@ type ILeagueRepo interface {
 type ITeamRepo interface {
 	InsertOne(t *models.Team)
 	Insert(teams []*models.Team)
+	OneByFame(utils.Perc) *models.TPH
+	GetRandom() *models.TPH
 	ById(id string) *models.Team
 	Truncate()
 	DeleteOne(id string)

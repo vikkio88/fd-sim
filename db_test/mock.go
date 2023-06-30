@@ -146,6 +146,16 @@ type MockTeamRepo struct {
 	Teams []*models.Team
 }
 
+// GetRandom implements db.ITeamRepo.
+func (*MockTeamRepo) GetRandom() *models.TPH {
+	panic("unimplemented")
+}
+
+// OneByFame implements db.ITeamRepo.
+func (*MockTeamRepo) OneByFame(utils.Perc) *models.TPH {
+	panic("unimplemented")
+}
+
 func (r *MockTeamRepo) InsertOne(t *models.Team) {
 	panic("not implemented")
 }
