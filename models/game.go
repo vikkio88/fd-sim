@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fdsim/conf"
 	"fdsim/enums"
 	"fdsim/utils"
 	"fmt"
@@ -79,7 +80,7 @@ func (g *Game) Update(name, surname string, age int, startDate time.Time) {
 	g.Age = age
 	g.Date = startDate
 	g.StartDate = startDate
-	g.Fame = utils.NewPerc(25) //TODO: move to config
+	g.Fame = utils.NewPerc(conf.StartingFame)
 }
 
 func formatName(name string) string {
