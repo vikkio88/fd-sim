@@ -52,13 +52,13 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	})
 
 	toCalendar := widget.NewButtonWithIcon("Calendar", theme.GridIcon(), func() {
-
+		ctx.Push(Calendar)
 	})
-	toCalendar.Disable()
 
 	toPersonal := widget.NewButtonWithIcon("Profile", theme.AccountIcon(), func() {
-
+		ctx.Push(Profile)
 	})
+
 	toTeamMgmt := widget.NewButtonWithIcon("Team", widgets.Icon("team").Resource, func() {
 		ctx.Push(TeamMgmt)
 	})
