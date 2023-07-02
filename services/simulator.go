@@ -79,6 +79,39 @@ func (sim *Simulator) stateTriggeredEvents(events []*Event, newDate time.Time) [
 		events = triggerJobOffer(sim, events, newDate)
 	}
 
+	transfCheck := calculateTransferWindowDates(sim.game.Date)
+	if transfCheck.isOpen() {
+		events = sim.marketEvents(events, transfCheck, newDate)
+	}
+
+	return events
+}
+
+func (sim *Simulator) marketEvents(events []*Event, mc marketCheck, newDate time.Time) []*Event {
+	if mc.openingDate {
+		events = append(
+			events,
+			TransferMarketOpen.Event(newDate, models.EventParams{
+				Country:  sim.game.BaseCountry,
+				BoolFlag: mc.summer,
+				Label1:   mc.opening,
+				Label2:   mc.closing,
+			}),
+		)
+	}
+
+	if mc.closingDate {
+		events = append(
+			events,
+			TransferMarketClose.Event(newDate, models.EventParams{
+				Country:  sim.game.BaseCountry,
+				BoolFlag: mc.summer,
+				Label1:   mc.opening,
+				Label2:   mc.closing,
+			}),
+		)
+	}
+
 	return events
 }
 

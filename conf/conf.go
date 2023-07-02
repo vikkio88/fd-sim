@@ -1,5 +1,7 @@
 package conf
 
+import "time"
+
 const (
 	PlayerAgeRange = "16..40"
 	CoachAgeRange  = "30..80"
@@ -12,4 +14,9 @@ const (
 	StatsRowsLimit = 10
 	// Placeholder for the link in the body of a notification
 	LinkBodyPH = "LINK"
+
+	SummerMarketWindowStart = time.July
+	SummerMarketWindowEnd   = time.August
+	WinterMarketWindowStart = time.January
+	WinterMarketWindowEnd   = time.January
 )

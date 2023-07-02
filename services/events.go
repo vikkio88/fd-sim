@@ -18,6 +18,10 @@ const (
 	// Needs LeagueId and LeagueName, TeamId and TeamName for Winner
 	LeagueFinished
 
+	// TransferMarket
+	TransferMarketOpen
+	TransferMarketClose
+
 	// Offered Contract to User
 	ContractOffer
 	ContractAccepted
@@ -81,7 +85,10 @@ func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 		return roundPlayedEvent(params, date)
 	case LeagueFinished:
 		return leagueFinishedEvent(params, date)
-
+	case TransferMarketOpen:
+		return transferMarketOpen(params, date)
+	case TransferMarketClose:
+		return transferMarketClose(params, date)
 		//TODO: Remove Tests Action
 	case TestingActionYes:
 		{

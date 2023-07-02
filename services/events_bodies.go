@@ -154,5 +154,50 @@ func contractOffered(params models.EventParams, date time.Time) *Event {
 	}
 
 	return event
+}
 
+func transferMarketOpen(params models.EventParams, date time.Time) *Event {
+	event := NewEvent(date, "market open")
+
+	session := "Winter"
+	// is Summer
+	if params.BoolFlag {
+		session = "Summer"
+	}
+
+	event.TriggerNews = models.NewNews(
+		"Transfer Market is open!",
+		data.GetNewspaper(params.Country),
+		fmt.Sprintf(
+			"Today the transfer market for the %s session officially opened!\nIt will stay open until %s",
+			session,
+			params.Label2,
+		),
+		date,
+		[]models.Link{},
+	)
+
+	return event
+}
+func transferMarketClose(params models.EventParams, date time.Time) *Event {
+	event := NewEvent(date, "market closed")
+
+	session := "Winter"
+	// is Summer
+	if params.BoolFlag {
+		session = "Summer"
+	}
+
+	event.TriggerNews = models.NewNews(
+		"Transfer Market is now closed.",
+		data.GetNewspaper(params.Country),
+		fmt.Sprintf(
+			"Today the transfer market for the %s session is closed!",
+			session,
+		),
+		date,
+		[]models.Link{},
+	)
+
+	return event
 }

@@ -31,5 +31,8 @@ type EventParams struct {
 	ValueInt1     int
 	ValueF        float64
 	ValueF1       float64
+	BoolFlag      bool
+	BoolFlag2     bool
 	FdName        string
+	IsEmployed    bool
 }
