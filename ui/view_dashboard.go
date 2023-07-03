@@ -119,15 +119,6 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 
 	})
 
-	nextWeek := widget.NewButtonWithIcon("Next Week", theme.MediaFastForwardIcon(), func() {
-		events, simulated := sim.Simulate(7)
-		if simulated {
-			simTriggers(dateStr, news, emails, game, sim, events)
-		} else {
-			checkForEmailDialog(ctx.GetWindow())
-		}
-	})
-
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -153,7 +144,6 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 					trigEm,
 					trigNw,
 					nextDay,
-					nextWeek,
 					startSim,
 				)).Get(),
 		).
