@@ -60,7 +60,7 @@ type Game struct {
 	// so I can create News without having to fetch League
 	BaseCountry enums.Country
 
-	Decisions   []*Decision
+	Decisions   map[string]*Decision
 	Flags       Flags
 	ActionsExps []time.Time
 }
@@ -100,7 +100,7 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		Date:     date,
 		LeagueId: leagueId,
 
-		Decisions: []*Decision{},
+		Decisions: map[string]*Decision{},
 		Flags:     Flags{},
 	}
 }
@@ -113,16 +113,16 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 		Surname:  surname,
 		Age:      age,
 
-		Decisions: []*Decision{},
+		Decisions: map[string]*Decision{},
 	}
 }
 
 func (g *Game) FreeDecisionQueue() {
-	g.Decisions = []*Decision{}
+	g.Decisions = map[string]*Decision{}
 }
 
 func (g *Game) QueueDecision(decision *Decision) {
-	g.Decisions = append(g.Decisions, decision)
+	g.Decisions[decision.EmailId] = decision
 }
 
 func (g *Game) FootDirector() FootDirector {
@@ -146,9 +146,20 @@ func (g *Game) YourContract() (*YourContract, bool) {
 	}, true
 }
 
+func (g *Game) HasAllNeededDecisions(emailIds []*Idable) bool {
+	for _, idable := range emailIds {
+		if _, ok := g.Decisions[idable.Id]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (g *Game) IsEmployed() bool {
 	return g.Team != nil
 }
+
 func (g *Game) IsUnemployedAndNoOfferPending() bool {
 	_, hasContract := g.YourContract()
 

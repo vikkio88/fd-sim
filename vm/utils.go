@@ -2,6 +2,7 @@ package vm
 
 import (
 	"fdsim/utils"
+	"strings"
 
 	"fyne.io/fyne/v2/data/binding"
 )
@@ -20,4 +21,8 @@ func PercToStars(perc utils.Perc) float32 {
 func PercFToStars(value float64) float32 {
 	val := float32(value) * 5. / 100.
 	return val
+}
+
+func YesNoToBool(yn string) bool {
+	return strings.ToLower(yn) == "yes"
 }

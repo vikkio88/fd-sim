@@ -50,7 +50,7 @@ func simulationView(ctx *AppContext) *fyne.Container {
 	var startBtn *widget.Button
 	startBtn = widget.NewButtonWithIcon("Start", theme.MediaPlayIcon(), func() {
 		state.Set("Simulating...")
-		go start(game, sim, dayFinished, stop, quit)
+		go start(game, sim, dayFinished, stop, quit, state, ctx)
 		placeholder.Hide()
 		backBtn.Disable()
 		startBtn.Disable()
@@ -104,7 +104,7 @@ func simulationView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func start(game *models.Game, sim *services.Simulator, messages chan NotificationCount, stop, quit chan int) {
+func start(game *models.Game, sim *services.Simulator, messages chan NotificationCount, stop, quit chan int, state binding.String, ctx *AppContext) {
 	for {
 		select {
 		case <-stop:
@@ -117,10 +117,10 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 				events, simulated := sim.Simulate(1)
 				//TODO: fix deadliock
 				if !simulated {
-					stop <- 1
 					state.Set("Stopping...")
+					quit <- 1
+					checkForEmailDialog(ctx.GetWindow())
 					ctx.Pop()
-					return
 				} else {
 					emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
 					messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}

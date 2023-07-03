@@ -4,6 +4,7 @@ import (
 	"fdsim/conf"
 	"fdsim/db"
 	"fdsim/models"
+	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 	"strings"
@@ -127,7 +128,10 @@ func makeChoices(choices models.Choosable) fyne.CanvasObject {
 		yn := binding.BindBool(choices.YN)
 
 		c.Add(
-			widget.NewCheckWithData("My Answer is YES", yn),
+			// widget.NewCheckWithData("My Answer is YES", yn),
+			widget.NewRadioGroup([]string{"Yes", "No"}, func(s string) {
+				yn.Set(vm.YesNoToBool(s))
+			}),
 		)
 
 		return c

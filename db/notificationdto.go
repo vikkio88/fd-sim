@@ -118,6 +118,12 @@ func DtoFromEmail(email *models.Email) EmailDto {
 	}
 }
 
+func (email *EmailDto) Idable() *models.Idable {
+	return &models.Idable{
+		Id: email.Id,
+	}
+}
+
 func (email *EmailDto) Email() *models.Email {
 	return &models.Email{
 		Id:      email.Id,

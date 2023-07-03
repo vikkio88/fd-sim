@@ -114,7 +114,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		if simulated {
 			simTriggers(dateStr, news, emails, game, sim, events)
 		} else {
-			dialog.ShowInformation("Check your Emails", "Some Emails need a reply!", ctx.w)
+			checkForEmailDialog(ctx.GetWindow())
 		}
 
 	})
@@ -124,7 +124,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		if simulated {
 			simTriggers(dateStr, news, emails, game, sim, events)
 		} else {
-			dialog.ShowInformation("Check your Emails", "Some Emails need a reply!", ctx.w)
+			checkForEmailDialog(ctx.GetWindow())
 		}
 	})
 
@@ -160,6 +160,10 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		Get(
 			main,
 		)
+}
+
+func checkForEmailDialog(window fyne.Window) {
+	dialog.ShowInformation("Check your Emails", "Some Emails need a reply!", window)
 }
 
 func simTriggers(dateStr binding.String, news, emails binding.UntypedList, game *models.Game, sim *services.Simulator, events []*services.Event) (int, int) {

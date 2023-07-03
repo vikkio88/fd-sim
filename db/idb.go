@@ -24,7 +24,7 @@ type IGameRepo interface {
 	ById(id string) *models.Game
 	Create(game *models.Game)
 	Update(game *models.Game)
-	GetActionsDueByDate(time.Time) []*models.Email
+	GetActionsDueByDate(time.Time) []*models.Idable
 	AddEmails([]*models.Email)
 	GetEmails() []*models.Email
 	GetEmailById(id string) *models.Email

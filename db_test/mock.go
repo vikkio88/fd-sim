@@ -63,8 +63,8 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 type MockGameR struct{}
 
 // GetActionsDueToday implements db.IGameRepo.
-func (*MockGameR) GetActionsDueByDate(time.Time) []*models.Email {
-	return []*models.Email{}
+func (*MockGameR) GetActionsDueByDate(time.Time) []*models.Idable {
+	return []*models.Idable{}
 }
 
 // TruncateNotifications implements db.IGameRepo.

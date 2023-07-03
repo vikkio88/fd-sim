@@ -35,8 +35,9 @@ func (sim *Simulator) persistGameState() {
 func (sim *Simulator) Simulate(days int) ([]*Event, bool) {
 	events := []*Event{}
 	for i := 1; i <= days; i++ {
-		if len(sim.db.GameR().GetActionsDueByDate(sim.game.Date)) > 0 {
-			fmt.Println("ACTIONS DUE")
+		actionsDue := sim.db.GameR().GetActionsDueByDate(sim.game.Date)
+		if len(actionsDue) > 0 && !sim.game.HasAllNeededDecisions(actionsDue) {
+
 			return events, false
 		}
 
