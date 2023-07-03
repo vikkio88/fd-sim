@@ -74,7 +74,6 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 	answered := email.Action.Decision != nil
 	answeredB := binding.NewBool()
 	replyBtn = widget.NewButton("Reply", func() {
-		fmt.Println(email.Action)
 		answeredB.Set(true)
 		//TODO: Set Decision and store email
 		decision := email.Action.Choices
