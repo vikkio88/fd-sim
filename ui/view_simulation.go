@@ -114,10 +114,18 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 			}
 		default:
 			{
-				events := sim.Simulate(1)
-				emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
-				messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}
-				time.Sleep(time.Duration(1) * time.Second)
+				events, simulated := sim.Simulate(1)
+				//TODO: fix deadliock
+				if !simulated {
+					stop <- 1
+					state.Set("Stopping...")
+					ctx.Pop()
+					return
+				} else {
+					emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
+					messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}
+					time.Sleep(time.Duration(1) * time.Second)
+				}
 			}
 		}
 	}

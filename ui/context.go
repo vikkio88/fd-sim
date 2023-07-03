@@ -110,7 +110,7 @@ func (c *AppContext) CacheViewOnStack(content fyne.CanvasObject) {
 
 // GameState utils
 func (c *AppContext) InitGameState(gameId string) *models.Game {
-	if c.gameState == nil {
+	if c.gameState == nil || c.gameState.Id != gameId {
 		c.gameState = c.Db.GameR().ById(gameId)
 	}
 

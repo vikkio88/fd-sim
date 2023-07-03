@@ -60,8 +60,9 @@ type Game struct {
 	// so I can create News without having to fetch League
 	BaseCountry enums.Country
 
-	Decisions []*Decision
-	Flags     Flags
+	Decisions   []*Decision
+	Flags       Flags
+	ActionsExps []time.Time
 }
 
 type Flags struct {

@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type ActionType uint8
 
 const (
@@ -18,7 +16,6 @@ const (
 type Actionable struct {
 	Description string
 	ActionType  ActionType
-	Expires     time.Time
 	Choices     Choosable
 	Decision    *Choosable
 }
@@ -30,10 +27,9 @@ type Choosable struct {
 	Params     EventParams
 }
 
-func NewActionable(description string, choices Choosable, date time.Time, actionType ActionType) *Actionable {
+func NewActionable(description string, choices Choosable, actionType ActionType) *Actionable {
 	return &Actionable{
 		ActionType:  actionType,
-		Expires:     date,
 		Description: description,
 		Choices:     choices,
 	}

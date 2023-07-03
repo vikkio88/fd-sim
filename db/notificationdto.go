@@ -99,6 +99,7 @@ type EmailDto struct {
 	Subject string
 	Body    string
 	Date    time.Time
+	Expires *time.Time
 	Links   *string
 	Action  *string
 }
@@ -111,6 +112,7 @@ func DtoFromEmail(email *models.Email) EmailDto {
 		Subject: email.Subject,
 		Body:    email.Body,
 		Date:    email.Date,
+		Expires: email.Expires,
 		Links:   serialiseLinks(email.Links),
 		Action:  serialiseAction(email.Action),
 	}
@@ -124,6 +126,7 @@ func (email *EmailDto) Email() *models.Email {
 		Subject: email.Subject,
 		Body:    email.Body,
 		Date:    email.Date,
+		Expires: email.Expires,
 		Links:   unserialiseLinks(email.Links),
 		Action:  unserialiseAction(email.Action),
 	}

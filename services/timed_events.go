@@ -16,7 +16,7 @@ type marketCheck struct {
 }
 
 func (m marketCheck) isOpen() bool {
-	return m.openingDate && (m.summer || m.winter)
+	return m.openingDate || (m.summer || m.winter)
 }
 
 func makeMarketWindows(date time.Time) []time.Time {

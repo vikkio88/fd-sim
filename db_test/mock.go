@@ -62,6 +62,11 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// GetActionsDueToday implements db.IGameRepo.
+func (*MockGameR) GetActionsDueByDate(time.Time) []*models.Email {
+	return []*models.Email{}
+}
+
 // TruncateNotifications implements db.IGameRepo.
 func (*MockGameR) TruncateNotifications() {
 	panic("unimplemented")

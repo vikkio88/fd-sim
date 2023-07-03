@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/models"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -53,6 +54,19 @@ func (repo *GameRepo) Create(game *models.Game) {
 func (repo *GameRepo) Update(game *models.Game) {
 	dto := DtoFromGame(game)
 	repo.g.Save(&dto)
+}
+
+// This is to get Emails with actions due a certain date
+func (repo *GameRepo) GetActionsDueByDate(date time.Time) []*models.Email {
+	var dtos []EmailDto
+	repo.g.Where("expires = ?", date).Find(&dtos)
+
+	result := make([]*models.Email, len(dtos))
+	for i, dto := range dtos {
+		result[i] = dto.Email()
+	}
+
+	return result
 }
 
 func (repo *GameRepo) AddEmails(emails []*models.Email) {

@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+const (
+	a_day = time.Duration(1) * time.Hour * 24
+)
+
 func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	leagueId := params.LeagueId
 	leagueName := params.LeagueName
@@ -147,6 +151,7 @@ func contractOffered(params models.EventParams, date time.Time) *Event {
 			params,
 		),
 	)
+	event.TriggerEmail.SetExpiry(date.Add(2 * a_day))
 
 	event.TriggerFlags = func(f models.Flags) models.Flags {
 		f.HasAContractOffer = true

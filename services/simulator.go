@@ -32,9 +32,14 @@ func (sim *Simulator) persistGameState() {
 	sim.db.GameR().Update(sim.game)
 }
 
-func (sim *Simulator) Simulate(days int) []*Event {
+func (sim *Simulator) Simulate(days int) ([]*Event, bool) {
 	events := []*Event{}
 	for i := 1; i <= days; i++ {
+		if len(sim.db.GameR().GetActionsDueByDate(sim.game.Date)) > 0 {
+			fmt.Println("ACTIONS DUE")
+			return events, false
+		}
+
 		newDate := sim.game.Date.AddDate(0, 0, 1)
 		//this could go to a notification chan
 		fmt.Printf("Simulating day %s\n", newDate.Format(conf.DateFormatGame))
@@ -44,7 +49,7 @@ func (sim *Simulator) Simulate(days int) []*Event {
 	// Saving New Game state
 	sim.persistGameState()
 
-	return events
+	return events, true
 }
 
 func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event {

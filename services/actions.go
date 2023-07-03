@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-const (
-	a_day = time.Duration(1) * time.Hour * 24
-)
-
 func MakeActionableFromType(at models.ActionType, date time.Time, params models.EventParams) *models.Actionable {
 	switch at {
 	case models.ActionRespondContract:
@@ -18,7 +14,6 @@ func MakeActionableFromType(at models.ActionType, date time.Time, params models.
 			YN:         &yn,
 			Params:     params,
 		},
-			date.Add(2*a_day),
 			at,
 		)
 
@@ -30,7 +25,6 @@ func MakeActionableFromType(at models.ActionType, date time.Time, params models.
 			YN:         &yn,
 			Params:     params,
 		},
-			date.Add(2*a_day),
 			at,
 		)
 	}

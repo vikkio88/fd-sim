@@ -7,6 +7,7 @@ import (
 	"fdsim/widgets"
 	"fmt"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -88,7 +89,7 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 	})
 
 	if !answered {
-		actionable = parseAction(email.Action)
+		actionable = parseAction(email.Expires, email.Action)
 		content.Add(actionable)
 		body.Bottom(rightAligned(replyBtn))
 		answeredB.AddListener(binding.NewDataListener(func() {
@@ -105,10 +106,10 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 	}
 }
 
-func parseAction(action *models.Actionable) fyne.CanvasObject {
+func parseAction(expires *time.Time, action *models.Actionable) fyne.CanvasObject {
 	validity := ""
-	if !action.Expires.IsZero() {
-		validity = fmt.Sprintf("valid until: %s", action.Expires.Format(conf.DateFormatGame))
+	if expires != nil && !expires.IsZero() {
+		validity = fmt.Sprintf("valid until: %s", expires.Format(conf.DateFormatGame))
 	}
 	return container.NewVBox(
 		widget.NewCard(

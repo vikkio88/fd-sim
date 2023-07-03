@@ -21,6 +21,7 @@ type Email struct {
 	Subject string
 	Body    string
 	Date    time.Time
+	Expires *time.Time
 	Links   []Link
 	Action  *Actionable
 }
@@ -69,6 +70,10 @@ func NewEmailWithId(id, from, subject, body string, date time.Time, links []Link
 	}
 }
 
+func (e *Email) SetExpiry(expires time.Time) {
+	e.Expires = &expires
+}
+
 func (e *Email) Answer(choice *Choosable) {
 	if e.Action == nil {
 		return
@@ -79,4 +84,12 @@ func (e *Email) Answer(choice *Choosable) {
 
 func (e Email) String() string {
 	return fmt.Sprintf("%s - %s - %s", e.Sender, e.Date.Format(conf.DateFormatShort), e.Subject)
+}
+
+func (e *Email) HasExpiry() (*time.Time, bool) {
+	if e.Action == nil || e.Expires == nil {
+		return nil, false
+	}
+
+	return e.Expires, true
 }
