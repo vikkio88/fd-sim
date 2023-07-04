@@ -85,8 +85,16 @@ func makeRound(round *models.RPHTPH) fyne.CanvasObject {
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			m := round.Matches[lii]
-			co.(*fyne.Container).Objects[0].(*widget.Label).SetText(m.Home.Name)
-			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
+			homeLbl := co.(*fyne.Container).Objects[0].(*widget.Label)
+			awayLbl := co.(*fyne.Container).Objects[2].(*widget.Label)
+			homeLbl.SetText(m.Home.Name)
+			if IsFDTeam(m.Home.Id) {
+				signalFdTeam(homeLbl)
+			}
+			awayLbl.SetText(m.Away.Name)
+			if IsFDTeam(m.Away.Id) {
+				signalFdTeam(awayLbl)
+			}
 		})
 	return roundCard(round, matchList)
 }
@@ -110,7 +118,11 @@ func makeRoundWithResults(
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			m := round.Matches[lii]
-			co.(*fyne.Container).Objects[0].(*widget.Label).SetText(m.Home.Name)
+			homeLbl := co.(*fyne.Container).Objects[0].(*widget.Label)
+			homeLbl.SetText(m.Home.Name)
+			if IsFDTeam(m.Home.Id) {
+				signalFdTeam(homeLbl)
+			}
 			if result, ok := results[m.Id]; ok {
 				resHL := co.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
 				resHL.SetText(result.String())
@@ -118,7 +130,12 @@ func makeRoundWithResults(
 					navigate(MatchDetails, m.Id)
 				}
 			}
-			co.(*fyne.Container).Objects[2].(*widget.Label).SetText(m.Away.Name)
+			awayLbl := co.(*fyne.Container).Objects[2].(*widget.Label)
+			awayLbl.SetText(m.Away.Name)
+			awayLbl.SetText(m.Away.Name)
+			if IsFDTeam(m.Away.Id) {
+				signalFdTeam(awayLbl)
+			}
 		})
 	return roundCard(round, matchList)
 }
@@ -167,8 +184,14 @@ func makeTableView(table []*models.TPHRow, navigate func(AppRoute, any)) *fyne.C
 					teamRow := table[lii]
 					c := co.(*fyne.Container)
 					c.Objects[0].(*widget.Label).SetText(fmt.Sprintf("%d . ", teamRow.Index+1))
-					c.Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink).SetText(teamRow.Team.Name)
-					c.Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink).OnTapped = func() {
+					centerCell := c.Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
+					fdIcon := centerCell.Objects[0].(*widget.Icon)
+					if !IsFDTeam(teamRow.Team.Id) {
+						fdIcon.Hide()
+					}
+					teamCell := centerCell.Objects[1].(*widget.Hyperlink)
+					teamCell.SetText(teamRow.Team.Name)
+					teamCell.OnTapped = func() {
 						navigate(TeamDetails, teamRow.Team.Id)
 					}
 					c.Objects[2].(*widget.Label).SetText(fmt.Sprintf("%d", teamRow.Row.Played))
@@ -187,7 +210,12 @@ func teamTableRow(layout *widgets.ColumnsLayout) func() fyne.CanvasObject {
 	return func() fyne.CanvasObject {
 		return container.New(layout,
 			widget.NewLabel("#"),
-			centered(widget.NewHyperlink("", nil)),
+			centered(
+				container.NewHBox(
+					widget.NewIcon(theme.AccountIcon()),
+					widget.NewHyperlink("", nil),
+				),
+			),
 			widget.NewLabel("P"),
 			widget.NewLabel("W"),
 			widget.NewLabel("D"),

@@ -10,6 +10,7 @@ import (
 // TODO:  this is a bit shit but works
 var news, emails binding.UntypedList
 var dateStr binding.String
+var fdTeamId string = ""
 
 // I made them globals to this package as Simulation needs to update the content of this page
 
@@ -43,4 +44,14 @@ func loadEmails(db d.IDb) {
 	for _, e := range emailsDb {
 		emails.Prepend(e)
 	}
+}
+
+// I hate this, but either I added a bool to all the team and TPH
+// or I passed down bools everywhere
+func IsFDTeam(teamId string) bool {
+	if fdTeamId == "" {
+		return false
+	}
+
+	return fdTeamId == teamId
 }

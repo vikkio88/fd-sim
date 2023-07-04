@@ -115,9 +115,7 @@ func contractAccepted(params models.EventParams, date time.Time) *Event {
 	}
 
 	event.TriggerChanges = func(game *models.Game, db db.IDb) {
-		game.YContract = uint8(ycontract)
-		game.Wage = money
-		game.Team = &models.TPH{Id: teamId, Name: teamName}
+		game.SetTeamContract(ycontract, money, &models.TPH{Id: teamId, Name: teamName})
 	}
 
 	return event

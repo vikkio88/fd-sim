@@ -112,6 +112,13 @@ func (c *AppContext) CacheViewOnStack(content fyne.CanvasObject) {
 func (c *AppContext) InitGameState(gameId string) *models.Game {
 	if c.gameState == nil || c.gameState.Id != gameId {
 		c.gameState = c.Db.GameR().ById(gameId)
+		c.gameState.OnEmployed = func() {
+			fdTeamId = c.gameState.Team.Id
+		}
+
+		if c.gameState.Team != nil {
+			fdTeamId = c.gameState.Team.Id
+		}
 	}
 
 	return c.gameState

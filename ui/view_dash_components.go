@@ -149,7 +149,6 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 		},
 		func(di binding.DataItem, co fyne.CanvasObject) {
 			email := vm.EmailFromDi(di)
-			fmt.Printf("Email %s\n", email.Subject)
 			emailCtr := co.(*fyne.Container).Objects[0].(*fyne.Container)
 			mailInfoCtr := emailCtr.Objects[0].(*fyne.Container) //.Objects[0].(*fyne.Container)
 			mainLbl := mailInfoCtr.Objects[0].(*widget.Label)

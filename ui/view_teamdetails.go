@@ -13,10 +13,7 @@ import (
 )
 
 func teamDetailsView(ctx *AppContext) *fyne.Container {
-	game, _ := ctx.GetGameState()
 	id := ctx.RouteParam.(string)
-
-	canSeeFullDetails := game.IsFDTeam(id)
 	team := ctx.Db.TeamR().ById(id)
 	roster := binding.NewUntypedList()
 	for _, p := range team.Roster.PlayersByRole() {
@@ -24,7 +21,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	}
 
 	coachSkillInfo := starsFromPerc(team.Coach.Skill)
-	if canSeeFullDetails {
+	if IsFDTeam(id) {
 		coachSkillInfo = widget.NewLabel(team.Coach.Skill.String())
 	}
 
@@ -69,7 +66,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	)
 
 	teamAvgSkillInfo := starsFromf64(team.Roster.AvgSkill())
-	if canSeeFullDetails {
+	if IsFDTeam(id) {
 		teamAvgSkillInfo = widget.NewLabel(
 			fmt.Sprintf("%.2f", team.Roster.AvgSkill()),
 		)
@@ -104,7 +101,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
-		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, canSeeFullDetails)),
+		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, id)),
 	)
 
 	return NewFborder().
@@ -123,11 +120,11 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func rosterUi(roster binding.DataList, ctx *AppContext, canSeeFullDetails bool) fyne.CanvasObject {
+func rosterUi(roster binding.DataList, ctx *AppContext, teamId string) fyne.CanvasObject {
 	return widget.NewListWithData(
 		roster,
 		simpleRosterListRow,
-		makeSimpleRosterRowBind(ctx, canSeeFullDetails),
+		makeSimpleRosterRowBind(ctx, teamId),
 	)
 }
 
@@ -151,7 +148,7 @@ func simpleRosterListRow() fyne.CanvasObject {
 		)
 }
 
-func makeSimpleRosterRowBind(ctx *AppContext, canSeeFullDetails bool) func(di binding.DataItem, co fyne.CanvasObject) {
+func makeSimpleRosterRowBind(ctx *AppContext, teamId string) func(di binding.DataItem, co fyne.CanvasObject) {
 	return func(di binding.DataItem, co fyne.CanvasObject) {
 		player := vm.PlayerFromDi(di)
 		c := co.(*fyne.Container)
@@ -173,7 +170,7 @@ func makeSimpleRosterRowBind(ctx *AppContext, canSeeFullDetails bool) func(di bi
 
 		star := values.Objects[0].(*widgets.StarRating)
 		value := values.Objects[1].(*widget.Label)
-		if canSeeFullDetails {
+		if IsFDTeam(teamId) {
 			value.SetText(player.Skill.String())
 			star.Hide()
 		} else {

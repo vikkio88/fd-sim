@@ -4,6 +4,7 @@ import (
 	"fdsim/utils"
 	vm "fdsim/vm"
 	"fdsim/widgets"
+	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -76,4 +77,9 @@ func boldLabel(label string) *widget.Label {
 	labelLbl.TextStyle = fyne.TextStyle{Bold: true}
 
 	return labelLbl
+}
+
+func signalFdTeam(lbl *widget.Label) {
+	lbl.SetText(fmt.Sprintf("[ %s ]", lbl.Text))
+	lbl.TextStyle = fyne.TextStyle{Bold: true}
 }
