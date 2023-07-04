@@ -115,7 +115,6 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 		default:
 			{
 				events, simulated := sim.Simulate(1)
-				//TODO: fix deadliock
 				if !simulated {
 					state.Set("Stopping...")
 					quit <- 1

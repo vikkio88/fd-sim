@@ -31,7 +31,8 @@ type GameDto struct {
 	Team        *TeamDto   `gorm:"foreignKey:team_id"`
 	League      *LeagueDto `gorm:"foreignKey:league_id"`
 
-	Flags string
+	Flags     string
+	Decisions *string
 }
 
 func serialiseFlags(f models.Flags) string {
@@ -54,6 +55,33 @@ func unserialiseFlags(f string) models.Flags {
 	return flags
 }
 
+func serialiseDecisions(decisions map[string]*models.Decision) *string {
+	if decisions == nil || len(decisions) == 0 {
+		return nil
+	}
+	var result string
+	data, _ := json.Marshal(decisions)
+	result = string(data)
+
+	return &result
+}
+
+func unserialiseDecisions(decisions *string) map[string]*models.Decision {
+	if decisions == nil {
+		return map[string]*models.Decision{}
+	}
+
+	var result map[string]*models.Decision
+
+	err := json.Unmarshal([]byte(*decisions), &result)
+	if err != nil {
+		fmt.Println("Error while getting flags")
+		return map[string]*models.Decision{}
+	}
+
+	return result
+}
+
 func DtoFromGame(game *models.Game) GameDto {
 	g := GameDto{
 		Id:          game.Id,
@@ -66,6 +94,7 @@ func DtoFromGame(game *models.Game) GameDto {
 		StartDate:   game.StartDate,
 		LeagueID:    &game.LeagueId,
 		Flags:       serialiseFlags(game.Flags),
+		Decisions:   serialiseDecisions(game.Decisions),
 		BaseCountry: game.BaseCountry,
 	}
 
@@ -91,6 +120,7 @@ func (g *GameDto) Game() *models.Game {
 	game.Date = g.Date
 	game.StartDate = g.StartDate
 	game.Flags = unserialiseFlags(g.Flags)
+	game.Decisions = unserialiseDecisions(g.Decisions)
 
 	if g.Team != nil {
 		teamPh := g.Team.Team().PH()

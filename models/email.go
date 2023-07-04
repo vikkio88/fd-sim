@@ -15,15 +15,16 @@ func emailIdGenerator() string {
 }
 
 type Email struct {
-	Id      string
-	Read    bool
-	Sender  string
-	Subject string
-	Body    string
-	Date    time.Time
-	Expires *time.Time
-	Links   []Link
-	Action  *Actionable
+	Id       string
+	Read     bool
+	Sender   string
+	Subject  string
+	Body     string
+	Date     time.Time
+	Expires  *time.Time
+	Links    []Link
+	Action   *Actionable
+	Decision *Choosable
 }
 
 func NewEmailNoLinks(from, subject, body string, date time.Time) *Email {
@@ -75,19 +76,19 @@ func (e *Email) SetExpiry(expires time.Time) {
 }
 
 func (e *Email) Answer(choice *Choosable) {
-	if e.Action == nil {
-		return
-	}
-
-	e.Action.Decide(choice)
+	e.Decision = choice
 }
 
 func (e Email) String() string {
 	return fmt.Sprintf("%s - %s - %s", e.Sender, e.Date.Format(conf.DateFormatShort), e.Subject)
 }
 
-func (e *Email) HasExpiry() (*time.Time, bool) {
+func (e *Email) IsActionable() (*time.Time, bool) {
 	if e.Action == nil || e.Expires == nil {
+		return nil, false
+	}
+
+	if e.Decision != nil {
 		return nil, false
 	}
 

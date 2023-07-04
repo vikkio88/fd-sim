@@ -93,29 +93,59 @@ func (news *NewsDto) News() *models.News {
 }
 
 type EmailDto struct {
-	Id      string `gorm:"primarykey"`
-	Read    bool
-	Sender  string
-	Subject string
-	Body    string
-	Date    time.Time
-	Expires *time.Time
-	Links   *string
-	Action  *string
+	Id       string `gorm:"primarykey"`
+	Read     bool
+	Sender   string
+	Subject  string
+	Body     string
+	Date     time.Time
+	Expires  *time.Time
+	Links    *string
+	Action   *string
+	Decision *string
 }
 
 func DtoFromEmail(email *models.Email) EmailDto {
 	return EmailDto{
-		Id:      email.Id,
-		Read:    email.Read,
-		Sender:  email.Sender,
-		Subject: email.Subject,
-		Body:    email.Body,
-		Date:    email.Date,
-		Expires: email.Expires,
-		Links:   serialiseLinks(email.Links),
-		Action:  serialiseAction(email.Action),
+		Id:       email.Id,
+		Read:     email.Read,
+		Sender:   email.Sender,
+		Subject:  email.Subject,
+		Body:     email.Body,
+		Date:     email.Date,
+		Expires:  email.Expires,
+		Links:    serialiseLinks(email.Links),
+		Action:   serialiseAction(email.Action),
+		Decision: serialiseDecision(email.Decision),
 	}
+}
+
+func serialiseDecision(decision *models.Choosable) *string {
+	if decision == nil {
+		return nil
+	}
+
+	var result string
+	data, _ := json.Marshal(decision)
+	result = string(data)
+
+	return &result
+}
+
+func unserialiseDecision(decision *string) *models.Choosable {
+	if decision == nil {
+		return nil
+	}
+
+	var result models.Choosable
+	data := *decision
+	err := json.Unmarshal([]byte(data), &result)
+	if err != nil {
+		fmt.Println("error while loading actions", err)
+		return nil
+	}
+
+	return &result
 }
 
 func (email *EmailDto) Idable() *models.Idable {
@@ -126,14 +156,15 @@ func (email *EmailDto) Idable() *models.Idable {
 
 func (email *EmailDto) Email() *models.Email {
 	return &models.Email{
-		Id:      email.Id,
-		Read:    email.Read,
-		Sender:  email.Sender,
-		Subject: email.Subject,
-		Body:    email.Body,
-		Date:    email.Date,
-		Expires: email.Expires,
-		Links:   unserialiseLinks(email.Links),
-		Action:  unserialiseAction(email.Action),
+		Id:       email.Id,
+		Read:     email.Read,
+		Sender:   email.Sender,
+		Subject:  email.Subject,
+		Body:     email.Body,
+		Date:     email.Date,
+		Expires:  email.Expires,
+		Links:    unserialiseLinks(email.Links),
+		Action:   unserialiseAction(email.Action),
+		Decision: unserialiseDecision(email.Decision),
 	}
 }

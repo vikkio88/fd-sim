@@ -125,6 +125,10 @@ func (g *Game) QueueDecision(decision *Decision) {
 	g.Decisions[decision.EmailId] = decision
 }
 
+func (g *Game) IsFDTeam(teamId string) bool {
+	return g.Team != nil && g.Team.Id == teamId
+}
+
 func (g *Game) FootDirector() FootDirector {
 	return FootDirector{
 		Name:    g.Name,

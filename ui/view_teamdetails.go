@@ -13,11 +13,19 @@ import (
 )
 
 func teamDetailsView(ctx *AppContext) *fyne.Container {
+	game, _ := ctx.GetGameState()
 	id := ctx.RouteParam.(string)
+
+	canSeeFullDetails := game.IsFDTeam(id)
 	team := ctx.Db.TeamR().ById(id)
 	roster := binding.NewUntypedList()
 	for _, p := range team.Roster.PlayersByRole() {
 		roster.Append(p)
+	}
+
+	coachSkillInfo := starsFromPerc(team.Coach.Skill)
+	if canSeeFullDetails {
+		coachSkillInfo = widget.NewLabel(team.Coach.Skill.String())
 	}
 
 	coach := widget.NewCard(
@@ -29,7 +37,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 				widgets.FlagIcon(team.Coach.Country),
 			),
 			centered(
-				starsFromPerc(team.Coach.Skill),
+				coachSkillInfo,
 			),
 			container.NewGridWithColumns(2,
 				widget.NewLabel("Contract"),
@@ -60,6 +68,13 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		),
 	)
 
+	teamAvgSkillInfo := starsFromf64(team.Roster.AvgSkill())
+	if canSeeFullDetails {
+		teamAvgSkillInfo = widget.NewLabel(
+			fmt.Sprintf("%.2f", team.Roster.AvgSkill()),
+		)
+	}
+
 	teamDetails := container.NewVBox(
 		centered(
 			container.NewHBox(
@@ -71,7 +86,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 			centered(
 				container.NewHBox(
 					widgets.Icon("dumbell"),
-					starsFromf64(team.Roster.AvgSkill()),
+					teamAvgSkillInfo,
 				),
 			),
 			centered(
@@ -89,7 +104,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
-		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx)),
+		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, canSeeFullDetails)),
 	)
 
 	return NewFborder().
@@ -108,11 +123,11 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func rosterUi(roster binding.DataList, ctx *AppContext) fyne.CanvasObject {
+func rosterUi(roster binding.DataList, ctx *AppContext, canSeeFullDetails bool) fyne.CanvasObject {
 	return widget.NewListWithData(
 		roster,
 		simpleRosterListRow,
-		makeSimpleRosterRowBind(ctx),
+		makeSimpleRosterRowBind(ctx, canSeeFullDetails),
 	)
 }
 
@@ -125,13 +140,18 @@ func simpleRosterListRow() fyne.CanvasObject {
 					centered(widget.NewHyperlink("", nil)),
 					centered(widget.NewLabel("Role")),
 					centered(widgets.NewFlag(enums.EN)),
-					centered(starsFromf64(0)),
+					centered(
+						container.NewHBox(
+							starsFromf64(0),
+							widget.NewLabel(""),
+						),
+					),
 				),
 			),
 		)
 }
 
-func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.CanvasObject) {
+func makeSimpleRosterRowBind(ctx *AppContext, canSeeFullDetails bool) func(di binding.DataItem, co fyne.CanvasObject) {
 	return func(di binding.DataItem, co fyne.CanvasObject) {
 		player := vm.PlayerFromDi(di)
 		c := co.(*fyne.Container)
@@ -149,7 +169,16 @@ func makeSimpleRosterRowBind(ctx *AppContext) func(di binding.DataItem, co fyne.
 		mx.Objects[1].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Role.String())
 		f := mx.Objects[2].(*fyne.Container).Objects[0].(*widgets.Flag)
 		f.SetCountry(player.Country)
-		s := mx.Objects[3].(*fyne.Container).Objects[0].(*widgets.StarRating)
-		s.SetValues(vm.PercToStars(player.Skill))
+		values := mx.Objects[3].(*fyne.Container).Objects[0].(*fyne.Container)
+
+		star := values.Objects[0].(*widgets.StarRating)
+		value := values.Objects[1].(*widget.Label)
+		if canSeeFullDetails {
+			value.SetText(player.Skill.String())
+			star.Hide()
+		} else {
+			star.SetValues(vm.PercToStars(player.Skill))
+			value.Hide()
+		}
 	}
 }

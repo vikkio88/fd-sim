@@ -16,21 +16,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func loadNotifications(db d.IDb) (binding.UntypedList, binding.UntypedList) {
-	emailsDb := db.GameR().GetEmails()
-	newsDb := db.GameR().GetNews()
-	emails := binding.NewUntypedList()
-	for _, e := range emailsDb {
-		emails.Prepend(e)
-	}
-
-	news := binding.NewUntypedList()
-	for _, n := range newsDb {
-		news.Prepend(n)
-	}
-	return news, emails
-}
-
 func makeNotificationsTabs(ctx *AppContext, navigate func(route AppRoute, param any)) *container.AppTabs {
 	newsMailsTabs := container.NewAppTabs(
 		container.NewTabItemWithIcon("News", widgets.Icon("newspaper").Resource, makeNewsTab(news, ctx.Db, navigate)),
@@ -41,8 +26,8 @@ func makeNotificationsTabs(ctx *AppContext, navigate func(route AppRoute, param 
 		unread := countUnread(e, true)
 		if unread > 0 {
 			newsMailsTabs.Items[1].Text = fmt.Sprintf("Email (%d)", unread)
-			newsMailsTabs.Refresh()
 		}
+		newsMailsTabs.Refresh()
 	}))
 	news.AddListener(binding.NewDataListener(func() {
 		n, _ := news.Get()
@@ -62,15 +47,16 @@ func makeNotificationsTabs(ctx *AppContext, navigate func(route AppRoute, param 
 }
 
 // Functions that will count Unred Notifications
-func countUnread(notifications []interface{}, email bool) int {
+func countUnread(notifications []interface{}, isEmail bool) int {
 	c := 0
 	for _, e := range notifications {
-		if email && !e.(*models.Email).Read {
+		//TODO: can change this to the golang type inference
+		if isEmail && !e.(*models.Email).Read {
 			c++
 			continue
 		}
 
-		if !email && !e.(*models.News).Read {
+		if !isEmail && !e.(*models.News).Read {
 			c++
 		}
 	}
@@ -151,6 +137,7 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 					Right(
 						container.NewHBox(
 							widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {}),
+							widget.NewIcon(theme.InfoIcon()),
 						),
 					).
 					Get(
@@ -162,6 +149,7 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 		},
 		func(di binding.DataItem, co fyne.CanvasObject) {
 			email := vm.EmailFromDi(di)
+			fmt.Printf("Email %s\n", email.Subject)
 			emailCtr := co.(*fyne.Container).Objects[0].(*fyne.Container)
 			mailInfoCtr := emailCtr.Objects[0].(*fyne.Container) //.Objects[0].(*fyne.Container)
 			mainLbl := mailInfoCtr.Objects[0].(*widget.Label)
@@ -174,6 +162,8 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 				leftIcon.SetResource(widgets.Icon("email_read").Resource)
 			}
 			deleteBtn := emailCtr.Objects[2].(*fyne.Container).Objects[0].(*widget.Button)
+			infoIcon := emailCtr.Objects[2].(*fyne.Container).Objects[1].(*widget.Icon)
+			infoIcon.Hide()
 			deleteBtn.OnTapped = func() {
 				db.GameR().DeleteEmail(email.Id)
 				items, _ := emails.Get()
@@ -183,6 +173,13 @@ func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute,
 				})
 				items = append(items[:index], items[index+1:]...)
 				emails.Set(items)
+			}
+
+			if _, actionable := email.IsActionable(); actionable {
+				infoIcon.Show()
+				deleteBtn.Hide()
+			} else {
+				deleteBtn.Show()
 			}
 		})
 

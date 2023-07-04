@@ -59,7 +59,7 @@ func (repo *GameRepo) Update(game *models.Game) {
 // This is to get Emails with actions due a certain date
 func (repo *GameRepo) GetActionsDueByDate(date time.Time) []*models.Idable {
 	var dtos []EmailDto
-	repo.g.Where("expires = ? AND action is not null", date).Find(&dtos)
+	repo.g.Where("expires = ? AND action is not null and decision is null", date).Find(&dtos)
 
 	result := make([]*models.Idable, len(dtos))
 	for i, dto := range dtos {

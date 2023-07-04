@@ -71,7 +71,7 @@ func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
 func makeAction(email *models.Email, content *fyne.Container, body *Fborder, game *models.Game, db db.IDb) {
 	var actionable fyne.CanvasObject
 	var replyBtn *widget.Button
-	answered := email.Action.Decision != nil
+	answered := email.Decision != nil
 	answeredB := binding.NewBool()
 	replyBtn = widget.NewButton("Reply", func() {
 		answeredB.Set(true)
@@ -79,13 +79,15 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 		decision := email.Action.Choices
 		email.Answer(&decision)
 
-		decisionE := *email.Action.Decision
+		decisionE := *email.Decision
 		dec := models.NewDecisionFromEmail(game.Date, decisionE, email.Id)
 
-		// TODO: Make sure to fix this, if you dont trigger the next
-		// day your actions wont take place
 		game.QueueDecision(dec)
 		db.GameR().UpdateEmail(email)
+		db.GameR().Update(game)
+
+		// this forces the emails bind list to reload
+		loadEmails(db)
 	})
 
 	if !answered {
@@ -93,7 +95,7 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 		content.Add(actionable)
 		body.Bottom(rightAligned(replyBtn))
 		answeredB.AddListener(binding.NewDataListener(func() {
-			if email.Action.Decision == nil {
+			if email.Decision == nil {
 				return
 			}
 

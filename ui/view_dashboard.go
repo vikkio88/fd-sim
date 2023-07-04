@@ -18,11 +18,7 @@ import (
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
-
-	newsx, emailsx := loadNotifications(ctx.Db)
-	news = newsx
-	emails = emailsx
-
+	loadNotifications(ctx.Db)
 	dateStr = binding.NewString()
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 
