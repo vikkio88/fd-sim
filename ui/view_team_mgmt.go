@@ -32,7 +32,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		).
 		Get(
 			container.NewAppTabs(
-				container.NewTabItem("Roster", makeRosterManagement(team)),
+				container.NewTabItem("Roster", makeRosterManagement(team, ctx.PushWithParam)),
 				container.NewTabItem("Finance", centered(widget.NewLabel("Finance"))),
 				container.NewTabItem("Board/Supporters", centered(widget.NewLabel("Board/Supporters"))),
 				container.NewTabItem("Transfer Market", centered(widget.NewLabel("Transfer"))),
@@ -41,19 +41,20 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeRosterManagement(team *models.Team) fyne.CanvasObject {
+func makeRosterManagement(team *models.Team, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	return container.NewMax(
 		container.NewGridWithColumns(2,
-			makeLineup(team),
+			makeLineup(team, navigate),
 			centered(widget.NewLabel("Performance")),
 		))
 }
 
-func makeLineup(team *models.Team) fyne.CanvasObject {
+func makeLineup(team *models.Team, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	lineup := team.Lineup()
-	lineupList := widget.NewList(func() int {
-		return len(lineup.FlatPlayers)
-	},
+	lineupList := widget.NewList(
+		func() int {
+			return len(lineup.FlatPlayers)
+		},
 		func() fyne.CanvasObject {
 			return container.NewHBox(
 				widget.NewLabel(""),
@@ -72,6 +73,23 @@ func makeLineup(team *models.Team) fyne.CanvasObject {
 			skill.SetText(player.Skill.String())
 		},
 	)
+	lineupList.OnSelected = func(id widget.ListItemID) {
+		navigate(PlayerDetails, lineup.FlatPlayers[id].Id)
+		lineupList.Unselect(id)
+	}
+
+	roles := models.AllPlayerRoles()
+	stats := container.NewVBox()
+	for _, r := range roles {
+		stat := lineup.SectorStat[r]
+		stats.Add(
+			container.NewHBox(
+				widget.NewLabel(r.StringShort()),
+				widget.NewLabel(fmt.Sprintf("%.0f%%", stat.Skill)),
+			),
+		)
+
+	}
 	return container.NewMax(
 		container.NewGridWithColumns(2,
 			container.NewPadded(
@@ -79,8 +97,7 @@ func makeLineup(team *models.Team) fyne.CanvasObject {
 			),
 			container.NewVBox(
 				widget.NewLabel(fmt.Sprintf("Module: %s", lineup.Module.String())),
-				//TODO: Add Lineup Role Stats
-				//lineup.SectorStat
+				stats,
 			),
 		),
 	)
