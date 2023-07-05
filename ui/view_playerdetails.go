@@ -14,18 +14,30 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	id := ctx.RouteParam.(string)
 	g, isGameInit := ctx.GetGameState()
 	player := ctx.Db.PlayerR().ById(id)
+	canSeeDetails := false
+	if player.Team != nil {
+		canSeeDetails = IsFDTeam(player.Team.Id)
+	}
 
 	showStats := isGameInit
+	moraleInfo := valueLabel("Morale:", widgets.Icon("unknown"))
+	if canSeeDetails {
+		morale := vm.MoraleEmojFromPerc(player.Morale)
+		var moraleIcon *widget.Icon
+		switch morale {
+		case vm.Happy:
+			moraleIcon = widgets.Icon("happy_face")
+		case vm.Meh:
+			moraleIcon = widgets.Icon("meh_face")
+		case vm.Sad:
+			moraleIcon = widgets.Icon("sad_face")
+		}
+		moraleInfo = valueLabel("Morale:", moraleIcon)
+	}
 
-	morale := vm.MoraleEmojFromPerc(player.Morale)
-	var moraleIcon *widget.Icon
-	switch morale {
-	case vm.Happy:
-		moraleIcon = widgets.Icon("happy_face")
-	case vm.Meh:
-		moraleIcon = widgets.Icon("meh_face")
-	case vm.Sad:
-		moraleIcon = widgets.Icon("sad_face")
+	skillInfo := centered(starsFromPerc(player.Skill))
+	if canSeeDetails {
+		skillInfo = centered(widget.NewLabel(player.Skill.String()))
 	}
 
 	main := container.NewGridWithRows(2,
@@ -42,9 +54,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 					valueLabel("Contract:",
 						widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
 					),
-					valueLabel("Morale:",
-						moraleIcon,
-					),
+					moraleInfo,
 				),
 			),
 			widget.NewCard("", "Personal Info",
@@ -61,7 +71,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 						centered(widget.NewLabel(fmt.Sprintf("(%s)", player.Country.Nationality()))),
 					),
 					valueLabel("Skill:",
-						centered(starsFromPerc(player.Skill)),
+						skillInfo,
 					),
 				),
 			),
