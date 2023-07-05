@@ -27,7 +27,11 @@ func loadGameView(ctx *AppContext) *fyne.Container {
 			g := games[lii]
 			card := co.(*widget.Card)
 			container := card.Content.(*fyne.Container)
-			container.Objects[0].(*fyne.Container).Objects[0].(*widget.Label).SetText(fmt.Sprintf("Player: %s", g.SaveName))
+			label := fmt.Sprintf("Player: %s", g.SaveName)
+			if g.IsEmployed() {
+				label = fmt.Sprintf("%s - (%s)", label, g.Team.Name)
+			}
+			container.Objects[0].(*fyne.Container).Objects[0].(*widget.Label).SetText(label)
 			container.Objects[1].(*widget.Label).SetText(g.Date.Format(conf.DateFormatGame))
 			container.Objects[2].(*widget.Button).OnTapped = func() {
 				ctx.NavigateToWithParam(Dashboard, g.Id)

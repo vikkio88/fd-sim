@@ -29,7 +29,7 @@ func (repo *GameRepo) Truncate() {
 
 func (repo *GameRepo) All() []*models.Game {
 	var dtos []GameDto
-	repo.g.Model(&GameDto{}).Find(&dtos)
+	repo.g.Model(&GameDto{}).Preload(teamRel).Find(&dtos)
 
 	ps := make([]*models.Game, len(dtos))
 	for i, t := range dtos {
@@ -41,7 +41,7 @@ func (repo *GameRepo) All() []*models.Game {
 func (repo *GameRepo) ById(id string) *models.Game {
 	var dto GameDto
 
-	repo.g.Model(&GameDto{}).Preload("Team").Find(&dto, "Id = ?", id)
+	repo.g.Model(&GameDto{}).Preload(teamRel).Find(&dto, "Id = ?", id)
 
 	return dto.Game()
 }
