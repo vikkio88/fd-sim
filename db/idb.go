@@ -68,6 +68,7 @@ type ITeamRepo interface {
 	OneByFame(utils.Perc) *models.TPH
 	GetRandom() *models.TPH
 	ById(id string) *models.Team
+	TableRow(id string) *models.TPHRow
 	Truncate()
 	DeleteOne(id string)
 	Delete(ids []string)

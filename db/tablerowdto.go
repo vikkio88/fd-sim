@@ -2,6 +2,36 @@ package db
 
 import "fdsim/models"
 
+type TableRowIndexDto struct {
+	TeamId       string
+	Played       int
+	Wins         int
+	Draws        int
+	Losses       int
+	Points       int
+	GoalScored   int
+	GoalConceded int
+	// Index is a reserved word
+	Position int
+}
+
+func (tr *TableRowIndexDto) TPHRow() *models.TPHRow {
+	return &models.TPHRow{
+		Team:  models.TPH{Id: tr.TeamId},
+		Index: tr.Position,
+		Row: &models.Row{
+			Team:         tr.TeamId,
+			Played:       tr.Played,
+			Wins:         tr.Wins,
+			Draws:        tr.Draws,
+			Losses:       tr.Losses,
+			Points:       tr.Points,
+			GoalScored:   tr.GoalScored,
+			GoalConceded: tr.GoalConceded,
+		},
+	}
+}
+
 type TableRowDto struct {
 	TeamId       string `gorm:"primarykey;size:16"`
 	Played       int

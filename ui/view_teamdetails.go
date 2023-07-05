@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/enums"
+	"fdsim/models"
 	vm "fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -9,12 +10,20 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 func teamDetailsView(ctx *AppContext) *fyne.Container {
+	_, isGameInit := ctx.GetGameState()
 	id := ctx.RouteParam.(string)
 	team := ctx.Db.TeamR().ById(id)
+	stats := container.NewMax(centered(widget.NewLabel("No match played yet")))
+	if isGameInit {
+		row := ctx.Db.TeamR().TableRow(id)
+		stats.RemoveAll()
+		stats.Add(makeTeamStats(row))
+	}
 	roster := binding.NewUntypedList()
 	for _, p := range team.Roster.PlayersByRole() {
 		roster.Append(p)
@@ -64,12 +73,15 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 			),
 		),
 	)
+	playerIcon := widget.NewIcon(theme.AccountIcon())
+	playerIcon.Hide()
 
 	teamAvgSkillInfo := starsFromf64(team.Roster.AvgSkill())
 	if IsFDTeam(id) {
 		teamAvgSkillInfo = widget.NewLabel(
 			fmt.Sprintf("%.2f", team.Roster.AvgSkill()),
 		)
+		playerIcon.Show()
 	}
 
 	teamDetails := container.NewVBox(
@@ -102,6 +114,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
 		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, id)),
+		container.NewTabItemWithIcon("Season Stats", theme.DocumentIcon(), stats),
 	)
 
 	return NewFborder().
@@ -110,6 +123,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 				Get(
 					centered(
 						container.NewHBox(
+							playerIcon,
 							h1(team.Name),
 							widgets.FlagIcon(team.Country),
 						),
@@ -118,6 +132,37 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		Get(
 			main,
 		)
+}
+
+func makeTeamStats(row *models.TPHRow) fyne.CanvasObject {
+	return widget.NewCard(
+		"", "Current Season Statistics",
+		container.NewVBox(
+			valueLabel("Position:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Index))),
+			),
+			valueLabel("Played:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Played))),
+			),
+			valueLabel("Wins:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Wins))),
+			),
+			valueLabel("Draws:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Draws))),
+			),
+			valueLabel("Losses:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Losses))),
+			),
+			valueLabel("Goals Scored:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.GoalScored))),
+			),
+			valueLabel("Goals Conceded:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.GoalConceded))),
+			),
+			valueLabel("Points:",
+				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Points))),
+			),
+		))
 }
 
 func rosterUi(roster binding.DataList, ctx *AppContext, teamId string) fyne.CanvasObject {

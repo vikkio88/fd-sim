@@ -151,6 +151,11 @@ type MockTeamRepo struct {
 	Teams []*models.Team
 }
 
+// TableRow implements db.ITeamRepo.
+func (*MockTeamRepo) TableRow(id string) *models.TPHRow {
+	panic("unimplemented")
+}
+
 // GetRandom implements db.ITeamRepo.
 func (*MockTeamRepo) GetRandom() *models.TPH {
 	panic("unimplemented")

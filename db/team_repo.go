@@ -11,6 +11,19 @@ type TeamRepo struct {
 	g *gorm.DB
 }
 
+func (repo *TeamRepo) TableRow(id string) *models.TPHRow {
+	var dto TableRowIndexDto
+	repo.g.Raw(`SELECT team_id, played, wins, draws, losses, points, goal_scored, goal_conceded, position
+	FROM (
+		SELECT team_id, played, wins, draws, losses, points, goal_scored, goal_conceded,
+			   ROW_NUMBER() OVER (ORDER BY points DESC, goal_scored DESC, goal_conceded ASC) AS position
+		FROM table_row_dtos
+	) AS subquery
+	WHERE team_id = ?`, id).Find(&dto)
+
+	return dto.TPHRow()
+}
+
 func NewTeamsRepo(g *gorm.DB) *TeamRepo {
 	return &TeamRepo{
 		g,
