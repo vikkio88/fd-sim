@@ -18,6 +18,14 @@ const (
 	invalid_role = "INVALID_ROAD"
 )
 
+// Short
+const (
+	gk_s = "GK"
+	df_s = "DF"
+	mf_s = "MF"
+	st_s = "ST"
+)
+
 func getRoleMapping() map[Role]string {
 	return map[Role]string{
 		GK: gk,
@@ -27,8 +35,26 @@ func getRoleMapping() map[Role]string {
 	}
 }
 
+func getRoleMappingShort() map[Role]string {
+	return map[Role]string{
+		GK: gk_s,
+		DF: df_s,
+		MF: mf_s,
+		ST: st_s,
+	}
+}
+
 func (r Role) String() string {
 	mapping := getRoleMapping()
+	if val, ok := mapping[r]; ok {
+		return val
+	}
+
+	return invalid_role
+}
+
+func (r Role) StringShort() string {
+	mapping := getRoleMappingShort()
 	if val, ok := mapping[r]; ok {
 		return val
 	}

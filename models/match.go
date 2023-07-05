@@ -169,22 +169,22 @@ func (m *Match) lineupMoraleAgeBonus(rng *libs.Rng, goalsA int, goalsH int) (int
 }
 
 func (m *Match) defenceBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
-	if rng.ChanceI(diffChance(m.LineupHome.sectorStat[DF].Skill, m.LineupAway.sectorStat[ST].Skill)) {
+	if rng.ChanceI(diffChance(m.LineupHome.SectorStat[DF].Skill, m.LineupAway.SectorStat[ST].Skill)) {
 		goalsA -= rng.UInt(1, 2)
 	}
 
-	if rng.ChanceI(diffChance(m.LineupAway.sectorStat[DF].Skill, m.LineupHome.sectorStat[ST].Skill)) {
+	if rng.ChanceI(diffChance(m.LineupAway.SectorStat[DF].Skill, m.LineupHome.SectorStat[ST].Skill)) {
 		goalsH -= rng.UInt(1, 2)
 	}
 	return goalsA, goalsH
 }
 
 func (m *Match) attackBonus(rng *libs.Rng, goalsA int, goalsH int) (int, int) {
-	if rng.ChanceI(diffChance(m.LineupHome.sectorStat[ST].Skill, m.LineupAway.sectorStat[DF].Skill)) {
+	if rng.ChanceI(diffChance(m.LineupHome.SectorStat[ST].Skill, m.LineupAway.SectorStat[DF].Skill)) {
 		goalsH += rng.UInt(0, 1)
 	}
 
-	if rng.ChanceI(diffChance(m.LineupAway.sectorStat[ST].Skill, m.LineupHome.sectorStat[DF].Skill)) {
+	if rng.ChanceI(diffChance(m.LineupAway.SectorStat[ST].Skill, m.LineupHome.SectorStat[DF].Skill)) {
 		goalsA += rng.UInt(0, 1)
 	}
 

@@ -7,7 +7,7 @@ type Lineup struct {
 	Starting     map[Role][]PPH
 	teamStats    TeamStats
 	lineupStats  TeamStats
-	sectorStat   map[Role]TeamStats
+	SectorStat   map[Role]TeamStats
 	starterCount int
 	FlatPlayers  []PPH
 
@@ -34,7 +34,7 @@ func NewLineup(module Module, starting map[Role][]PPH, stats TeamStats) *Lineup 
 		teamStats:    stats,
 		lineupStats:  lineupStats,
 		starterCount: starterCount,
-		sectorStat:   sectorStat,
+		SectorStat:   sectorStat,
 		FlatPlayers:  flattened,
 		//TODO: calculate also starting skillsAvg
 

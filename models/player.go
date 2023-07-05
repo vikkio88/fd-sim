@@ -44,6 +44,10 @@ func (p *Player) String() string {
 	return fmt.Sprintf("%s %s", p.Name, p.Surname)
 }
 
+func (p *Player) StringShort() string {
+	return fmt.Sprintf("%c. %s", p.Name[0], p.Surname)
+}
+
 // get placeholder
 func (p *Player) PH() PPH {
 	return PPH{
