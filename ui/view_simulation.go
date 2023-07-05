@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/conf"
 	"fdsim/models"
 	"fdsim/services"
 	"fdsim/widgets"
@@ -123,7 +124,7 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 				} else {
 					emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
 					messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}
-					time.Sleep(time.Duration(1) * time.Second)
+					time.Sleep(time.Duration(conf.SimSpeedMs) * time.Millisecond)
 				}
 			}
 		}
