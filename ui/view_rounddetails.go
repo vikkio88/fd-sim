@@ -29,7 +29,7 @@ func roundDetailsView(ctx *AppContext) *fyne.Container {
 
 func roundMatchList(
 	round *models.RPHTPH,
-	navigate func(AppRoute, any),
+	navigate NavigateWithParamFunc,
 ) fyne.CanvasObject {
 	return widget.NewList(
 		func() int {

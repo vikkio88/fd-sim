@@ -131,3 +131,5 @@ func (c *AppContext) GetGameState() (*models.Game, bool) {
 	}
 	return c.gameState, true
 }
+
+type NavigateWithParamFunc func(AppRoute, any)

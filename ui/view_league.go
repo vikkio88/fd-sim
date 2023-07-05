@@ -41,7 +41,7 @@ func leagueView(ctx *AppContext) *fyne.Container {
 func makeRounds(
 	rounds []*models.RPHTPH,
 	results models.ResultsPHMap,
-	navigate func(AppRoute, any),
+	navigate NavigateWithParamFunc,
 	roundPointer int,
 	startDate time.Time,
 ) fyne.CanvasObject {
@@ -102,7 +102,7 @@ func makeRound(round *models.RPHTPH) fyne.CanvasObject {
 func makeRoundWithResults(
 	round *models.RPHTPH,
 	results models.ResultsPHMap,
-	navigate func(AppRoute, any),
+	navigate NavigateWithParamFunc,
 ) fyne.CanvasObject {
 	matchList := widget.NewList(
 		func() int {
@@ -155,7 +155,7 @@ func roundCard(round *models.RPHTPH, matchList *widget.List) fyne.CanvasObject {
 	return container.NewPadded(c)
 }
 
-func makeTableView(table []*models.TPHRow, navigate func(AppRoute, any)) *fyne.Container {
+func makeTableView(table []*models.TPHRow, navigate NavigateWithParamFunc) *fyne.Container {
 	columns := widgets.NewColumnsLayout([]float32{-1, 350, 50, 50, 50, 50, 50, 50, 50})
 	header := widgets.NewListHeader(
 		[]widgets.ListColumn{

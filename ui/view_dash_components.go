@@ -64,7 +64,7 @@ func countUnread(notifications []interface{}, isEmail bool) int {
 	return c
 }
 
-func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any)) fyne.CanvasObject {
+func makeNewsTab(news binding.UntypedList, db d.IDb, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		news,
 		func() fyne.CanvasObject {
@@ -127,7 +127,7 @@ func makeNewsTab(news binding.UntypedList, db d.IDb, navigate func(AppRoute, any
 		)
 }
 
-func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate func(AppRoute, any)) fyne.CanvasObject {
+func makeEmailsTab(emails binding.UntypedList, db d.IDb, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	list := widget.NewListWithData(
 		emails,
 		func() fyne.CanvasObject {

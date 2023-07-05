@@ -44,7 +44,7 @@ func matchDetailsView(ctx *AppContext) *fyne.Container {
 }
 
 // TODO: could add lineup
-func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result, isHomeTeam bool, navigate func(AppRoute, any)) fyne.CanvasObject {
+func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result, isHomeTeam bool, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	// TODO: rewrite HL so you can size it rather than using buttons
 	teamBtn := widget.NewButton(team.Name, func() {
 		navigate(TeamDetails, team.Id)
