@@ -31,7 +31,7 @@ func TestRoundBuilder(t *testing.T) {
 	assert.True(t, ok)
 }
 
-func TestRoundStats(t *testing.T) {
+func TestRoundStatsAndStatsMerge(t *testing.T) {
 	rng := libs.NewRng(1230)
 	tg := generators.NewTeamGenSeeded(rng)
 	teams := tg.Teams(2)
@@ -52,6 +52,7 @@ func TestRoundStats(t *testing.T) {
 	for _, r := range rows {
 		goalsAcc += r.Goals
 		assert.Equal(t, r.Played, 1)
+		assert.NotEqual(t, r.Score, 0.0)
 	}
 	assert.Equal(t, goals, goalsAcc)
 
@@ -70,6 +71,9 @@ func TestRoundStats(t *testing.T) {
 	for _, r := range updatedRows {
 		goalsAcc2 += r.Goals
 		assert.Equal(t, r.Played, 2)
+		// This should not test row as row is a pointer and it will be like a equal
+		// assert.Greater(t, r.Score, rows[r.PlayerId].Score)
+		assert.Greater(t, r.Score, rows2[r.PlayerId].Score)
 	}
 
 	assert.Equal(t, goalsAcc2, goals+goals2)

@@ -1,12 +1,14 @@
 package ui
 
 import (
+	"fdsim/models"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -15,8 +17,11 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	g, isGameInit := ctx.GetGameState()
 	player := ctx.Db.PlayerR().ById(id)
 	canSeeDetails := false
+	isManagedPlayer := false
 	if player.Team != nil {
 		canSeeDetails = IsFDTeam(player.Team.Id)
+		// if I add scouting this can be different
+		isManagedPlayer = canSeeDetails
 	}
 
 	showStats := isGameInit
@@ -39,7 +44,25 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	if canSeeDetails {
 		skillInfo = centered(widget.NewLabel(player.Skill.String()))
 	}
+	var main fyne.CanvasObject
+	main = makePlayerMainDetailsView(player, moraleInfo, skillInfo, showStats, ctx, g)
+	if isManagedPlayer {
+		main = container.NewAppTabs(
+			container.NewTabItemWithIcon("Info", theme.AccountIcon(), main),
+			container.NewTabItemWithIcon("Manage", theme.DocumentIcon(), centered(widget.NewLabel("Manage"))),
+		)
+	}
 
+	return NewFborder().
+		Top(
+			NewFborder().
+				Left(backButton(ctx)).
+				Get(centered(h1(player.String()))),
+		).
+		Get(main)
+}
+
+func makePlayerMainDetailsView(player *models.PlayerWithTeam, moraleInfo *fyne.Container, skillInfo *fyne.Container, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {
 	main := container.NewGridWithRows(2,
 		container.NewGridWithColumns(2,
 			widget.NewCard("", "Team Info",
@@ -79,6 +102,10 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 
 	if showStats {
 		stats := ctx.Db.LeagueR().GetStatsForPlayer(player.Id, g.LeagueId)
+		score := 0.0
+		if stats.Played > 0 {
+			score = stats.Score / float64(stats.Played)
+		}
 		statsWrapper := widget.NewCard(
 			"", "Season stats",
 			container.NewVBox(
@@ -89,17 +116,10 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 					centered(widget.NewLabel(fmt.Sprintf("%d", stats.Goals))),
 				),
 				valueLabel("Score:",
-					centered(widget.NewLabel(fmt.Sprintf("%.2f", stats.Score))),
+					centered(widget.NewLabel(fmt.Sprintf("%.1f", score))),
 				),
 			))
 		main.AddObject(statsWrapper)
 	}
-
-	return NewFborder().
-		Top(
-			NewFborder().
-				Left(backButton(ctx)).
-				Get(centered(h1(player.String()))),
-		).
-		Get(main)
+	return main
 }

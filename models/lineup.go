@@ -1,6 +1,8 @@
 package models
 
-import "fdsim/libs"
+import (
+	"fdsim/libs"
+)
 
 type Lineup struct {
 	Module       Module
@@ -130,4 +132,43 @@ func calculateAvgs(players []PPH) (float64, float64, float64) {
 	valM := float64(totM) / float64(tot)
 	valA := float64(totA) / float64(tot)
 	return valS, valM, valA
+}
+
+func (l *Lineup) Score(owngoals, othergoals int, scorers []string, rng *libs.Rng) PlayerScoreMap {
+	res := PlayerScoreMap{}
+	min, max := 40, 100
+	if owngoals > othergoals {
+		min, max = 60, 100
+	} else if owngoals < othergoals {
+		min, max = 20, 60
+	}
+
+	for _, p := range l.FlatPlayers {
+		pId := p.Id
+		if isAScorer(pId, scorers) {
+			min += 15
+		}
+
+		if p.Morale > 50 && rng.ChanceI(p.Morale) {
+			min += 10
+		}
+
+		if p.Morale < 50 {
+			min -= 15
+		}
+
+		res[pId] = float64(rng.UInt(min, max) / 10.)
+	}
+
+	return res
+}
+
+func isAScorer(p string, scorers []string) bool {
+	for _, s := range scorers {
+		if p == s {
+			return true
+		}
+	}
+
+	return false
 }

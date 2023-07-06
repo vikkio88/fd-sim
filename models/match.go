@@ -123,7 +123,10 @@ func (m *Match) Simulate(rng *libs.Rng) {
 
 	scorersH := m.LineupHome.Scorers(goalsH, rng)
 	scorersA := m.LineupAway.Scorers(goalsA, rng)
-	m.result = NewResult(goalsH, goalsA, scorersH, scorersA)
+
+	scoreHome := m.LineupHome.Score(goalsH, goalsA, scorersH, rng)
+	scoreAway := m.LineupAway.Score(goalsA, goalsH, scorersA, rng)
+	m.result = NewResult(goalsH, goalsA, scorersH, scorersA, scoreHome, scoreAway)
 }
 
 func (*Match) fluke(goalsH int, rng *libs.Rng, goalsA int) (int, int) {

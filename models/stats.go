@@ -18,7 +18,6 @@ type StatRow struct {
 func (sr *StatRow) Merge(o *StatRow) {
 	sr.Played += o.Played
 	sr.Goals += o.Goals
-	// TODO: Avg this
 	sr.Score += o.Score
 }
 
@@ -55,26 +54,38 @@ func StatsFromRoundResult(round *Round, leagueId string) StatsMap {
 	// stats := make([]*StatRow, 2*11*len(round.Matches))
 	stats := map[string]*StatRow{}
 	for _, m := range round.Matches {
+		r, ok := m.Result()
+		if !ok {
+			continue
+		}
+
 		for _, pId := range m.LineupHome.Ids() {
 			stats[pId] = NewStatRowBase(pId, m.Home.Id, leagueId)
+			if score, ok := r.ScoreHome[pId]; ok {
+				stats[pId].Score = score
+			} else {
+				panic("THIS SHOULD NEVER HAPPEN")
+			}
 		}
 
 		for _, pId := range m.LineupAway.Ids() {
 			stats[pId] = NewStatRowBase(pId, m.Away.Id, leagueId)
+			if score, ok := r.ScoreAway[pId]; ok {
+				stats[pId].Score = score
+			} else {
+				panic("THIS SHOULD NEVER HAPPEN")
+			}
 		}
 
-		r, ok := m.Result()
-		if ok {
-			for _, pId := range r.ScorersHome {
-				if row, ok := stats[pId]; ok {
-					row.Goals++
-				}
+		for _, pId := range r.ScorersHome {
+			if row, ok := stats[pId]; ok {
+				row.Goals++
 			}
+		}
 
-			for _, pId := range r.ScorersAway {
-				if row, ok := stats[pId]; ok {
-					row.Goals++
-				}
+		for _, pId := range r.ScorersAway {
+			if row, ok := stats[pId]; ok {
+				row.Goals++
 			}
 		}
 

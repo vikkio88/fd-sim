@@ -23,11 +23,15 @@ func (r *ResultPH) String() string {
 
 }
 
+type PlayerScoreMap map[string]float64
+
 type Result struct {
 	GoalsHome   int
 	GoalsAway   int
 	ScorersHome []string
 	ScorersAway []string
+	ScoreHome   PlayerScoreMap
+	ScoreAway   PlayerScoreMap
 }
 
 func (r *Result) String() string {
@@ -35,12 +39,17 @@ func (r *Result) String() string {
 
 }
 
-func NewResult(goalsHome, goalsAway int, scorersHome, scorersAway []string) *Result {
+func NewResult(
+	goalsHome, goalsAway int,
+	scorersHome, scorersAway []string,
+	scoreHome, scoreAway PlayerScoreMap) *Result {
 	return &Result{
 		GoalsHome:   goalsHome,
 		GoalsAway:   goalsAway,
 		ScorersHome: scorersHome,
 		ScorersAway: scorersAway,
+		ScoreHome:   scoreHome,
+		ScoreAway:   scoreAway,
 	}
 }
 
