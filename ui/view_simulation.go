@@ -49,7 +49,16 @@ func simulationView(ctx *AppContext) *fyne.Container {
 	backBtn := backButton(ctx)
 	placeholder := widget.NewLabel("0")
 	var startBtn *widget.Button
+
+	stopBtn := widget.NewButtonWithIcon("Stop", theme.MediaStopIcon(), func() {
+		state.Set("Stopping...")
+		stop <- 1
+		ctx.Pop()
+	})
+	stopBtn.Disable()
+
 	startBtn = widget.NewButtonWithIcon("Start", theme.MediaPlayIcon(), func() {
+		stopBtn.Enable()
 		state.Set("Simulating...")
 		go start(game, sim, dayFinished, stop, quit, state, ctx)
 		placeholder.Hide()
@@ -69,11 +78,7 @@ func simulationView(ctx *AppContext) *fyne.Container {
 			rightAligned(
 				container.NewHBox(
 					startBtn,
-					widget.NewButtonWithIcon("Stop", theme.MediaStopIcon(), func() {
-						state.Set("Stopping...")
-						stop <- 1
-						ctx.Pop()
-					}),
+					stopBtn,
 				),
 			),
 		).
