@@ -65,14 +65,14 @@ func (t *Team) StringShort() string {
 func (t *Team) Lineup() *Lineup {
 	module := M442
 	rngSeed := time.Now().Unix()
-	morale := 50
+	skill := 50
 	if t.Coach != nil {
 		module = t.Coach.Module
 		rngSeed = t.Coach.RngSeed
-		morale = t.Coach.Morale.Val()
+		skill = t.Coach.Skill.Val()
 	}
 
-	return t.Roster.Lineup(module, rngSeed, morale)
+	return t.Roster.Lineup(module, rngSeed, skill)
 }
 
 func (t *Team) PH() TPH {

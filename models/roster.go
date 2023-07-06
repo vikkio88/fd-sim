@@ -155,7 +155,7 @@ func (r *Roster) InRole(role Role) []*Player {
 	return []*Player{}
 }
 
-func (r *Roster) Lineup(module Module, seed int64, morale int) *Lineup {
+func (r *Roster) Lineup(module Module, seed int64, skill int) *Lineup {
 	rng := libs.NewRng(seed)
 	conf := module.Conf()
 	lineup := NewRolePPHMap()
@@ -165,7 +165,7 @@ func (r *Roster) Lineup(module Module, seed int64, morale int) *Lineup {
 		pRoleInRoster := len(r.indexByRole[role])
 
 		if pRoleInRoster >= count {
-			if rng.ChanceI(100 - morale) {
+			if rng.ChanceI(100 - skill) {
 				pInRole := make([]PPH, len(r.indexByRole[role]))
 				copy(pInRole, r.indexByRole[role])
 				rand.Shuffle(len(pInRole), func(i, j int) { pInRole[i], pInRole[j] = pInRole[j], pInRole[i] })
