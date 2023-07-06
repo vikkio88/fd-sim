@@ -64,6 +64,29 @@ func (t *TeamGen) TeamsWithCountry(count int, country enums.Country) []*models.T
 	return teams
 }
 
+func (t *TeamGen) TeamsWithCountryUnique(count int, country enums.Country) []*models.Team {
+	teams := make([]*models.Team, count)
+	teamsNames := map[string]string{}
+	for i := 0; i < count; i++ {
+		team := t.Team(country)
+		for {
+			if _, exists := teamsNames[team.Name]; !exists {
+				teamsNames[team.Name] = team.Id
+				break
+			}
+
+			city := t.cityName(country)
+			teamName := t.teamName(country)
+			team.City = city
+			team.Name = teamName
+
+		}
+		teams[i] = t.Team(country)
+	}
+
+	return teams
+}
+
 func (t *TeamGen) Teams(count int) []*models.Team {
 	teams := make([]*models.Team, count)
 	for i := 0; i < count; i++ {

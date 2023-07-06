@@ -114,7 +114,7 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		vm.ClearDataUtList(teams)
 		tg := generators.NewTeamGen(time.Now().Unix())
 		n, _ := teamsNumber.Get()
-		ts := tg.TeamsWithCountry(int(n), selectedCountry)
+		ts := tg.TeamsWithCountryUnique(int(n), selectedCountry)
 		teamsSlice = ts
 		ctx.Db.TeamR().Insert(ts)
 		for _, t := range ts {
