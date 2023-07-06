@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fdsim/libs"
 	"fdsim/utils"
+	"math/rand"
 	"sort"
 
 	"golang.org/x/exp/maps"
@@ -153,14 +155,21 @@ func (r *Roster) InRole(role Role) []*Player {
 	return []*Player{}
 }
 
-func (r *Roster) Lineup(module Module) *Lineup {
+func (r *Roster) Lineup(module Module, seed int64) *Lineup {
+	rng := libs.NewRng(seed)
 	conf := module.Conf()
 	lineup := NewRolePPHMap()
 	//bench := NewRolePPHMap()
 	missing := NewEmptyRoleCounter()
 	for role, count := range conf {
 		pRoleInRoster := len(r.indexByRole[role])
+		pInRole := make([]PPH, 0)
+		copy(r.indexByRole[role], pInRole)
+
 		if pRoleInRoster >= count {
+			if rng.ChanceI(50) {
+				rand.Shuffle(len(pInRole), func(i, j int) { pInRole[i], pInRole[j] = pInRole[j], pInRole[i] })
+			}
 			lineup[role] = r.indexByRole[role][0:count]
 		} else {
 			missing[role] = count - pRoleInRoster

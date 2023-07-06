@@ -4,6 +4,7 @@ import (
 	"fdsim/enums"
 	"fdsim/utils"
 	"fmt"
+	"time"
 
 	"github.com/oklog/ulid/v2"
 )
@@ -63,11 +64,13 @@ func (t *Team) StringShort() string {
 
 func (t *Team) Lineup() *Lineup {
 	module := M442
+	rngSeed := time.Now().Unix()
 	if t.Coach != nil {
 		module = t.Coach.Module
+		rngSeed = t.Coach.RngSeed
 	}
 
-	return t.Roster.Lineup(module)
+	return t.Roster.Lineup(module, rngSeed)
 }
 
 func (t *Team) PH() TPH {

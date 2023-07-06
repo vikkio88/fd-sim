@@ -7,6 +7,7 @@ import (
 	"fdsim/libs"
 	"fdsim/models"
 	"fdsim/utils"
+	"math"
 )
 
 type PeopleGen struct {
@@ -233,6 +234,8 @@ func (p *PeopleGen) Coach(country enums.Country) *models.Coach {
 	wage, contract := p.getContractInfo(c.IdealWage)
 	c.Wage = wage
 	c.YContract = contract
+
+	c.RngSeed = int64(p.rng.UInt(0, math.MaxInt))
 
 	return &c
 }

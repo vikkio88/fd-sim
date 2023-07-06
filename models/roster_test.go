@@ -51,10 +51,10 @@ func TestLineupGeneration(t *testing.T) {
 
 	team := tg.Team(enums.IT)
 
-	lineup := team.Roster.Lineup(models.M442)
+	lineup := team.Roster.Lineup(models.M442, 0)
 	count := countPlayersInLineup(lineup)
 	assert.Equal(t, 11, count)
-	lineup = team.Roster.Lineup(models.M343)
+	lineup = team.Roster.Lineup(models.M343, 0)
 	count = countPlayersInLineup(lineup)
 	assert.Equal(t, 11, count)
 }
@@ -64,7 +64,7 @@ func TestLineupGetScorer(t *testing.T) {
 
 	team := tg.Team(enums.IT)
 
-	lineup := team.Roster.Lineup(models.M442)
+	lineup := team.Roster.Lineup(models.M442, 0)
 	rng := libs.NewRng(0)
 	c := models.NewEmptyRoleCounter()
 	for i := 0; i < 1000; i++ {

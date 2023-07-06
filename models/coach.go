@@ -18,6 +18,7 @@ type Coach struct {
 	Person
 	Module Module
 	skillable
+	RngSeed int64
 }
 
 func NewCoach(name, surname string, age int, country enums.Country, module Module) Coach {

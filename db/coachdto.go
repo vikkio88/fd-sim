@@ -23,6 +23,8 @@ type CoachDto struct {
 	TeamId    *string
 	Wage      int64
 	YContract uint8
+
+	RngSeed int64
 }
 
 func DtoFromCoach(c *models.Coach) CoachDto {
@@ -44,6 +46,8 @@ func DtoFromCoach(c *models.Coach) CoachDto {
 		TeamId:    nil,
 		Wage:      c.Wage.Val,
 		YContract: c.YContract,
+
+		RngSeed: c.RngSeed,
 	}
 }
 func DtoFromCoachWithTeam(c *models.Coach, teamId string) CoachDto {
@@ -68,6 +72,7 @@ func (c CoachDto) Coach() *models.Coach {
 	coach.IdealWage = toMoney(c.IdealWage)
 	coach.Wage = toMoney(c.Wage)
 	coach.YContract = c.YContract
+	coach.RngSeed = c.RngSeed
 
 	return coach
 }
