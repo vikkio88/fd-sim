@@ -3,6 +3,8 @@ package conf
 import "time"
 
 const (
+	BigInt = 1_000_000_000
+
 	PlayerAgeRange = "16..40"
 	CoachAgeRange  = "30..80"
 	SimSpeedMs     = 500
