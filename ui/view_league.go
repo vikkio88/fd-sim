@@ -184,13 +184,16 @@ func makeTableView(table []*models.TPHRow, navigate NavigateWithParamFunc) *fyne
 					teamRow := table[lii]
 					c := co.(*fyne.Container)
 					c.Objects[0].(*widget.Label).SetText(fmt.Sprintf("%d . ", teamRow.Index+1))
-					centerCell := c.Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
-					fdIcon := centerCell.Objects[0].(*widget.Icon)
+					centerCell := c.Objects[1].(*fyne.Container)
+
+					teamCell := centerCell.Objects[0].(*widget.Hyperlink)
 					if !IsFDTeam(teamRow.Team.Id) {
-						fdIcon.Hide()
+						teamCell.SetText(teamRow.Team.Name)
+					} else {
+						teamCell.SetText(
+							signalFdTeamTxt(teamRow.Team.Name),
+						)
 					}
-					teamCell := centerCell.Objects[1].(*widget.Hyperlink)
-					teamCell.SetText(teamRow.Team.Name)
 					teamCell.OnTapped = func() {
 						navigate(TeamDetails, teamRow.Team.Id)
 					}
@@ -207,14 +210,13 @@ func makeTableView(table []*models.TPHRow, navigate NavigateWithParamFunc) *fyne
 }
 
 func teamTableRow(layout *widgets.ColumnsLayout) func() fyne.CanvasObject {
+	fdIcon := widget.NewIcon(theme.AccountIcon())
+	fdIcon.Hide()
 	return func() fyne.CanvasObject {
 		return container.New(layout,
 			widget.NewLabel("#"),
 			centered(
-				container.NewHBox(
-					widget.NewIcon(theme.AccountIcon()),
-					widget.NewHyperlink("", nil),
-				),
+				widget.NewHyperlink("", nil),
 			),
 			widget.NewLabel("P"),
 			widget.NewLabel("W"),
@@ -250,6 +252,13 @@ func makeStats(ctx *AppContext, leagueId string) fyne.CanvasObject {
 				}
 				teamHL := c.Objects[2].(*fyne.Container).Objects[0].(*widget.Hyperlink)
 				teamHL.SetText(statRow.Team.Name)
+				if !IsFDTeam(statRow.Team.Id) {
+					teamHL.SetText(statRow.Team.Name)
+				} else {
+					teamHL.SetText(
+						signalFdTeamTxt(statRow.Team.Name),
+					)
+				}
 				teamHL.OnTapped = func() {
 					ctx.PushWithParam(TeamDetails, statRow.Team.Id)
 				}

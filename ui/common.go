@@ -79,7 +79,11 @@ func boldLabel(label string) *widget.Label {
 	return labelLbl
 }
 
+func signalFdTeamTxt(txt string) string {
+	return fmt.Sprintf("[ %s ]", txt)
+}
+
 func signalFdTeam(lbl *widget.Label) {
-	lbl.SetText(fmt.Sprintf("[ %s ]", lbl.Text))
+	lbl.SetText(signalFdTeamTxt(lbl.Text))
 	lbl.TextStyle = fyne.TextStyle{Bold: true}
 }
