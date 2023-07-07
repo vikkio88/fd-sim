@@ -18,6 +18,10 @@ const (
 	// Placeholder for the link in the body of a notification
 	LinkBodyPH = "LINK"
 
+	//TODO: change this to 1st July
+	StartingDateMonth = time.August
+	StartingDateDay   = 20
+	//
 	SummerMarketWindowStart = time.July
 	SummerMarketWindowEnd   = time.August
 	WinterMarketWindowStart = time.January

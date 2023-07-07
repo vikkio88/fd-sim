@@ -59,6 +59,9 @@ type ILeagueRepo interface {
 	BestScorers(leagueId string) []*models.StatRowPH
 	GetStats(leagueId string) models.StatsMap
 	UpdateStats(stats models.StatsMap)
+
+	// at the end of the season store the stats
+	PostSeasonStats(gameDate time.Time)
 }
 
 // ITeamRepo ...

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/conf"
 	"fdsim/data"
 	"fdsim/enums"
 	"fdsim/generators"
@@ -228,7 +229,11 @@ func stepChange(step binding.Int, modification int) {
 }
 
 func getGameStartingDate() time.Time {
-	return utils.NewDate(time.Now().Year(), time.July, 1)
+	return utils.NewDate(
+		time.Now().Year(),
+		conf.StartingDateMonth,
+		conf.StartingDateDay,
+	)
 }
 
 func getSeasonYears() string {

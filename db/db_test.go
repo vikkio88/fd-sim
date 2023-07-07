@@ -2,9 +2,11 @@ package db_test
 
 import (
 	d "fdsim/db"
+	"fdsim/enums"
 	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
+	"fdsim/utils"
 	"testing"
 	"time"
 
@@ -119,5 +121,67 @@ func TestSingleMatchFetching(t *testing.T) {
 	assert.Equal(t, m1afterUpdate.Away.Id, m1.Away.Id)
 	assert.Equal(t, m1afterUpdate.RoundIndex, r1.Index)
 	assert.NotNil(t, m1afterUpdate.Result)
+}
 
+func TestConvertStatsIntoHistory(t *testing.T) {
+	// t.Skip("Slow")
+	date := utils.NewDate(2023, time.August, 20)
+	tg := generators.NewTeamGen(0)
+	ts := tg.TeamsWithCountry(4, enums.IT)
+	l := models.NewLeague(ts, date)
+	db := d.NewDb("test.db")
+	db.TruncateAll()
+
+	db.LeagueR().InsertOne(l)
+
+	// Simulating a whole season
+	for {
+		r, hasMore := l.NextRound()
+		if !hasMore {
+			break
+		}
+
+		r.Simulate(libs.NewRng(0))
+		l.Update(r)
+		oldStats := db.LeagueR().GetStats(l.Id)
+		stats := models.StatsFromRoundResult(r, l.Id)
+		newStats := models.MergeStats(oldStats, stats)
+
+		db.LeagueR().PostRoundUpdate(r, l)
+		db.LeagueR().UpdateStats(newStats)
+
+		date = r.Date
+	}
+
+	// Adding 2 months more or less otherwise it finishes in January
+	date = date.Add(time.Duration(24*60) * time.Hour)
+
+	db.LeagueR().PostSeasonStats(date)
+
+	// Another Year
+	date = utils.NewDate(2024, time.August, 20)
+	l2 := models.NewLeague(ts, date)
+	db.LeagueR().InsertOne(l2)
+
+	for {
+		r, hasMore := l2.NextRound()
+		if !hasMore {
+			break
+		}
+
+		r.Simulate(libs.NewRng(0))
+		l2.Update(r)
+		oldStats := db.LeagueR().GetStats(l2.Id)
+		stats := models.StatsFromRoundResult(r, l2.Id)
+		newStats := models.MergeStats(oldStats, stats)
+
+		db.LeagueR().PostRoundUpdate(r, l2)
+		db.LeagueR().UpdateStats(newStats)
+
+		date = r.Date
+	}
+	// Adding 2 months more or less otherwise it finishes in January
+	date = date.Add(time.Duration(24*60) * time.Hour)
+
+	db.LeagueR().PostSeasonStats(date)
 }

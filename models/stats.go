@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type StatRowPH struct {
 	Index int
 	StatRow
@@ -108,4 +110,39 @@ func MergeStats(existing, new StatsMap) StatsMap {
 	}
 
 	return changed
+}
+
+// Player History
+type PHistoryRow struct {
+	PlayerId string
+
+	LeagueId string
+	TeamId   string
+	TeamName string
+	Played   int
+	Goals    int
+	Score    float64
+
+	HalfSeason   bool
+	TransferCost *string
+	StartYear    int
+}
+
+func NewPHistoryRow(stat *StatRow, gameDate time.Time) *PHistoryRow {
+	wasTransferedHalfSeason := false
+	// If I am creating this row on January is because it was transfered half season
+	if gameDate.Month() == time.January {
+		wasTransferedHalfSeason = true
+	}
+	return &PHistoryRow{
+		PlayerId:   stat.PlayerId,
+		LeagueId:   stat.LeagueId,
+		TeamId:     stat.TeamId,
+		TeamName:   stat.Team.Name,
+		Played:     stat.Played,
+		Goals:      stat.Goals,
+		Score:      stat.Score,
+		StartYear:  gameDate.Year(),
+		HalfSeason: wasTransferedHalfSeason,
+	}
 }

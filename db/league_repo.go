@@ -5,6 +5,7 @@ import (
 	"fdsim/models"
 	"time"
 
+	"golang.org/x/exp/maps"
 	"gorm.io/gorm"
 )
 
@@ -135,4 +136,49 @@ func (lr *LeagueRepo) GetStats(leagueId string) models.StatsMap {
 func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	sdtos := DtosFromStatsMap(stats)
 	lr.g.Save(sdtos)
+}
+
+func (lr *LeagueRepo) PostSeasonStats(gameDate time.Time) {
+	var playersStats []StatRowDto
+	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
+
+	var historyRows []PHistoryDto
+	lr.g.Model(&PHistoryDto{}).Find(&historyRows)
+	indexedHRows := indexHistoryRows(historyRows)
+
+	for _, s := range playersStats {
+		if existingRow, ok := indexedHRows[s.PlayerId]; ok {
+			//TODO: maybe move to pointer
+			existingRow.Update(s, gameDate)
+			indexedHRows[s.PlayerId] = existingRow
+
+		} else {
+			indexedHRows[s.PlayerId] = DtoFromPHistoryRow(models.NewPHistoryRow(s.StatRow(), gameDate))
+		}
+	}
+	hrows := maps.Values(indexedHRows)
+
+	//TODO: Save team info
+
+	lr.cleanStats()
+	lr.g.Save(hrows)
+
+}
+
+func (lr *LeagueRepo) cleanStats() {
+	lr.g.Where("1 = 1").Delete(&TableRowDto{})
+	lr.g.Where("1 = 1").Delete(&ResultDto{})
+	lr.g.Where("1 = 1").Delete(&MatchDto{})
+	lr.g.Where("1 = 1").Delete(&RoundDto{})
+	lr.g.Where("1 = 1").Delete(&StatRowDto{})
+
+}
+
+func indexHistoryRows(historyRows []PHistoryDto) map[string]PHistoryDto {
+	result := map[string]PHistoryDto{}
+	for _, v := range historyRows {
+		result[v.PlayerId] = v
+	}
+
+	return result
 }
