@@ -142,9 +142,9 @@ func (lr *LeagueRepo) PostSeasonStats(gameDate time.Time) {
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
 
-	var historyRows []PHistoryDto
-	lr.g.Model(&PHistoryDto{}).Find(&historyRows)
-	indexedHRows := indexHistoryRows(historyRows)
+	var pHistoryRows []PHistoryDto
+	lr.g.Model(&PHistoryDto{}).Find(&pHistoryRows)
+	indexedHRows := indexPHistoryRows(pHistoryRows)
 
 	for _, s := range playersStats {
 		if existingRow, ok := indexedHRows[s.PlayerId]; ok {
@@ -156,12 +156,22 @@ func (lr *LeagueRepo) PostSeasonStats(gameDate time.Time) {
 			indexedHRows[s.PlayerId] = DtoFromPHistoryRow(models.NewPHistoryRow(s.StatRow(), gameDate))
 		}
 	}
-	hrows := maps.Values(indexedHRows)
+	phrows := maps.Values(indexedHRows)
 
-	//TODO: Save team info
+	var teamsStats []TableRowIndexDto
+	lr.g.Raw(`SELECT team_id, played, wins, draws, losses, points, goal_scored, goal_conceded,
+			   ROW_NUMBER() OVER (ORDER BY points DESC, goal_scored DESC, goal_conceded ASC) AS position
+		FROM table_row_dtos`).Find(&teamsStats)
+
+	var tHistoryRows []THistoryDto
+	lr.g.Model(&THistoryDto{}).Find(&tHistoryRows)
+
+	//TODO: merge/convert tablerows into thistoryrow
 
 	lr.cleanStats()
-	lr.g.Save(hrows)
+	lr.g.Save(phrows)
+
+	// save throws too
 
 }
 
@@ -174,7 +184,7 @@ func (lr *LeagueRepo) cleanStats() {
 
 }
 
-func indexHistoryRows(historyRows []PHistoryDto) map[string]PHistoryDto {
+func indexPHistoryRows(historyRows []PHistoryDto) map[string]PHistoryDto {
 	result := map[string]PHistoryDto{}
 	for _, v := range historyRows {
 		result[v.PlayerId] = v

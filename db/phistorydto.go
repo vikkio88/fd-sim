@@ -15,11 +15,11 @@ type PHistoryDto struct {
 }
 
 func (p *PHistoryDto) Update(stat StatRowDto, gameDate time.Time) {
-	existingStats := unserialiseHistoryStats(p.Stats)
+	existingStats := unserialisePHistoryStats(p.Stats)
 	hstat := models.NewPHistoryRow(stat.StatRow(), gameDate)
 	existingStats = append(existingStats, newSubRowFromStatRow(hstat))
 
-	p.Stats = serialiseHistoryStats(existingStats)
+	p.Stats = serialisePHistoryStats(existingStats)
 }
 
 type PHistorySubRow struct {
@@ -70,13 +70,13 @@ func newSubRowsFromPHistory(h *models.PHistoryRow) []PHistorySubRow {
 func DtoFromPHistoryRow(h *models.PHistoryRow) PHistoryDto {
 	return PHistoryDto{
 		PlayerId: h.PlayerId,
-		Stats: serialiseHistoryStats(
+		Stats: serialisePHistoryStats(
 			newSubRowsFromPHistory(h),
 		),
 	}
 }
 
-func serialiseHistoryStats(pHistorySubRow []PHistorySubRow) string {
+func serialisePHistoryStats(pHistorySubRow []PHistorySubRow) string {
 	var result string
 	data, _ := json.Marshal(pHistorySubRow)
 	result = string(data)
@@ -84,7 +84,7 @@ func serialiseHistoryStats(pHistorySubRow []PHistorySubRow) string {
 	return result
 }
 
-func unserialiseHistoryStats(s string) []PHistorySubRow {
+func unserialisePHistoryStats(s string) []PHistorySubRow {
 	if s == "" {
 		return []PHistorySubRow{}
 	}

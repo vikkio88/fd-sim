@@ -13,6 +13,8 @@ type TableRowIndexDto struct {
 	GoalConceded int
 	// Index is a reserved word
 	Position int
+
+	Team TeamDto
 }
 
 func (tr *TableRowIndexDto) TPHRow() *models.TPHRow {

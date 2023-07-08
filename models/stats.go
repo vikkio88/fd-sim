@@ -146,3 +146,38 @@ func NewPHistoryRow(stat *StatRow, gameDate time.Time) *PHistoryRow {
 		HalfSeason: wasTransferedHalfSeason,
 	}
 }
+
+// Team History
+type THistoryRow struct {
+	TeamId string
+
+	LeagueId      string
+	FinalPosition int
+	Played        int
+	Wins          int
+	Draws         int
+	Losses        int
+	Points        int
+	GoalScored    int
+	GoalConceded  int
+	Year          int
+}
+
+func NewTHistoryRow(stat *TPHRow, leagueId string, gameDate time.Time) *THistoryRow {
+	row := stat.Row
+	return &THistoryRow{
+		TeamId: stat.Team.Id,
+
+		LeagueId:      leagueId,
+		Played:        row.Played,
+		Wins:          row.Wins,
+		Draws:         row.Draws,
+		Losses:        row.Losses,
+		Points:        row.Played,
+		GoalScored:    row.Played,
+		GoalConceded:  row.Played,
+		FinalPosition: stat.Index,
+
+		Year: gameDate.Year(),
+	}
+}
