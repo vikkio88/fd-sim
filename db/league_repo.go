@@ -138,25 +138,30 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	lr.g.Save(sdtos)
 }
 
-func (lr *LeagueRepo) PostSeasonStats(gameDate time.Time) {
+func (lr *LeagueRepo) PostSeasonStats(leagueId string, gameDate time.Time) {
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
 
 	var pHistoryRows []PHistoryDto
 	lr.g.Model(&PHistoryDto{}).Find(&pHistoryRows)
-	indexedHRows := indexPHistoryRows(pHistoryRows)
+	indexedPHRows := indexPHistoryRows(pHistoryRows)
 
 	for _, s := range playersStats {
-		if existingRow, ok := indexedHRows[s.PlayerId]; ok {
+		if existingRow, ok := indexedPHRows[s.PlayerId]; ok {
 			//TODO: maybe move to pointer
 			existingRow.Update(s, gameDate)
-			indexedHRows[s.PlayerId] = existingRow
+			indexedPHRows[s.PlayerId] = existingRow
 
 		} else {
-			indexedHRows[s.PlayerId] = DtoFromPHistoryRow(models.NewPHistoryRow(s.StatRow(), gameDate))
+			indexedPHRows[s.PlayerId] = DtoFromPHistoryRow(
+				models.NewPHistoryRow(
+					s.StatRow(),
+					gameDate,
+				),
+			)
 		}
 	}
-	phrows := maps.Values(indexedHRows)
+	phrows := maps.Values(indexedPHRows)
 
 	var teamsStats []TableRowIndexDto
 	lr.g.Raw(`SELECT team_id, played, wins, draws, losses, points, goal_scored, goal_conceded,
@@ -165,14 +170,28 @@ func (lr *LeagueRepo) PostSeasonStats(gameDate time.Time) {
 
 	var tHistoryRows []THistoryDto
 	lr.g.Model(&THistoryDto{}).Find(&tHistoryRows)
+	indexedTHRows := indexTHistoryRows(tHistoryRows)
+	for _, s := range teamsStats {
+		if existingRow, ok := indexedTHRows[s.TeamId]; ok {
+			//TODO: maybe move to pointer
+			existingRow.Update(s, leagueId, gameDate)
+			indexedTHRows[s.TeamId] = existingRow
 
-	//TODO: merge/convert tablerows into thistoryrow
+		} else {
+			indexedTHRows[s.TeamId] = DtoFromTHistoryRow(
+				models.NewTHistoryRow(
+					s.TPHRow(),
+					leagueId,
+					gameDate,
+				),
+			)
+		}
+	}
+	throws := maps.Values(indexedTHRows)
 
 	lr.cleanStats()
 	lr.g.Save(phrows)
-
-	// save throws too
-
+	lr.g.Save(throws)
 }
 
 func (lr *LeagueRepo) cleanStats() {
@@ -188,6 +207,15 @@ func indexPHistoryRows(historyRows []PHistoryDto) map[string]PHistoryDto {
 	result := map[string]PHistoryDto{}
 	for _, v := range historyRows {
 		result[v.PlayerId] = v
+	}
+
+	return result
+}
+
+func indexTHistoryRows(historyRows []THistoryDto) map[string]THistoryDto {
+	result := map[string]THistoryDto{}
+	for _, v := range historyRows {
+		result[v.TeamId] = v
 	}
 
 	return result

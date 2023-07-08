@@ -156,7 +156,7 @@ func TestConvertStatsIntoHistory(t *testing.T) {
 	// Adding 2 months more or less otherwise it finishes in January
 	date = date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeasonStats(date)
+	db.LeagueR().PostSeasonStats(l.Id, date)
 
 	// Another Year
 	date = utils.NewDate(2024, time.August, 20)
@@ -183,5 +183,5 @@ func TestConvertStatsIntoHistory(t *testing.T) {
 	// Adding 2 months more or less otherwise it finishes in January
 	date = date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeasonStats(date)
+	db.LeagueR().PostSeasonStats(l2.Id, date)
 }
