@@ -14,9 +14,9 @@ type THistoryDto struct {
 	Team TeamDto
 }
 
-func (p *THistoryDto) Update(row TableRowIndexDto, leagueId string, gameDate time.Time) {
+func (p *THistoryDto) Update(row TableRowIndexDto, leagueId, leagueName string, gameDate time.Time) {
 	existingStats := unserialiseTHistoryStats(p.Stats)
-	hstat := models.NewTHistoryRow(row.TPHRow(), leagueId, gameDate)
+	hstat := models.NewTHistoryRow(row.TPHRow(), leagueId, leagueName, gameDate)
 	existingStats = append(existingStats, newSubRowFromTHistory(hstat))
 
 	p.Stats = serialiseTHistoryStats(existingStats)
@@ -24,6 +24,7 @@ func (p *THistoryDto) Update(row TableRowIndexDto, leagueId string, gameDate tim
 
 type THistorySubRow struct {
 	LeagueId      string
+	LeagueName    string
 	Played        int
 	Wins          int
 	Draws         int
@@ -38,6 +39,7 @@ type THistorySubRow struct {
 func newSubRowFromTHistory(row *models.THistoryRow) THistorySubRow {
 	return THistorySubRow{
 		LeagueId:      row.LeagueId,
+		LeagueName:    row.LeagueName,
 		Played:        row.Played,
 		Wins:          row.Wins,
 		Draws:         row.Draws,

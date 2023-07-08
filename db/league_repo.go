@@ -138,7 +138,7 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	lr.g.Save(sdtos)
 }
 
-func (lr *LeagueRepo) PostSeasonStats(leagueId string, gameDate time.Time) {
+func (lr *LeagueRepo) PostSeasonStats(leagueId, leagueName string, gameDate time.Time) {
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
 
@@ -149,13 +149,14 @@ func (lr *LeagueRepo) PostSeasonStats(leagueId string, gameDate time.Time) {
 	for _, s := range playersStats {
 		if existingRow, ok := indexedPHRows[s.PlayerId]; ok {
 			//TODO: maybe move to pointer
-			existingRow.Update(s, gameDate)
+			existingRow.Update(s, leagueName, gameDate)
 			indexedPHRows[s.PlayerId] = existingRow
 
 		} else {
 			indexedPHRows[s.PlayerId] = DtoFromPHistoryRow(
 				models.NewPHistoryRow(
 					s.StatRow(),
+					leagueName,
 					gameDate,
 				),
 			)
@@ -174,7 +175,7 @@ func (lr *LeagueRepo) PostSeasonStats(leagueId string, gameDate time.Time) {
 	for _, s := range teamsStats {
 		if existingRow, ok := indexedTHRows[s.TeamId]; ok {
 			//TODO: maybe move to pointer
-			existingRow.Update(s, leagueId, gameDate)
+			existingRow.Update(s, leagueId, leagueName, gameDate)
 			indexedTHRows[s.TeamId] = existingRow
 
 		} else {
@@ -182,6 +183,7 @@ func (lr *LeagueRepo) PostSeasonStats(leagueId string, gameDate time.Time) {
 				models.NewTHistoryRow(
 					s.TPHRow(),
 					leagueId,
+					leagueName,
 					gameDate,
 				),
 			)

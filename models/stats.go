@@ -116,19 +116,20 @@ func MergeStats(existing, new StatsMap) StatsMap {
 type PHistoryRow struct {
 	PlayerId string
 
-	LeagueId string
-	TeamId   string
-	TeamName string
-	Played   int
-	Goals    int
-	Score    float64
+	LeagueId   string
+	LeagueName string
+	TeamId     string
+	TeamName   string
+	Played     int
+	Goals      int
+	Score      float64
 
 	HalfSeason   bool
 	TransferCost *string
 	StartYear    int
 }
 
-func NewPHistoryRow(stat *StatRow, gameDate time.Time) *PHistoryRow {
+func NewPHistoryRow(stat *StatRow, leagueName string, gameDate time.Time) *PHistoryRow {
 	wasTransferedHalfSeason := false
 	// If I am creating this row on January is because it was transfered half season
 	if gameDate.Month() == time.January {
@@ -137,6 +138,7 @@ func NewPHistoryRow(stat *StatRow, gameDate time.Time) *PHistoryRow {
 	return &PHistoryRow{
 		PlayerId:   stat.PlayerId,
 		LeagueId:   stat.LeagueId,
+		LeagueName: leagueName,
 		TeamId:     stat.TeamId,
 		TeamName:   stat.Team.Name,
 		Played:     stat.Played,
@@ -152,6 +154,7 @@ type THistoryRow struct {
 	TeamId string
 
 	LeagueId      string
+	LeagueName    string
 	FinalPosition int
 	Played        int
 	Wins          int
@@ -163,12 +166,13 @@ type THistoryRow struct {
 	Year          int
 }
 
-func NewTHistoryRow(stat *TPHRow, leagueId string, gameDate time.Time) *THistoryRow {
+func NewTHistoryRow(stat *TPHRow, leagueId, leagueName string, gameDate time.Time) *THistoryRow {
 	row := stat.Row
 	return &THistoryRow{
 		TeamId: stat.Team.Id,
 
 		LeagueId:      leagueId,
+		LeagueName:    leagueName,
 		Played:        row.Played,
 		Wins:          row.Wins,
 		Draws:         row.Draws,

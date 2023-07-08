@@ -61,7 +61,7 @@ type ILeagueRepo interface {
 	UpdateStats(stats models.StatsMap)
 
 	// at the end of the season store the stats
-	PostSeasonStats(leagueId string, gameDate time.Time)
+	PostSeasonStats(leagueId, leagueName string, gameDate time.Time)
 }
 
 // ITeamRepo ...

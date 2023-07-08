@@ -14,21 +14,22 @@ type PHistoryDto struct {
 	Player PlayerDto
 }
 
-func (p *PHistoryDto) Update(stat StatRowDto, gameDate time.Time) {
+func (p *PHistoryDto) Update(stat StatRowDto, leagueName string, gameDate time.Time) {
 	existingStats := unserialisePHistoryStats(p.Stats)
-	hstat := models.NewPHistoryRow(stat.StatRow(), gameDate)
+	hstat := models.NewPHistoryRow(stat.StatRow(), leagueName, gameDate)
 	existingStats = append(existingStats, newSubRowFromStatRow(hstat))
 
 	p.Stats = serialisePHistoryStats(existingStats)
 }
 
 type PHistorySubRow struct {
-	LeagueId string
-	TeamId   string
-	TeamName string
-	Played   int
-	Goals    int
-	Score    float64
+	LeagueId   string
+	LeagueName string
+	TeamId     string
+	TeamName   string
+	Played     int
+	Goals      int
+	Score      float64
 
 	HalfSeason   bool
 	TransferCost *string
@@ -37,12 +38,13 @@ type PHistorySubRow struct {
 
 func newSubRowFromStatRow(h *models.PHistoryRow) PHistorySubRow {
 	return PHistorySubRow{
-		LeagueId: h.LeagueId,
-		TeamId:   h.TeamId,
-		TeamName: h.TeamName,
-		Played:   h.Played,
-		Goals:    h.Goals,
-		Score:    h.Score,
+		LeagueId:   h.LeagueId,
+		LeagueName: h.LeagueName,
+		TeamId:     h.TeamId,
+		TeamName:   h.TeamName,
+		Played:     h.Played,
+		Goals:      h.Goals,
+		Score:      h.Score,
 
 		HalfSeason:   h.HalfSeason,
 		TransferCost: h.TransferCost,
@@ -53,12 +55,13 @@ func newSubRowFromStatRow(h *models.PHistoryRow) PHistorySubRow {
 func newSubRowsFromPHistory(h *models.PHistoryRow) []PHistorySubRow {
 	return []PHistorySubRow{
 		{
-			LeagueId: h.LeagueId,
-			TeamId:   h.TeamId,
-			TeamName: h.TeamName,
-			Played:   h.Played,
-			Goals:    h.Goals,
-			Score:    h.Score,
+			LeagueId:   h.LeagueId,
+			LeagueName: h.LeagueName,
+			TeamId:     h.TeamId,
+			TeamName:   h.TeamName,
+			Played:     h.Played,
+			Goals:      h.Goals,
+			Score:      h.Score,
 
 			HalfSeason:   h.HalfSeason,
 			TransferCost: h.TransferCost,
