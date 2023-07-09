@@ -4,7 +4,6 @@ import (
 	"fdsim/conf"
 	"fdsim/libs"
 	"fdsim/models"
-	"strings"
 	"time"
 
 	"golang.org/x/exp/maps"
@@ -140,12 +139,41 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	lr.g.Save(sdtos)
 }
 
-func (lr *LeagueRepo) PostSeason(leagueId, leagueName string, gameDate time.Time) {
+func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.League {
 	// maybe store player retired
-	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, leagueId)
-	lr.retirePlayers(indexedP, leagueId, leagueName, gameDate)
+	gameDate := game.Date
+	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, game.LeagueId)
+	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate)
+
+	// add young players
+
+	//TODO: implement this
+	lr.playersEndOfSeason(gameDate)
+
+	oldLeague := lr.ById(game.LeagueId)
+	// we might need updates on locales
+
+	lr.g.Raw("update team_dtos set league_id = null where 1=1")
+	newLeague := models.NewLeague(oldLeague.Teams(), game.Date)
+	game.LeagueId = newLeague.Id
+	newLeagueDto := DtoFromLeagueEmpty(newLeague)
+	lr.g.Create(&newLeagueDto)
+
+	lr.g.Raw("update team_dtos set league_id = ? where 1=1", newLeague.Id)
+	newLeagueDto = DtoFromLeague(newLeague)
+
+	lr.g.Save(&newLeagueDto)
+	gameDto := DtoFromGame(game)
+	lr.g.Save(&gameDto)
+
+	return lr.ByIdFull(newLeague.Id)
+}
+
+func (lr *LeagueRepo) playersEndOfSeason(gameDate time.Time) {
 
 	// Check contracts and if 0 put them on the free market
+	// Check contracts and if 0 put them on the free market
+
 }
 
 func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time) {
@@ -159,6 +187,10 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 	lr.g.Model(&PlayerDto{}).Count(&playersCount)
 	var playersToRetire []PlayerDto
 	lr.g.Raw("select * from player_dtos where age > 35 order by RANDOM() LIMIT ?", int(playersCount)/rng.UInt(2, 10)).Preload(teamRel).Find(&playersToRetire)
+	if len(playersToRetire) == 0 {
+		return
+	}
+	//TODO: maybe ad add a way to replace players
 	pIds := make([]string, len(playersToRetire))
 	retiring := make([]RetiredPlayer, len(playersToRetire))
 	for i, p := range playersToRetire {
@@ -166,8 +198,12 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 		pIds[i] = p.Id
 	}
 	lr.g.Create(&retiring)
-	lr.g.Raw("delete from player_dtos where id in (" + strings.Join(pIds, ", ") + ")")
-	lr.g.Raw("delete from p_history_dtos where player_id in (" + strings.Join(pIds, ", ") + ")")
+
+	lr.g.Delete(&PHistoryDto{}, pIds)
+	trx := lr.g.Delete(&PlayerDto{}, pIds)
+	if trx.RowsAffected == 0 {
+		panic("AAAARGH")
+	}
 }
 
 func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Time, leagueId string) (map[string]PHistoryDto, map[string]THistoryDto) {

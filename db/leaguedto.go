@@ -17,6 +17,43 @@ type LeagueDto struct {
 	RPointer int
 }
 
+func DtoFromLeagueEmpty(l *models.League) LeagueDto {
+	ldto := LeagueDto{
+		Id:       l.Id,
+		Name:     l.Name,
+		Country:  l.Country,
+		RPointer: l.RPointer,
+
+		Teams:     []TeamDto{},
+		Rounds:    []RoundDto{},
+		TableRows: []TableRowDto{},
+	}
+
+	return ldto
+}
+
+func DtoFromLeagueNoTeams(l *models.League) LeagueDto {
+	trs := DtoFromTableRows(l.Table.Rows(), l.Id)
+
+	rds := make([]RoundDto, len(l.Rounds))
+	for i, r := range l.Rounds {
+		rds[i] = DtoFromRoundPH(r, l.Id)
+	}
+
+	ldto := LeagueDto{
+		Id:        l.Id,
+		Name:      l.Name,
+		Country:   l.Country,
+		RPointer:  l.RPointer,
+		Rounds:    rds,
+		TableRows: trs,
+
+		Teams: []TeamDto{},
+	}
+
+	return ldto
+}
+
 func DtoFromLeague(l *models.League) LeagueDto {
 	trs := DtoFromTableRows(l.Table.Rows(), l.Id)
 

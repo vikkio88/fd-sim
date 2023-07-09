@@ -126,9 +126,16 @@ func TestSingleMatchFetching(t *testing.T) {
 func TestConvertPostSeason(t *testing.T) {
 	// t.Skip("Slow")
 	date := utils.NewDate(2023, time.August, 20)
+	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
 	tg := generators.NewTeamGen(0)
 	ts := tg.TeamsWithCountry(4, enums.IT)
 	l := models.NewLeague(ts, date)
+
+	//Setting up game with team
+	game.LeagueId = l.Id
+	tph := ts[0].PH()
+	game.Team = &tph
+
 	db := d.NewDb("test.db")
 	db.TruncateAll()
 
@@ -150,18 +157,17 @@ func TestConvertPostSeason(t *testing.T) {
 		db.LeagueR().PostRoundUpdate(r, l)
 		db.LeagueR().UpdateStats(newStats)
 
-		date = r.Date
+		game.Date = r.Date
 	}
 
 	// Adding 2 months more or less otherwise it finishes in January
-	date = date.Add(time.Duration(24*60) * time.Hour)
+	game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeason(l.Id, l.Name, date)
+	// this will already modify game to the new league
+	l2 := db.LeagueR().PostSeason(game, l.Name)
 
 	// Another Year
-	date = utils.NewDate(2024, time.August, 20)
-	l2 := models.NewLeague(ts, date)
-	db.LeagueR().InsertOne(l2)
+	game.Date = utils.NewDate(2024, time.August, 20)
 
 	for {
 		r, hasMore := l2.NextRound()
@@ -178,10 +184,10 @@ func TestConvertPostSeason(t *testing.T) {
 		db.LeagueR().PostRoundUpdate(r, l2)
 		db.LeagueR().UpdateStats(newStats)
 
-		date = r.Date
+		game.Date = r.Date
 	}
 	// Adding 2 months more or less otherwise it finishes in January
-	date = date.Add(time.Duration(24*60) * time.Hour)
+	game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeason(l2.Id, l2.Name, date)
+	db.LeagueR().PostSeason(game, l2.Name)
 }

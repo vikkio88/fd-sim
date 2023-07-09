@@ -244,8 +244,8 @@ type MockLeagueRepo struct {
 }
 
 // PostSeason implements db.ILeagueRepo.
-func (*MockLeagueRepo) PostSeason(string, string, time.Time) {
-
+func (*MockLeagueRepo) PostSeason(*models.Game, string) *models.League {
+	panic("implement")
 }
 
 // RoundWithResults implements db.ILeagueRepo.
