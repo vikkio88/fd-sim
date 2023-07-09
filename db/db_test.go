@@ -128,6 +128,7 @@ func TestConvertPostSeason(t *testing.T) {
 	date := utils.NewDate(2023, time.August, 20)
 	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
 	tg := generators.NewTeamGen(0)
+	// ts := tg.TeamsWithCountry(20, enums.IT)
 	ts := tg.TeamsWithCountry(4, enums.IT)
 	l := models.NewLeague(ts, date)
 

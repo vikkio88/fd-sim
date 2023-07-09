@@ -2,8 +2,10 @@ package db
 
 import (
 	"fdsim/conf"
+	"fdsim/data"
 	"fdsim/libs"
 	"fdsim/models"
+	"fmt"
 	"time"
 
 	"golang.org/x/exp/maps"
@@ -150,11 +152,17 @@ func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.L
 	//TODO: implement this
 	lr.playersEndOfSeason(gameDate)
 
+	return lr.createNewLeague(game)
+}
+
+func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	oldLeague := lr.ById(game.LeagueId)
-	// we might need updates on locales
 
 	lr.g.Raw("update team_dtos set league_id = null where 1=1")
 	newLeague := models.NewLeague(oldLeague.Teams(), game.Date)
+	leagueName := data.GetLeagueName(oldLeague.Country)
+	name := fmt.Sprintf("%s %d/%d", leagueName, game.Date.Year(), game.Date.Year()+1)
+	newLeague.UpdateLocales(name, oldLeague.Country)
 	game.LeagueId = newLeague.Id
 	newLeagueDto := DtoFromLeagueEmpty(newLeague)
 	lr.g.Create(&newLeagueDto)
