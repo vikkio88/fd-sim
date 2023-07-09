@@ -243,8 +243,8 @@ type MockLeagueRepo struct {
 	Stats       *models.StatsMap
 }
 
-// PostSeasonStats implements db.ILeagueRepo.
-func (*MockLeagueRepo) PostSeasonStats(string, string, time.Time) {
+// PostSeason implements db.ILeagueRepo.
+func (*MockLeagueRepo) PostSeason(string, string, time.Time) {
 
 }
 

@@ -123,7 +123,7 @@ func TestSingleMatchFetching(t *testing.T) {
 	assert.NotNil(t, m1afterUpdate.Result)
 }
 
-func TestConvertStatsIntoHistory(t *testing.T) {
+func TestConvertPostSeason(t *testing.T) {
 	// t.Skip("Slow")
 	date := utils.NewDate(2023, time.August, 20)
 	tg := generators.NewTeamGen(0)
@@ -156,7 +156,7 @@ func TestConvertStatsIntoHistory(t *testing.T) {
 	// Adding 2 months more or less otherwise it finishes in January
 	date = date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeasonStats(l.Id, l.Name, date)
+	db.LeagueR().PostSeason(l.Id, l.Name, date)
 
 	// Another Year
 	date = utils.NewDate(2024, time.August, 20)
@@ -183,5 +183,5 @@ func TestConvertStatsIntoHistory(t *testing.T) {
 	// Adding 2 months more or less otherwise it finishes in January
 	date = date.Add(time.Duration(24*60) * time.Hour)
 
-	db.LeagueR().PostSeasonStats(l2.Id, l2.Name, date)
+	db.LeagueR().PostSeason(l2.Id, l2.Name, date)
 }

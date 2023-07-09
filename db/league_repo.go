@@ -2,7 +2,9 @@ package db
 
 import (
 	"fdsim/conf"
+	"fdsim/libs"
 	"fdsim/models"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/maps"
@@ -138,7 +140,37 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	lr.g.Save(sdtos)
 }
 
-func (lr *LeagueRepo) PostSeasonStats(leagueId, leagueName string, gameDate time.Time) {
+func (lr *LeagueRepo) PostSeason(leagueId, leagueName string, gameDate time.Time) {
+	// maybe store player retired
+	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, leagueId)
+	lr.retirePlayers(indexedP, leagueId, leagueName, gameDate)
+
+	// Check contracts and if 0 put them on the free market
+}
+
+func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time) {
+	// Age players/Coach
+	lr.g.Raw("update player_dtos set age = age + 1 where 1=1; update coach_dtos set age = age+1 where 1=1;")
+	//TODO: dont forget to udpate FD Age
+
+	// TODO: maybe inject this
+	rng := libs.NewRng(time.Now().Unix())
+	var playersCount int64
+	lr.g.Model(&PlayerDto{}).Count(&playersCount)
+	var playersToRetire []PlayerDto
+	lr.g.Raw("select * from player_dtos where age > 35 order by RANDOM() LIMIT ?", int(playersCount)/rng.UInt(2, 10)).Preload(teamRel).Find(&playersToRetire)
+	pIds := make([]string, len(playersToRetire))
+	retiring := make([]RetiredPlayer, len(playersToRetire))
+	for i, p := range playersToRetire {
+		retiring[i] = NewRetiredPlayerFromDto(p, indexedP, gameDate.Year(), leagueId, leagueName)
+		pIds[i] = p.Id
+	}
+	lr.g.Create(&retiring)
+	lr.g.Raw("delete from player_dtos where id in (" + strings.Join(pIds, ", ") + ")")
+	lr.g.Raw("delete from p_history_dtos where player_id in (" + strings.Join(pIds, ", ") + ")")
+}
+
+func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Time, leagueId string) (map[string]PHistoryDto, map[string]THistoryDto) {
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
 
@@ -149,6 +181,7 @@ func (lr *LeagueRepo) PostSeasonStats(leagueId, leagueName string, gameDate time
 	for _, s := range playersStats {
 		if existingRow, ok := indexedPHRows[s.PlayerId]; ok {
 			//TODO: maybe move to pointer
+
 			existingRow.Update(s, leagueName, gameDate)
 			indexedPHRows[s.PlayerId] = existingRow
 
@@ -190,10 +223,11 @@ func (lr *LeagueRepo) PostSeasonStats(leagueId, leagueName string, gameDate time
 		}
 	}
 	throws := maps.Values(indexedTHRows)
-
 	lr.cleanStats()
 	lr.g.Save(phrows)
 	lr.g.Save(throws)
+
+	return indexedPHRows, indexedTHRows
 }
 
 func (lr *LeagueRepo) cleanStats() {
