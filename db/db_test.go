@@ -123,7 +123,7 @@ func TestSingleMatchFetching(t *testing.T) {
 	assert.NotNil(t, m1afterUpdate.Result)
 }
 
-func TestConvertPostSeason(t *testing.T) {
+func TestPostSeason(t *testing.T) {
 	// t.Skip("Slow")
 	date := utils.NewDate(2023, time.August, 20)
 	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
@@ -131,9 +131,11 @@ func TestConvertPostSeason(t *testing.T) {
 	// ts := tg.TeamsWithCountry(20, enums.IT)
 	ts := tg.TeamsWithCountry(4, enums.IT)
 	l := models.NewLeague(ts, date)
+	l.UpdateLocales("Serie A 2023/2024", enums.IT)
 
 	//Setting up game with team
 	game.LeagueId = l.Id
+	// giving ourselves a random team
 	tph := ts[0].PH()
 	game.Team = &tph
 
