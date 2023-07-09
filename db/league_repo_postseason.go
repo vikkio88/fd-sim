@@ -19,6 +19,8 @@ func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	name := fmt.Sprintf("%s %d/%d", leagueName, game.Date.Year(), game.Date.Year()+1)
 	newLeague.UpdateLocales(name, oldLeague.Country)
 	game.LeagueId = newLeague.Id
+	game.Age++
+	//TODO: Handle game fd contract expiry if they let it expire
 	newLeagueDto := DtoFromLeagueEmpty(newLeague)
 	lr.g.Create(&newLeagueDto)
 
@@ -42,7 +44,6 @@ func (lr *LeagueRepo) playersEndOfSeason(gameDate time.Time) {
 func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time) {
 	// Age players/Coach
 	lr.g.Raw("update player_dtos set age = age + 1 where 1=1; update coach_dtos set age = age+1 where 1=1;")
-	//TODO: dont forget to udpate FD Age
 
 	// TODO: maybe inject this
 	rng := libs.NewRng(time.Now().Unix())
@@ -63,10 +64,7 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 	lr.g.Create(&retiring)
 
 	lr.g.Delete(&PHistoryDto{}, pIds)
-	trx := lr.g.Delete(&PlayerDto{}, pIds)
-	if trx.RowsAffected == 0 {
-		panic("AAAARGH")
-	}
+	lr.g.Delete(&PlayerDto{}, pIds)
 }
 
 func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Time, leagueId string) (map[string]PHistoryDto, map[string]THistoryDto) {
