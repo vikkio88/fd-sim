@@ -5,7 +5,7 @@ import (
 	"fdsim/models"
 )
 
-type RetiredPlayer struct {
+type RetiredPlayerDto struct {
 	Id      string
 	Name    string
 	Surname string
@@ -17,7 +17,7 @@ type RetiredPlayer struct {
 	YearRetired int
 }
 
-func NewRetiredPlayerFromDto(player PlayerDto, indexedStats map[string]PHistoryDto, year int, leagueId, leagueName string) RetiredPlayer {
+func NewRetiredPlayerFromDto(player PlayerDto, indexedStats map[string]PHistoryDto, year int, leagueId, leagueName string) RetiredPlayerDto {
 	stats := "[]"
 	if stat, ok := indexedStats[player.Id]; ok {
 		stats = stat.Stats
@@ -33,11 +33,22 @@ func NewRetiredPlayerFromDto(player PlayerDto, indexedStats map[string]PHistoryD
 				StartYear: year - 1,
 			}}
 			stats = serialisePHistoryStats(h)
+		} else {
+			// this is when a retired player had no team
+			h := []PHistorySubRow{{
+				LeagueId:   leagueId,
+				LeagueName: leagueName,
+				TeamId:     "",
+				TeamName:   "Free Agent",
+				// this is the season starting year-1
+				StartYear: year - 1,
+			}}
+			stats = serialisePHistoryStats(h)
 		}
 
 	}
 
-	return RetiredPlayer{
+	return RetiredPlayerDto{
 		Id:      player.Id,
 		Name:    player.Name,
 		Surname: player.Surname,
