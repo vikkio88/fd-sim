@@ -116,6 +116,10 @@ func (c *AppContext) InitGameState(gameId string) *models.Game {
 			fdTeamId = c.gameState.Team.Id
 		}
 
+		c.gameState.OnUnEmployed = func() {
+			fdTeamId = ""
+		}
+
 		if c.gameState.Team != nil {
 			fdTeamId = c.gameState.Team.Id
 		}

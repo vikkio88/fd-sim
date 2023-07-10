@@ -62,6 +62,11 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// AddStatRow implements db.IGameRepo.
+func (*MockGameR) AddStatRow(*models.FDStatRow) {
+	panic("unimplemented")
+}
+
 // GetActionsDueToday implements db.IGameRepo.
 func (*MockGameR) GetActionsDueByDate(time.Time) []*models.Idable {
 	return []*models.Idable{}

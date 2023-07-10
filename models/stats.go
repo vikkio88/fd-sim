@@ -185,3 +185,27 @@ func NewTHistoryRow(stat *TPHRow, leagueId, leagueName string, gameDate time.Tim
 		Year: gameDate.Year(),
 	}
 }
+
+type FDStatRow struct {
+	TeamId    string
+	TeamName  string
+	HiredDate time.Time
+
+	PlayersSigned int
+	PlayersSold   int
+	CoachesSigned int
+	CoachesSacked int
+
+	MaxSpent    float64
+	TotalSpent  float64
+	MaxCashed   float64
+	TotalCashed float64
+}
+
+func NewFDStatRow(date time.Time, teamId, teamName string) *FDStatRow {
+	return &FDStatRow{
+		TeamId:    teamId,
+		TeamName:  teamName,
+		HiredDate: date,
+	}
+}

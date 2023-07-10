@@ -65,7 +65,8 @@ type Game struct {
 	ActionsExps []time.Time
 
 	// Adding some callbacks to trigger some ui changes
-	OnEmployed func()
+	OnEmployed   func()
+	OnUnEmployed func()
 }
 
 type Flags struct {
@@ -106,7 +107,8 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		Decisions: map[string]*Decision{},
 		Flags:     Flags{},
 
-		OnEmployed: func() {},
+		OnEmployed:   func() {},
+		OnUnEmployed: func() {},
 	}
 }
 
@@ -120,7 +122,8 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 
 		Decisions: map[string]*Decision{},
 
-		OnEmployed: func() {},
+		OnEmployed:   func() {},
+		OnUnEmployed: func() {},
 	}
 }
 
@@ -165,6 +168,14 @@ func (g *Game) HasAllNeededDecisions(emailIds []*Idable) bool {
 	}
 
 	return true
+}
+
+func (g *Game) UnsetTeamContract() {
+	g.YContract = 0
+	g.Wage = utils.NewEurosFromF(0)
+	g.Team = nil
+
+	g.OnUnEmployed()
 }
 
 func (g *Game) SetTeamContract(yContract int, wage utils.Money, team *TPH) {

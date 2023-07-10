@@ -116,6 +116,7 @@ func contractAccepted(params models.EventParams, date time.Time) *Event {
 
 	event.TriggerChanges = func(game *models.Game, db db.IDb) {
 		game.SetTeamContract(ycontract, money, &models.TPH{Id: teamId, Name: teamName})
+		db.GameR().AddStatRow(models.NewFDStatRow(date, teamId, teamName))
 	}
 
 	return event

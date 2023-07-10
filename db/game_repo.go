@@ -56,6 +56,11 @@ func (repo *GameRepo) Update(game *models.Game) {
 	repo.g.Save(&dto)
 }
 
+func (repo *GameRepo) AddStatRow(row *models.FDStatRow) {
+	dto := DtoFromFDStatRow(row)
+	repo.g.Create(&dto)
+}
+
 // This is to get Emails with actions due a certain date
 func (repo *GameRepo) GetActionsDueByDate(date time.Time) []*models.Idable {
 	var dtos []EmailDto

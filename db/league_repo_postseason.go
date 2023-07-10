@@ -22,8 +22,6 @@ func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	name := fmt.Sprintf("%s %d/%d", leagueName, game.Date.Year(), game.Date.Year()+1)
 	newLeague.UpdateLocales(name, oldLeague.Country)
 	game.LeagueId = newLeague.Id
-	game.Age++
-	//TODO: Handle game fd contract expiry if they let it expire
 	newLeagueDto := DtoFromLeagueEmpty(newLeague)
 	lr.g.Create(&newLeagueDto)
 
@@ -180,6 +178,29 @@ func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Tim
 	lr.g.Save(throws)
 
 	return indexedPHRows, indexedTHRows
+}
+
+func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
+	game.Age++
+
+	if !game.IsEmployed() {
+		return
+	}
+
+	var stat FDStatRowDto
+	lr.g.Model(&FDStatRowDto{}).Order("hired_date desc").First(&stat)
+	h := NewFDHistoryDto(stat)
+	h.UpdateEndOfSeason(game.LeagueId, leagueName, game.Wage)
+	lr.g.Save(&h)
+	// lr.g.Delete(&stat).Where("1=1")
+
+	game.YContract -= 1
+	if game.YContract == 0 {
+		game.UnsetTeamContract()
+	} else {
+		newStat := models.NewFDStatRow(game.Date, stat.TeamId, stat.TeamName)
+		lr.g.Model(&FDStatRowDto{}).Create(&newStat)
+	}
 }
 
 func (lr *LeagueRepo) cleanStats() {

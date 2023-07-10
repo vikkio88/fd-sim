@@ -152,6 +152,7 @@ func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.L
 	lr.generateYoungReplacements(game, teamLostPlayers, rng)
 
 	//TODO: store fd info/stats
+	lr.updateFDInfo(game, leagueName)
 
 	return lr.createNewLeague(game)
 }

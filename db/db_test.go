@@ -141,11 +141,18 @@ func TestPostSeason(t *testing.T) {
 	// giving ourselves a random team
 	tph := ts[0].PH()
 	game.Team = &tph
+	game.Wage = utils.NewEurosUF(1000, 0)
+	game.YContract = 1
+	game.OnEmployed = func() {}
+	game.OnUnEmployed = func() {}
 
 	db := d.NewDb("test.db")
 	db.TruncateAll()
 
 	db.LeagueR().InsertOne(l)
+	db.GameR().AddStatRow(
+		models.NewFDStatRow(game.Date, game.Team.Id, game.Team.Name),
+	)
 
 	// Simulating a whole season
 	for {
@@ -194,6 +201,8 @@ func TestPostSeason(t *testing.T) {
 	}
 	// Adding 2 months more or less otherwise it finishes in January
 	game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
+
+	game.Wage.Add(utils.NewEurosUF(25_000, 0))
 
 	// End of Second Season
 	db.LeagueR().PostSeason(game, l2.Name)

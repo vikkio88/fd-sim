@@ -24,6 +24,7 @@ type IGameRepo interface {
 	ById(id string) *models.Game
 	Create(game *models.Game)
 	Update(game *models.Game)
+	AddStatRow(row *models.FDStatRow)
 	GetActionsDueByDate(time.Time) []*models.Idable
 	AddEmails([]*models.Email)
 	GetEmails() []*models.Email
