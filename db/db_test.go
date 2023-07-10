@@ -7,6 +7,8 @@ import (
 	"fdsim/libs"
 	"fdsim/models"
 	"fdsim/utils"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -125,6 +127,7 @@ func TestSingleMatchFetching(t *testing.T) {
 
 func TestPostSeason(t *testing.T) {
 	// t.Skip("Slow")
+	os.Remove("test.db")
 	date := utils.NewDate(2023, time.August, 20)
 	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
 	tg := generators.NewTeamGen(0)
@@ -169,7 +172,7 @@ func TestPostSeason(t *testing.T) {
 	// this will already modify game to the new league
 	l2 := db.LeagueR().PostSeason(game, l.Name)
 
-	// Another Year
+	// End of First Season
 	game.Date = utils.NewDate(2024, time.August, 20)
 
 	for {
@@ -192,5 +195,7 @@ func TestPostSeason(t *testing.T) {
 	// Adding 2 months more or less otherwise it finishes in January
 	game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
 
+	// End of Second Season
 	db.LeagueR().PostSeason(game, l2.Name)
+	fmt.Println("Finished")
 }

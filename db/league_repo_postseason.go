@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/data"
+	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
 	"fmt"
@@ -9,6 +10,8 @@ import (
 
 	"golang.org/x/exp/maps"
 )
+
+type TeamLosingPlayersMap map[string]map[models.Role]int
 
 func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	oldLeague := lr.ById(game.LeagueId)
@@ -33,20 +36,57 @@ func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 
 	return lr.ByIdFull(newLeague.Id)
 }
+func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) {
+	pg := generators.NewPeopleGenSeeded(rng)
+	pToAdd := []PlayerDto{}
+	for teamId, rc := range tm {
+		for role, count := range rc {
+			// TODO: maybe do this as 0, could avoid replacing it at all in case
+			effectiveCount := rng.UInt(1, count)
+			ps := pg.YoungPlayersWithRole(effectiveCount, role)
+			for _, p := range ps {
+				pdto := DtoFromPlayer(p)
+				pdto.TeamId = &teamId
+				pToAdd = append(pToAdd, pdto)
+			}
+		}
+	}
 
-func (lr *LeagueRepo) playersEndOfSeason(gameDate time.Time) {
-
-	// Check contracts and if 0 put them on the free market
-	// Check contracts and if 0 put them on the free market
-
+	lr.g.Create(&pToAdd)
 }
 
-func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time) {
-	// Age players/Coach
-	lr.g.Raw("update player_dtos set age = age + 1 where 1=1; update coach_dtos set age = age+1 where 1=1;")
+// Check contracts and if 0 put them on the free market
+func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) {
+	fdTeamId := ""
+	if game.IsEmployed() {
+		fdTeamId = game.Team.Id
+	}
 
-	// TODO: maybe inject this
-	rng := libs.NewRng(time.Now().Unix())
+	var expiredContractsP []PlayerDto
+	lr.g.Exec("update player_dtos set y_contract = y_contract - 1 where team_id is not null")
+
+	lr.g.Model(&PlayerDto{}).Where("y_contract < ?", 1).Find(&expiredContractsP)
+	for i, p := range expiredContractsP {
+		// 50% chance of renewing contract for 1 year
+		// if not in FDTeam
+		if p.TeamId != &fdTeamId && rng.ChanceI(50) {
+			expiredContractsP[i].YContract = 1
+		} else {
+			expiredContractsP[i].TeamId = nil
+			countPlayerLoss(p, tm)
+		}
+	}
+	if len(expiredContractsP) > 0 {
+		lr.g.Save(&expiredContractsP)
+	}
+}
+
+func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time, tm TeamLosingPlayersMap, rng *libs.Rng) {
+	// Age players/Coach
+	trx := lr.g.Exec("update player_dtos set age = age + 1 where 1=1; update coach_dtos set age = age + 1 where 1=1;")
+	if trx.RowsAffected < 1 {
+		panic("something wrong")
+	}
 	var playersCount int64
 	lr.g.Model(&PlayerDto{}).Count(&playersCount)
 	var playersToRetire []PlayerDto
@@ -56,15 +96,30 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 	}
 	//TODO: maybe ad add a way to replace players
 	pIds := make([]string, len(playersToRetire))
-	retiring := make([]RetiredPlayer, len(playersToRetire))
+	retiring := make([]RetiredPlayerDto, len(playersToRetire))
 	for i, p := range playersToRetire {
 		retiring[i] = NewRetiredPlayerFromDto(p, indexedP, gameDate.Year(), leagueId, leagueName)
 		pIds[i] = p.Id
+
+		countPlayerLoss(p, tm)
 	}
 	lr.g.Create(&retiring)
 
 	lr.g.Delete(&PHistoryDto{}, pIds)
 	lr.g.Delete(&PlayerDto{}, pIds)
+}
+
+func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
+	if p.TeamId == nil {
+		return
+	}
+
+	if pc, ok := tm[*p.TeamId]; ok {
+		pc[p.Role]++
+	} else {
+		tm[*p.TeamId] = models.NewEmptyRoleCounter()
+		tm[*p.TeamId][p.Role]++
+	}
 }
 
 func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Time, leagueId string) (map[string]PHistoryDto, map[string]THistoryDto) {

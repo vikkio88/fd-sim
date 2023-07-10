@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/conf"
+	"fdsim/libs"
 	"fdsim/models"
 	"time"
 
@@ -138,15 +139,19 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 }
 
 func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.League {
-	// maybe store player retired
+	// TODO: maybe inject this
+	rng := libs.NewRng(time.Now().Unix())
+
 	gameDate := game.Date
 	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, game.LeagueId)
-	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate)
+	teamLostPlayers := TeamLosingPlayersMap{}
+	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate, teamLostPlayers, rng)
+	lr.playersEndOfSeason(game, teamLostPlayers, rng)
 
 	// add young players/replace retired
+	lr.generateYoungReplacements(game, teamLostPlayers, rng)
 
-	//TODO: implement this
-	lr.playersEndOfSeason(gameDate)
+	//TODO: store fd info/stats
 
 	return lr.createNewLeague(game)
 }

@@ -184,6 +184,35 @@ func (p *PeopleGen) PlayerWithRole(country enums.Country, role models.Role) *mod
 	return &pl
 }
 
+func (p *PeopleGen) YoungPlayersWithRole(count int, role models.Role) []*models.Player {
+	players := make([]*models.Player, count)
+	for i := 0; i < count; i++ {
+		country := p.getEnumsGen().Country()
+
+		name := p.getName(country)
+		surname := p.getSurname(country)
+		age := p.rng.UInt(p.plAgeRange.Min, 19)
+		pl := models.NewPlayer(name, surname, age, country, role)
+
+		skill := p.getSkill()
+		morale := p.getMorale()
+		fame := p.getFame(skill)
+
+		pl.SetVals(skill, morale, fame)
+		pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+
+		pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+		wage, _ := p.getContractInfo(pl.IdealWage)
+		pl.Wage = wage
+		// young players always 1 year
+		pl.YContract = 1
+		players[i] = &pl
+
+	}
+
+	return players
+}
+
 func (p *PeopleGen) Players(count int) []*models.Player {
 	players := make([]*models.Player, count)
 	for i := 0; i < count; i++ {
