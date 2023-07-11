@@ -44,14 +44,19 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	if canSeeDetails {
 		skillInfo = centered(widget.NewLabel(player.Skill.String()))
 	}
-	var main fyne.CanvasObject
-	main = makePlayerMainDetailsView(player, moraleInfo, skillInfo, showStats, ctx, g)
+	main := container.NewAppTabs(
+		container.NewTabItemWithIcon("Info", theme.AccountIcon(), makePlayerMainDetailsView(player, moraleInfo, skillInfo, showStats, ctx, g)),
+	)
 	if isManagedPlayer {
-		main = container.NewAppTabs(
-			container.NewTabItemWithIcon("Info", theme.AccountIcon(), main),
+		main.Append(
 			container.NewTabItemWithIcon("Manage", theme.DocumentIcon(), centered(widget.NewLabel("Manage"))),
 		)
 	}
+
+	main.Append(container.NewTabItemWithIcon("History",
+		theme.DocumentIcon(),
+		makePHistory(player.History, ctx.PushWithParam),
+	))
 
 	return NewFborder().
 		Top(
@@ -62,7 +67,25 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		Get(main)
 }
 
-func makePlayerMainDetailsView(player *models.PlayerWithTeam, moraleInfo *fyne.Container, skillInfo *fyne.Container, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {
+func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	if len(pHistoryRow) < 1 {
+		return centered(widget.NewLabel("No History yet"))
+	}
+
+	return widget.NewList(func() int { return len(pHistoryRow) }, func() fyne.CanvasObject {
+		return NewFborder().Left(widget.NewLabel("Year")).Get(widget.NewLabel("TeamName"))
+	}, func(lii widget.ListItemID, co fyne.CanvasObject) {
+		r := pHistoryRow[lii]
+		b := co.(*fyne.Container)
+
+		year := b.Objects[1].(*widget.Label)
+		year.SetText(fmt.Sprintf("%d", r.StartYear))
+		teamName := b.Objects[0].(*widget.Label)
+		teamName.SetText(r.TeamName)
+	})
+}
+
+func makePlayerMainDetailsView(player *models.PlayerDetailed, moraleInfo *fyne.Container, skillInfo *fyne.Container, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {
 	main := container.NewGridWithRows(2,
 		container.NewGridWithColumns(2,
 			widget.NewCard("", "Team Info",

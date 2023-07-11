@@ -91,7 +91,15 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 				widget.NewLabel(fmt.Sprintf("%s (%s)", team.City, team.Country)),
 			),
 		),
-		container.NewGridWithRows(2,
+		container.NewGridWithRows(3,
+			centered(
+				container.NewHBox(
+					widgets.Icon("team"),
+					widget.NewLabel(
+						fmt.Sprintf("%d", team.Roster.Len()),
+					),
+				),
+			),
 			centered(
 				container.NewHBox(
 					widgets.Icon("dumbell"),
