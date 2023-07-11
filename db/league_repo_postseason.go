@@ -13,6 +13,25 @@ import (
 
 type TeamLosingPlayersMap map[string]map[models.Role]int
 
+func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.League {
+	// TODO: maybe inject this
+	rng := libs.NewRng(time.Now().Unix())
+
+	gameDate := game.Date
+	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, game.LeagueId)
+	teamLostPlayers := TeamLosingPlayersMap{}
+	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate, teamLostPlayers, rng)
+	lr.playersEndOfSeason(game, teamLostPlayers, rng)
+
+	// add young players/replace retired
+	lr.generateYoungReplacements(game, teamLostPlayers, rng)
+
+	//TODO: store fd info/stats
+	lr.updateFDInfo(game, leagueName)
+
+	return lr.createNewLeague(game)
+}
+
 func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	oldLeague := lr.ById(game.LeagueId)
 
@@ -146,6 +165,7 @@ func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Tim
 		}
 	}
 	phrows := maps.Values(indexedPHRows)
+	phrows = append(phrows, lr.backFillEmptyStatsHistory(leagueId, leagueName, gameDate)...)
 
 	var teamsStats []TableRowIndexDto
 	lr.g.Raw(`SELECT team_id, played, wins, draws, losses, points, goal_scored, goal_conceded,
@@ -173,11 +193,28 @@ func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Tim
 		}
 	}
 	throws := maps.Values(indexedTHRows)
+
 	lr.cleanStats()
 	lr.g.Save(phrows)
 	lr.g.Save(throws)
 
 	return indexedPHRows, indexedTHRows
+}
+
+func (lr *LeagueRepo) backFillEmptyStatsHistory(leagueId, leagueName string, gameDate time.Time) []PHistoryDto {
+	var ps []PlayerDto
+	phrows := []PHistoryDto{}
+	// Players with no stats
+	lr.g.Raw("select pd.* from player_dtos pd left join stat_row_dtos srd on pd.id  = srd.player_id where srd.player_id is null").Preload(teamRel).Find(&ps)
+	for _, p := range ps {
+		if p.Team != nil {
+			phrows = append(phrows, *NewEmptyHistoryRow(p.Id, leagueId, leagueName, *p.TeamId, p.Team.Name, gameDate.Year()))
+		} else {
+			phrows = append(phrows, *NewEmptyHistoryRow(p.Id, leagueId, leagueName, "", "FREE AGENT", gameDate.Year()))
+		}
+	}
+
+	return phrows
 }
 
 func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
@@ -192,7 +229,6 @@ func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
 	h := NewFDHistoryDto(stat)
 	h.UpdateEndOfSeason(game.LeagueId, leagueName, game.Wage)
 	lr.g.Save(&h)
-	// lr.g.Delete(&stat).Where("1=1")
 
 	game.YContract -= 1
 	if game.YContract == 0 {
