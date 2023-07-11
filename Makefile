@@ -8,3 +8,5 @@ tests-bench:
 	go test -v --bench . --benchmem ./...
 clean:
 	rm -rf bin/ fdsim.db test.db db/test.db
+cp-testdb:
+	cp db/test.db fdsim.db

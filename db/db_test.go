@@ -131,8 +131,8 @@ func TestPostSeason(t *testing.T) {
 	date := utils.NewDate(2023, time.August, 20)
 	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
 	tg := generators.NewTeamGen(0)
-	// ts := tg.TeamsWithCountry(20, enums.IT)
-	ts := tg.TeamsWithCountry(4, enums.IT)
+	ts := tg.TeamsWithCountryUnique(20, enums.IT)
+	// ts := tg.TeamsWithCountry(4, enums.IT)
 	l := models.NewLeague(ts, date)
 	l.UpdateLocales("Serie A 2023/2024", enums.IT)
 
@@ -142,6 +142,11 @@ func TestPostSeason(t *testing.T) {
 	tph := ts[0].PH()
 	game.Team = &tph
 	game.Wage = utils.NewEurosUF(1000, 0)
+	game.Age = 30
+	game.Name = "Testio"
+	game.Surname = "Mc Test"
+	game.SaveName = "TestSave"
+	game.Fame = utils.NewPerc(80)
 	game.YContract = 1
 	game.OnEmployed = func() {}
 	game.OnUnEmployed = func() {}
