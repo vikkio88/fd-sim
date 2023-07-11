@@ -19,7 +19,7 @@ type TeamDto struct {
 	Coach    CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Players  []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
-	History []THistoryDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	History *THistoryDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func DtoFromTeams(teams []*models.Team, leagueId string) []TeamDto {
@@ -58,6 +58,19 @@ func (t TeamDto) TeamPH() *models.TPH {
 	return &models.TPH{
 		Id:   t.Id,
 		Name: t.Name,
+	}
+}
+
+func (t TeamDto) TeamDetailed() *models.TeamDetailed {
+	history := []*models.THistoryRow{}
+	if t.History != nil {
+		history = t.History.HistoryRows()
+	}
+
+	team := t.Team()
+	return &models.TeamDetailed{
+		Team:    *team,
+		History: history,
 	}
 }
 

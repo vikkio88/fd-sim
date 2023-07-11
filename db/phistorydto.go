@@ -84,6 +84,7 @@ func (h *PHistorySubRow) PHistoryRow() *models.PHistoryRow {
 		StartYear:    h.StartYear,
 	}
 }
+
 func newSubRowsFromPHistory(h *models.PHistoryRow) []PHistorySubRow {
 	return []PHistorySubRow{
 		{

@@ -45,16 +45,18 @@ func (tr *TeamRepo) Insert(teams []*models.Team) {
 	tr.g.Create(&tdtos)
 }
 
-func (tr *TeamRepo) ById(id string) *models.Team {
+func (tr *TeamRepo) ById(id string) *models.TeamDetailed {
 	var t TeamDto
 	tr.g.Model(&TeamDto{}).Preload(playersRel).
 		// Tried to db order players but it wont work
 		/*, func(db *gorm.DB) *gorm.DB {
 			return db.Order(`skill DESC`)
 		}*/
-		Preload("Coach").Find(&t, "Id = ?", id)
+		Preload("Coach").
+		Preload("History").
+		Find(&t, "Id = ?", id)
 
-	return t.Team()
+	return t.TeamDetailed()
 }
 
 func (tr *TeamRepo) OneByFame(fame utils.Perc) *models.TPH {

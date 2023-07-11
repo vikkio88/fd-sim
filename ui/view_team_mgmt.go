@@ -41,7 +41,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeRosterManagement(team *models.Team, navigate NavigateWithParamFunc) fyne.CanvasObject {
+func makeRosterManagement(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	return container.NewMax(
 		container.NewGridWithColumns(2,
 			makeLineup(team, navigate),
@@ -49,7 +49,7 @@ func makeRosterManagement(team *models.Team, navigate NavigateWithParamFunc) fyn
 		))
 }
 
-func makeLineup(team *models.Team, navigate NavigateWithParamFunc) fyne.CanvasObject {
+func makeLineup(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	lineup := team.Lineup()
 	lineupList := widget.NewList(
 		func() int {

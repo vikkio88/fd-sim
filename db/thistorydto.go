@@ -14,12 +14,30 @@ type THistoryDto struct {
 	Team TeamDto
 }
 
-func (p *THistoryDto) Update(row TableRowIndexDto, leagueId, leagueName string, gameDate time.Time) {
-	existingStats := unserialiseTHistoryStats(p.Stats)
+func (t *THistoryDto) HistoryRows() []*models.THistoryRow {
+	if t.Stats == "" {
+		return []*models.THistoryRow{}
+	}
+
+	stats := unserialiseTHistoryStats(t.Stats)
+	if len(stats) < 1 {
+		return []*models.THistoryRow{}
+	}
+
+	result := make([]*models.THistoryRow, len(stats))
+	for i, s := range stats {
+		result[i] = s.THistoryRow()
+	}
+
+	return result
+}
+
+func (t *THistoryDto) Update(row TableRowIndexDto, leagueId, leagueName string, gameDate time.Time) {
+	existingStats := unserialiseTHistoryStats(t.Stats)
 	hstat := models.NewTHistoryRow(row.TPHRow(), leagueId, leagueName, gameDate)
 	existingStats = append(existingStats, newSubRowFromTHistory(hstat))
 
-	p.Stats = serialiseTHistoryStats(existingStats)
+	t.Stats = serialiseTHistoryStats(existingStats)
 }
 
 type THistorySubRow struct {
@@ -34,6 +52,22 @@ type THistorySubRow struct {
 	GoalConceded  int
 	Year          int
 	FinalPosition int
+}
+
+func (h *THistorySubRow) THistoryRow() *models.THistoryRow {
+	return &models.THistoryRow{
+		LeagueId:      h.LeagueId,
+		LeagueName:    h.LeagueName,
+		Played:        h.Played,
+		Wins:          h.Wins,
+		Draws:         h.Draws,
+		Losses:        h.Losses,
+		Points:        h.Played,
+		GoalScored:    h.Played,
+		GoalConceded:  h.Played,
+		FinalPosition: h.FinalPosition,
+		Year:          h.Year,
+	}
 }
 
 func newSubRowFromTHistory(row *models.THistoryRow) THistorySubRow {

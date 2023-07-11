@@ -71,7 +71,7 @@ type ITeamRepo interface {
 	Insert(teams []*models.Team)
 	OneByFame(utils.Perc) *models.TPH
 	GetRandom() *models.TPH
-	ById(id string) *models.Team
+	ById(id string) *models.TeamDetailed
 	TableRow(id string) *models.TPHRow
 	Truncate()
 	DeleteOne(id string)

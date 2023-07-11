@@ -29,6 +29,11 @@ type Team struct {
 	//TODO: add familiarity with a module
 }
 
+type TeamDetailed struct {
+	Team
+	History []*THistoryRow
+}
+
 // Team Placeholder
 type TPH struct {
 	Id   string

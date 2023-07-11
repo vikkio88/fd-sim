@@ -179,8 +179,8 @@ func (r *MockTeamRepo) Insert(teams []*models.Team) {
 	panic("not implemented")
 }
 
-func (r *MockTeamRepo) ById(id string) *models.Team {
-	return r.Teams[0]
+func (r *MockTeamRepo) ById(id string) *models.TeamDetailed {
+	return &models.TeamDetailed{Team: *r.Teams[0]}
 }
 
 func (r *MockTeamRepo) Truncate() {

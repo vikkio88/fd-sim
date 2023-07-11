@@ -123,6 +123,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
 		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, id)),
 		container.NewTabItemWithIcon("Season Stats", theme.DocumentIcon(), stats),
+		container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeTHistory(team.History, ctx.PushWithParam)),
 	)
 
 	return NewFborder().
@@ -140,6 +141,43 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		Get(
 			main,
 		)
+}
+
+func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	if len(tHistoryRow) < 1 {
+		return centered(widget.NewLabel("No History yet"))
+	}
+
+	return widget.NewList(
+		func() int { return len(tHistoryRow) },
+		func() fyne.CanvasObject {
+			return NewFborder().
+				Left(widget.NewLabel("Year")).
+				Get(
+					container.NewHBox(
+						widget.NewLabel("LeagueName"),
+						widget.NewLabel("Position"),
+						widget.NewLabel("Points"),
+					),
+				)
+		},
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			r := tHistoryRow[lii]
+			b := co.(*fyne.Container)
+
+			yearLbl := b.Objects[1].(*widget.Label)
+			yearLbl.SetText(fmt.Sprintf("%d", r.Year))
+
+			ctr := b.Objects[0].(*fyne.Container)
+			leagueLbl := ctr.Objects[0].(*widget.Label)
+			leagueLbl.SetText(r.LeagueName)
+
+			posLbl := ctr.Objects[1].(*widget.Label)
+			posLbl.SetText(fmt.Sprintf("%d", r.FinalPosition))
+
+			ptsLbl := ctr.Objects[2].(*widget.Label)
+			ptsLbl.SetText(fmt.Sprintf("%d", r.Points))
+		})
 }
 
 func makeTeamStats(row *models.TPHRow) fyne.CanvasObject {
