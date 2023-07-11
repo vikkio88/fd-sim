@@ -14,6 +14,24 @@ type PHistoryDto struct {
 	Player PlayerDto
 }
 
+func (p *PHistoryDto) HistoryRows() []*models.PHistoryRow {
+	if p.Stats == "" {
+		return []*models.PHistoryRow{}
+	}
+
+	stats := unserialisePHistoryStats(p.Stats)
+	if len(stats) < 1 {
+		return []*models.PHistoryRow{}
+	}
+
+	result := make([]*models.PHistoryRow, len(stats))
+	for i, s := range stats {
+		result[i] = s.PHistoryRow()
+	}
+
+	return result
+}
+
 func (p *PHistoryDto) Update(stat StatRowDto, leagueName string, gameDate time.Time) {
 	existingStats := unserialisePHistoryStats(p.Stats)
 	hstat := models.NewPHistoryRow(stat.StatRow(), leagueName, gameDate)
@@ -52,6 +70,20 @@ func newSubRowFromStatRow(h *models.PHistoryRow) PHistorySubRow {
 	}
 }
 
+func (h *PHistorySubRow) PHistoryRow() *models.PHistoryRow {
+	return &models.PHistoryRow{
+		LeagueId:     h.LeagueId,
+		LeagueName:   h.LeagueName,
+		TeamId:       h.TeamId,
+		TeamName:     h.TeamName,
+		Played:       h.Played,
+		Goals:        h.Goals,
+		Score:        h.Score,
+		HalfSeason:   h.HalfSeason,
+		TransferCost: h.TransferCost,
+		StartYear:    h.StartYear,
+	}
+}
 func newSubRowsFromPHistory(h *models.PHistoryRow) []PHistorySubRow {
 	return []PHistorySubRow{
 		{
@@ -67,6 +99,25 @@ func newSubRowsFromPHistory(h *models.PHistoryRow) []PHistorySubRow {
 			TransferCost: h.TransferCost,
 			StartYear:    h.StartYear,
 		},
+	}
+}
+
+func NewEmptyHistorySubRow(leagueId, leagueName, teamId, teamName string, year int) []PHistorySubRow {
+	return []PHistorySubRow{
+		{
+			LeagueId:   leagueId,
+			LeagueName: leagueName,
+			TeamId:     teamId,
+			TeamName:   teamName,
+			StartYear:  year,
+		},
+	}
+}
+
+func NewEmptyHistoryRow(playerId, leagueId, leagueName, teamId, teamName string, year int) *PHistoryDto {
+	return &PHistoryDto{
+		PlayerId: playerId,
+		Stats:    serialisePHistoryStats(NewEmptyHistorySubRow(leagueId, leagueName, teamId, teamName, year)),
 	}
 }
 
