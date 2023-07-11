@@ -213,7 +213,7 @@ func (r *MockPlayerRepo) Insert(players []*models.Player) {
 	panic("not implemented")
 }
 
-func (r *MockPlayerRepo) ById(id string) *models.PlayerWithTeam {
+func (r *MockPlayerRepo) ById(id string) *models.PlayerDetailed {
 	panic("not implemented")
 }
 
