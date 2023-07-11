@@ -18,6 +18,8 @@ type TeamDto struct {
 	CoachId  *string
 	Coach    CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Players  []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+
+	History []THistoryDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func DtoFromTeams(teams []*models.Team, leagueId string) []TeamDto {
