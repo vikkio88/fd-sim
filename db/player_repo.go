@@ -31,11 +31,11 @@ func (pr *PlayerRepo) Insert(players []*models.Player) {
 	pr.g.Create(&pdtos)
 }
 
-func (pr *PlayerRepo) ById(id string) *models.PlayerWithTeam {
+func (pr *PlayerRepo) ById(id string) *models.PlayerDetailed {
 	var p PlayerDto
-	pr.g.Model(&PlayerDto{}).Preload(teamRel).Find(&p, "Id = ?", id)
+	pr.g.Model(&PlayerDto{}).Preload(teamRel).Preload("History").Find(&p, "Id = ?", id)
 
-	return p.PlayerWithTeam()
+	return p.PlayerDetailed()
 }
 
 func (pr *PlayerRepo) Truncate() {
