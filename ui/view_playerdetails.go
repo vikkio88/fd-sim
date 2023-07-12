@@ -71,18 +71,68 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 	if len(pHistoryRow) < 1 {
 		return centered(widget.NewLabel("No History yet"))
 	}
+	columns := widgets.NewColumnsLayout([]float32{-1, 100, 100, 80, 80, 80, 80})
+	headers := widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("", fyne.TextAlignCenter),
+			widgets.NewListCol("League", fyne.TextAlignCenter),
+			widgets.NewListCol("Team", fyne.TextAlignLeading),
+			widgets.NewListCol("Played", fyne.TextAlignLeading),
+			widgets.NewListCol("Goals", fyne.TextAlignLeading),
+			widgets.NewListCol("Score", fyne.TextAlignLeading),
+			widgets.NewListCol("Cost", fyne.TextAlignLeading),
+		},
+		columns,
+	)
 
-	return widget.NewList(func() int { return len(pHistoryRow) }, func() fyne.CanvasObject {
-		return NewFborder().Left(widget.NewLabel("Year")).Get(widget.NewLabel("TeamName"))
-	}, func(lii widget.ListItemID, co fyne.CanvasObject) {
-		r := pHistoryRow[lii]
-		b := co.(*fyne.Container)
+	historyList := widget.NewList(
+		func() int { return len(pHistoryRow) },
+		func() fyne.CanvasObject {
+			return container.New(
+				columns,
+				widget.NewLabel("Y"),
+				widget.NewLabel("League"),
+				widget.NewLabel("Team"),
+				widget.NewLabel("Played"),
+				widget.NewLabel("Goals"),
+				widget.NewLabel("Score"),
+				widget.NewLabel("Cost"),
+			)
+		},
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			r := pHistoryRow[lii]
+			cells := co.(*fyne.Container)
 
-		year := b.Objects[1].(*widget.Label)
-		year.SetText(fmt.Sprintf("%d", r.StartYear))
-		teamName := b.Objects[0].(*widget.Label)
-		teamName.SetText(r.TeamName)
-	})
+			yearLbl := cells.Objects[0].(*widget.Label)
+			// TODO: if halfseson bool is true he got moved so need
+			// to showcase it in here
+			yearLbl.SetText(fmt.Sprintf("%d/%d", r.StartYear-1, r.StartYear))
+
+			leagueLbl := cells.Objects[1].(*widget.Label)
+			leagueLbl.SetText(r.LeagueName)
+
+			teamLbl := cells.Objects[2].(*widget.Label)
+			teamLbl.SetText(r.TeamName)
+
+			pLbl := cells.Objects[3].(*widget.Label)
+			pLbl.SetText(fmt.Sprintf("%d", r.Played))
+
+			gLbl := cells.Objects[4].(*widget.Label)
+			gLbl.SetText(fmt.Sprintf("%d", r.Goals))
+
+			sLbl := cells.Objects[5].(*widget.Label)
+			sLbl.SetText(fmt.Sprintf("%.2f", r.Score/float64(r.Played)))
+
+			costLbl := cells.Objects[6].(*widget.Label)
+			cost := ""
+			if r.TransferCost != nil {
+				cost = *r.TransferCost
+			}
+			costLbl.SetText(cost)
+		},
+	)
+
+	return NewFborder().Top(headers).Get(historyList)
 }
 
 func makePlayerMainDetailsView(player *models.PlayerDetailed, moraleInfo *fyne.Container, skillInfo *fyne.Container, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {

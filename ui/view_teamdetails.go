@@ -147,37 +147,72 @@ func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamF
 	if len(tHistoryRow) < 1 {
 		return centered(widget.NewLabel("No History yet"))
 	}
+	columns := widgets.NewColumnsLayout([]float32{-1, 100, 100, 100, 50, 50, 50, 50, 50})
+	headers := widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("", fyne.TextAlignCenter),
+			widgets.NewListCol("League", fyne.TextAlignCenter),
+			widgets.NewListCol("Position", fyne.TextAlignLeading),
+			widgets.NewListCol("Points", fyne.TextAlignLeading),
+			widgets.NewListCol("W", fyne.TextAlignLeading),
+			widgets.NewListCol("D", fyne.TextAlignLeading),
+			widgets.NewListCol("L", fyne.TextAlignLeading),
+			widgets.NewListCol("GS", fyne.TextAlignLeading),
+			widgets.NewListCol("GC", fyne.TextAlignLeading),
+		},
+		columns,
+	)
 
-	return widget.NewList(
+	historyList := widget.NewList(
 		func() int { return len(tHistoryRow) },
 		func() fyne.CanvasObject {
-			return NewFborder().
-				Left(widget.NewLabel("Year")).
-				Get(
-					container.NewHBox(
-						widget.NewLabel("LeagueName"),
-						widget.NewLabel("Position"),
-						widget.NewLabel("Points"),
-					),
-				)
+			return container.New(
+				columns,
+				widget.NewLabel("Year"),
+				widget.NewLabel("LeagueName"),
+				widget.NewLabel("Position"),
+				widget.NewLabel("Points"),
+				widget.NewLabel("W"),
+				widget.NewLabel("D"),
+				widget.NewLabel("L"),
+				widget.NewLabel("GS"),
+				widget.NewLabel("GC"),
+			)
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			r := tHistoryRow[lii]
-			b := co.(*fyne.Container)
+			cell := co.(*fyne.Container)
 
-			yearLbl := b.Objects[1].(*widget.Label)
-			yearLbl.SetText(fmt.Sprintf("%d", r.Year))
+			yearLbl := cell.Objects[0].(*widget.Label)
+			yearLbl.SetText(fmt.Sprintf("%d/%d", r.Year-1, r.Year))
 
-			ctr := b.Objects[0].(*fyne.Container)
-			leagueLbl := ctr.Objects[0].(*widget.Label)
+			leagueLbl := cell.Objects[1].(*widget.Label)
 			leagueLbl.SetText(r.LeagueName)
 
-			posLbl := ctr.Objects[1].(*widget.Label)
+			posLbl := cell.Objects[2].(*widget.Label)
 			posLbl.SetText(fmt.Sprintf("%d", r.FinalPosition))
 
-			ptsLbl := ctr.Objects[2].(*widget.Label)
+			ptsLbl := cell.Objects[3].(*widget.Label)
 			ptsLbl.SetText(fmt.Sprintf("%d", r.Points))
-		})
+
+			wLbl := cell.Objects[4].(*widget.Label)
+			wLbl.SetText(fmt.Sprintf("%d", r.Wins))
+
+			dLbl := cell.Objects[5].(*widget.Label)
+			dLbl.SetText(fmt.Sprintf("%d", r.Draws))
+
+			lLbl := cell.Objects[6].(*widget.Label)
+			lLbl.SetText(fmt.Sprintf("%d", r.Losses))
+
+			gsLbl := cell.Objects[7].(*widget.Label)
+			gsLbl.SetText(fmt.Sprintf("%d", r.GoalScored))
+
+			gcLbl := cell.Objects[8].(*widget.Label)
+			gcLbl.SetText(fmt.Sprintf("%d", r.GoalConceded))
+		},
+	)
+
+	return NewFborder().Top(headers).Get(historyList)
 }
 
 func makeTeamStats(row *models.TPHRow) fyne.CanvasObject {
