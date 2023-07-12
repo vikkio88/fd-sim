@@ -84,10 +84,14 @@ func TestMoneyKMB(t *testing.T) {
 	eurosM := u.NewEurosFromF(2100235.43)
 	eurosB := u.NewEurosUF(1_234_222_222, 10)
 	eurosKneg := u.NewEuros(-1235)
+	smallAmount := u.NewEuros(10)
+	zeroAmount := u.NewEuros(0)
 	assert.Equal(t, "1.24k €", eurosK.StringKMB())
 	assert.Equal(t, "-1.24k €", eurosKneg.StringKMB())
 	assert.Equal(t, "2.10m €", eurosM.StringKMB())
 	assert.Equal(t, "1.23b €", eurosB.StringKMB())
+	assert.Equal(t, "10.00 €", smallAmount.StringKMB())
+	assert.Equal(t, "0 €", zeroAmount.StringKMB())
 }
 
 func TestMoneyVal(t *testing.T) {

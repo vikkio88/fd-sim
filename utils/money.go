@@ -186,6 +186,10 @@ func formatToKMB(value float64) string {
 		res = fmt.Sprintf("%0.2fm", value/1_000_000.)
 	} else if value > 999 || value < -999 {
 		res = fmt.Sprintf("%0.2fk", value/1_000)
+	} else if value == 0 {
+		res = "0"
+	} else {
+		res = fmt.Sprintf("%0.2f", value)
 	}
 
 	return res
