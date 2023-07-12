@@ -30,12 +30,33 @@ func DtoFromFDStatRow(r *models.FDStatRow) FDStatRowDto {
 	}
 }
 
+func (r *FDStatRowDto) FDStatRow() *models.FDStatRow {
+	return &models.FDStatRow{
+		TeamId:    r.TeamId,
+		TeamName:  r.TeamName,
+		HiredDate: r.HiredDate,
+
+		PlayersSigned: r.PlayersSigned,
+		PlayersSold:   r.PlayersSold,
+		CoachesSigned: r.CoachesSigned,
+		CoachesSacked: r.CoachesSacked,
+
+		MaxSpent:    utils.NewEurosFromF(r.MaxSpent),
+		TotalSpent:  utils.NewEurosFromF(r.TotalSpent),
+		MaxCashed:   utils.NewEurosFromF(r.MaxCashed),
+		TotalCashed: utils.NewEurosFromF(r.TotalCashed),
+	}
+
+}
+
 type FDHistoryDto struct {
 	Year       int        `gorm:"primarykey"`
 	Month      time.Month `gorm:"primarykey"`
 	Day        int        `gorm:"primarykey"`
-	TeamId     string     `gorm:"primarykey"`
-	TeamName   string     `gorm:"primarykey"`
+	StartDate  time.Time
+	EndDate    time.Time
+	TeamId     string `gorm:"primarykey"`
+	TeamName   string `gorm:"primarykey"`
 	LeagueId   string
 	LeagueName string
 	Wage       float64
@@ -53,11 +74,12 @@ type FDHistoryDto struct {
 
 func NewFDHistoryDto(r FDStatRowDto) FDHistoryDto {
 	return FDHistoryDto{
-		Year:     r.HiredDate.Year(),
-		Month:    r.HiredDate.Month(),
-		Day:      r.HiredDate.Day(),
-		TeamId:   r.TeamId,
-		TeamName: r.TeamName,
+		Year:      r.HiredDate.Year(),
+		Month:     r.HiredDate.Month(),
+		Day:       r.HiredDate.Day(),
+		StartDate: r.HiredDate,
+		TeamId:    r.TeamId,
+		TeamName:  r.TeamName,
 
 		PlayersSigned: r.PlayersSigned,
 		PlayersSold:   r.PlayersSold,
@@ -71,8 +93,31 @@ func NewFDHistoryDto(r FDStatRowDto) FDHistoryDto {
 	}
 }
 
-func (h *FDHistoryDto) UpdateEndOfSeason(leagueId, leagueName string, wage utils.Money) {
+func (h *FDHistoryDto) UpdateEndOfSeason(leagueId, leagueName string, wage utils.Money, gameDate time.Time) {
 	h.LeagueId = leagueId
 	h.LeagueName = leagueName
 	h.Wage = wage.Value()
+	h.EndDate = gameDate
+}
+
+func (h *FDHistoryDto) FDHistoryRow() *models.FDHistoryRow {
+	return &models.FDHistoryRow{
+		StartDate:  h.StartDate,
+		EndDate:    h.EndDate,
+		TeamId:     h.TeamId,
+		TeamName:   h.TeamName,
+		LeagueId:   h.LeagueId,
+		LeagueName: h.LeagueName,
+		Wage:       utils.NewEurosFromF(h.Wage),
+
+		PlayersSigned: h.PlayersSigned,
+		PlayersSold:   h.PlayersSold,
+		CoachesSigned: h.CoachesSigned,
+		CoachesSacked: h.CoachesSacked,
+
+		MaxSpent:    utils.NewEurosFromF(h.MaxSpent),
+		TotalSpent:  utils.NewEurosFromF(h.TotalSpent),
+		MaxCashed:   utils.NewEurosFromF(h.MaxCashed),
+		TotalCashed: utils.NewEurosFromF(h.TotalCashed),
+	}
 }

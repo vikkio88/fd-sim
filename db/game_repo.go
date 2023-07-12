@@ -158,3 +158,22 @@ func (repo *GameRepo) DeleteNews(id string) {
 func (repo *GameRepo) DeleteAllNews() {
 	repo.g.Where("1 = 1").Delete(&NewsDto{})
 }
+
+func (repo *GameRepo) GetFDHistory() []*models.FDHistoryRow {
+	var dtos []FDHistoryDto
+
+	repo.g.Model(&FDHistoryDto{}).Find(&dtos)
+	result := make([]*models.FDHistoryRow, len(dtos))
+	for i, r := range dtos {
+		result[i] = r.FDHistoryRow()
+	}
+
+	return result
+}
+
+func (repo *GameRepo) GetFDStats() *models.FDStatRow {
+	var stat FDStatRowDto
+	repo.g.Model(&FDStatRowDto{}).Order("hired_date desc").First(&stat)
+
+	return stat.FDStatRow()
+}

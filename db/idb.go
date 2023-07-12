@@ -38,6 +38,8 @@ type IGameRepo interface {
 	DeleteNews(id string)
 	DeleteAllNews()
 	MarkNewsAsRead(id string)
+	GetFDStats() *models.FDStatRow
+	GetFDHistory() []*models.FDHistoryRow
 }
 
 // ILeagueRepo ...
