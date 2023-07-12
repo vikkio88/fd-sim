@@ -227,7 +227,7 @@ func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
 	var stat FDStatRowDto
 	lr.g.Model(&FDStatRowDto{}).Order("hired_date desc").First(&stat)
 	h := NewFDHistoryDto(stat)
-	h.UpdateEndOfSeason(game.LeagueId, leagueName, game.Wage)
+	h.UpdateEndOfSeason(game.LeagueId, leagueName, game.Wage, game.Date)
 	lr.g.Save(&h)
 
 	game.YContract -= 1
