@@ -121,7 +121,11 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			gLbl.SetText(fmt.Sprintf("%d", r.Goals))
 
 			sLbl := cells.Objects[5].(*widget.Label)
-			sLbl.SetText(fmt.Sprintf("%.2f", r.Score/float64(r.Played)))
+			score := "-"
+			if r.Played > 0 {
+				score = fmt.Sprintf("%.2f", r.Score/float64(r.Played))
+			}
+			sLbl.SetText(score)
 
 			costLbl := cells.Objects[6].(*widget.Label)
 			cost := ""
