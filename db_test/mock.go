@@ -62,6 +62,16 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// GetFDHistory implements db.IGameRepo.
+func (*MockGameR) GetFDHistory() []*models.FDHistoryRow {
+	panic("unimplemented")
+}
+
+// GetFDStats implements db.IGameRepo.
+func (*MockGameR) GetFDStats() *models.FDStatRow {
+	panic("unimplemented")
+}
+
 // AddStatRow implements db.IGameRepo.
 func (*MockGameR) AddStatRow(*models.FDStatRow) {
 	panic("unimplemented")
