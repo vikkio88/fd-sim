@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fdsim/utils"
+	"time"
+)
 
 type StatRowPH struct {
 	Index int
@@ -177,9 +180,9 @@ func NewTHistoryRow(stat *TPHRow, leagueId, leagueName string, gameDate time.Tim
 		Wins:          row.Wins,
 		Draws:         row.Draws,
 		Losses:        row.Losses,
-		Points:        row.Played,
-		GoalScored:    row.Played,
-		GoalConceded:  row.Played,
+		Points:        row.Points,
+		GoalScored:    row.GoalScored,
+		GoalConceded:  row.GoalConceded,
 		FinalPosition: stat.Index,
 
 		Year: gameDate.Year(),
@@ -196,10 +199,10 @@ type FDStatRow struct {
 	CoachesSigned int
 	CoachesSacked int
 
-	MaxSpent    float64
-	TotalSpent  float64
-	MaxCashed   float64
-	TotalCashed float64
+	MaxSpent    utils.Money
+	TotalSpent  utils.Money
+	MaxCashed   utils.Money
+	TotalCashed utils.Money
 }
 
 func NewFDStatRow(date time.Time, teamId, teamName string) *FDStatRow {
@@ -208,4 +211,24 @@ func NewFDStatRow(date time.Time, teamId, teamName string) *FDStatRow {
 		TeamName:  teamName,
 		HiredDate: date,
 	}
+}
+
+type FDHistoryRow struct {
+	StartDate  time.Time
+	EndDate    time.Time
+	TeamId     string
+	TeamName   string
+	LeagueId   string
+	LeagueName string
+	Wage       utils.Money
+
+	PlayersSigned int
+	PlayersSold   int
+	CoachesSigned int
+	CoachesSacked int
+
+	MaxSpent    utils.Money
+	TotalSpent  utils.Money
+	MaxCashed   utils.Money
+	TotalCashed utils.Money
 }
