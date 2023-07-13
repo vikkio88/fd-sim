@@ -98,6 +98,18 @@ func (c *AppContext) Pop() {
 	c.Route.Set(nsi.route.String())
 }
 
+func (c *AppContext) BackToMain() {
+	nsi, ok := c.NavStack.Top()
+	if !ok {
+		//TODO: instead of panic maybe should revert to a base view?
+		panic("Trying to TOP the stack even tho you have no views on the stack")
+	}
+
+	c.RouteMode = Pop
+	c.RouteParam = nsi.routeParam
+	c.Route.Set(nsi.route.String())
+}
+
 func (c *AppContext) CacheViewOnStack(content fyne.CanvasObject) {
 	//TODO: maybe return an error or something if this Peek fails
 	i, ok := c.NavStack.Peek()
