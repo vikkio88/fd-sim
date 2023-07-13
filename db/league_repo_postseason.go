@@ -58,12 +58,15 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 	pToAdd := []PlayerDto{}
 	for teamId, rc := range tm {
 		for role, count := range rc {
-			// TODO: maybe do this as 0, could avoid replacing it at all in case
-			effectiveCount := rng.UInt(1, count)
+			if count == 0 {
+				continue
+			}
+			effectiveCount := rng.UInt(2, count)
 			ps := pg.YoungPlayersWithRole(effectiveCount, role)
 			for _, p := range ps {
 				pdto := DtoFromPlayer(p)
-				pdto.TeamId = &teamId
+				nteamId := teamId
+				pdto.TeamId = &nteamId
 				pToAdd = append(pToAdd, pdto)
 			}
 		}
@@ -131,11 +134,14 @@ func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
 		return
 	}
 
-	if pc, ok := tm[*p.TeamId]; ok {
+	teamId := *p.TeamId
+	fmt.Println(teamId)
+
+	if pc, ok := tm[teamId]; ok {
 		pc[p.Role]++
 	} else {
-		tm[*p.TeamId] = models.NewEmptyRoleCounter()
-		tm[*p.TeamId][p.Role]++
+		tm[teamId] = models.NewEmptyRoleCounter()
+		tm[teamId][p.Role]++
 	}
 }
 
