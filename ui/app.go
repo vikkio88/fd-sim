@@ -58,7 +58,7 @@ func (a *App) getView() *fyne.Container {
 
 	if a.ctx.RouteMode == Replace {
 		a.log("REPLACE")
-		a.ctx.NavStack.Clear()
+		a.ctx.NavStack.ClearAll()
 	}
 
 	if content, ok := a.views[key]; ok {
