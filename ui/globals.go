@@ -12,7 +12,7 @@ var news, emails binding.UntypedList
 var dateStr binding.String
 var fdTeamId string = ""
 
-// I made them globals to this package as Simulation needs to update the content of this page
+// I made them globals to this package as Simulation needs to update the content of the Dashboard
 
 func loadNotifications(db d.IDb) {
 	loadEmails(db)
