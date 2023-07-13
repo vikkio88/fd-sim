@@ -157,7 +157,13 @@ func (l *Lineup) Score(owngoals, othergoals int, scorers []string, rng *libs.Rng
 			min -= 15
 		}
 
-		res[pId] = float64(rng.UInt(min, max) / 10.)
+		if min <= 10 {
+			// adjusting so the min score is not that low
+			min = 20
+		}
+
+		score := float64(rng.UInt(min, max)) / 10.
+		res[pId] = score
 	}
 
 	return res
