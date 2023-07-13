@@ -123,16 +123,22 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 						container.NewHBox(
 							exitBtn,
 							saveBtn,
+							widget.NewLabelWithData(dateStr),
 						),
 					),
 				).
-				Right(widget.NewLabelWithData(dateStr)).
-				Get(centered(
-					container.NewVBox(
-						widget.NewLabel(fmt.Sprintf("%s %s (%d)", fd.Name, fd.Surname, fd.Age)),
-						starsFromPerc(fd.Fame),
+				Right(
+					centered(
+						container.NewVBox(
+							container.NewHBox(
+								widget.NewIcon(theme.AccountIcon()),
+								widget.NewLabel(fmt.Sprintf("%s %s (%d)", fd.Name, fd.Surname, fd.Age)),
+							),
+							starsFromPerc(fd.Fame),
+						),
 					),
-				)),
+				).
+				Get(),
 		).
 		Bottom(
 			NewFborder().Right(
