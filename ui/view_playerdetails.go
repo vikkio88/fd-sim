@@ -61,7 +61,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
 		Top(
 			NewFborder().
-				Left(backButton(ctx)).
+				Left(topNavBar(ctx)).
 				Get(centered(h1(player.String()))),
 		).
 		Get(main)
@@ -75,8 +75,8 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 	headers := widgets.NewListHeader(
 		[]widgets.ListColumn{
 			widgets.NewListCol("", fyne.TextAlignCenter),
-			widgets.NewListCol("League", fyne.TextAlignCenter),
-			widgets.NewListCol("Team", fyne.TextAlignLeading),
+			widgets.NewListCol("League", fyne.TextAlignLeading),
+			widgets.NewListCol("Team", fyne.TextAlignCenter),
 			widgets.NewListCol("Played", fyne.TextAlignLeading),
 			widgets.NewListCol("Goals", fyne.TextAlignLeading),
 			widgets.NewListCol("Score", fyne.TextAlignLeading),
@@ -92,7 +92,7 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 				columns,
 				widget.NewLabel("Y"),
 				widget.NewLabel("League"),
-				widget.NewLabel("Team"),
+				centered(widget.NewHyperlink("Team", nil)),
 				widget.NewLabel("Played"),
 				widget.NewLabel("Goals"),
 				widget.NewLabel("Score"),
@@ -111,8 +111,11 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			leagueLbl := cells.Objects[1].(*widget.Label)
 			leagueLbl.SetText(r.LeagueName)
 
-			teamLbl := cells.Objects[2].(*widget.Label)
-			teamLbl.SetText(r.TeamName)
+			teamHl := cells.Objects[2].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+			teamHl.SetText(r.TeamName)
+			teamHl.OnTapped = func() {
+				navigate(TeamDetails, r.TeamId)
+			}
 
 			pLbl := cells.Objects[3].(*widget.Label)
 			pLbl.SetText(fmt.Sprintf("%d", r.Played))

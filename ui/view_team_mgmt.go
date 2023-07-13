@@ -14,7 +14,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 
 	if !game.IsEmployed() {
 		return NewFborder().
-			Top(leftAligned(backButton(ctx))).
+			Top(leftAligned(topNavBar(ctx))).
 			Get(
 				container.NewCenter(
 					widget.NewLabel("You have no team to manage."),
@@ -27,7 +27,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
 		Top(
 			NewFborder().
-				Left(backButton(ctx)).
+				Left(topNavBar(ctx)).
 				Get(centered(h1(fmt.Sprintf("%s - Management", game.Team.Name)))),
 		).
 		Get(

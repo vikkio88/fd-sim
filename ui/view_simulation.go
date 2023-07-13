@@ -46,7 +46,7 @@ func simulationView(ctx *AppContext) *fyne.Container {
 			}
 		}
 	}()
-	backBtn := backButton(ctx)
+	navBtn := topNavBar(ctx)
 	placeholder := widget.NewLabel("0")
 	var startBtn *widget.Button
 
@@ -62,14 +62,15 @@ func simulationView(ctx *AppContext) *fyne.Container {
 		state.Set("Simulating...")
 		go start(game, sim, dayFinished, stop, quit, state, ctx)
 		placeholder.Hide()
-		backBtn.Disable()
+		navBtn.(*fyne.Container).Objects[0].(*widget.Button).Disable()
+		navBtn.(*fyne.Container).Objects[1].(*widget.Button).Disable()
 		startBtn.Disable()
 	})
 
 	return NewFborder().
 		Top(
 			NewFborder().
-				Left(backBtn).
+				Left(navBtn).
 				Get(
 					centered(h1("Simulation")),
 				),

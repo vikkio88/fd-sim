@@ -10,7 +10,7 @@ import (
 
 func testView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
-		Top(leftAligned(backButton(ctx))).
+		Top(leftAligned(topNavBar(ctx))).
 		Get(
 			container.NewCenter(
 				container.NewVBox(

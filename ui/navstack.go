@@ -32,7 +32,7 @@ func NewNavStack() *NavStack {
 	}
 }
 
-func (ns *NavStack) Clear() {
+func (ns *NavStack) ClearAll() {
 	ns.stack = []*NavStackItem{}
 }
 
@@ -46,6 +46,18 @@ func (ns *NavStack) Pop() (*NavStackItem, bool) {
 	}
 
 	last := ns.lastIndex()
+	nsi := ns.stack[last]
+	ns.stack = ns.stack[:last]
+	ns.latestContent = nsi.content
+	return nsi, true
+}
+
+func (ns *NavStack) Top() (*NavStackItem, bool) {
+	if ns.Size() < 1 {
+		return nil, false
+	}
+
+	last := 0
 	nsi := ns.stack[last]
 	ns.stack = ns.stack[:last]
 	ns.latestContent = nsi.content

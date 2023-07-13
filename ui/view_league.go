@@ -32,7 +32,7 @@ func leagueView(ctx *AppContext) *fyne.Container {
 		container.NewTabItemWithIcon("Stats", theme.StorageIcon(), statsView),
 	)
 	return NewFborder().
-		Top(NewFborder().Left(backButton(ctx)).Get(centered(h1(league.Name)))).
+		Top(NewFborder().Left(topNavBar(ctx)).Get(centered(h1(league.Name)))).
 		Get(
 			container.NewMax(main),
 		)

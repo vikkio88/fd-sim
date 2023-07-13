@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/conf"
 	"fdsim/utils"
 	vm "fdsim/vm"
 	"fdsim/widgets"
@@ -51,10 +52,22 @@ func bottomAligned(object fyne.CanvasObject) *fyne.Container {
 	return container.NewBorder(nil, object, nil, nil)
 }
 
-func backButton(ctx *AppContext) *widget.Button {
-	return widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
-		ctx.Pop()
-	})
+func topNavBar(ctx *AppContext) fyne.CanvasObject {
+	game, ok := ctx.GetGameState()
+	nav := container.NewHBox(
+		widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
+			ctx.Pop()
+		}),
+		widget.NewButtonWithIcon("", theme.HomeIcon(), func() {
+			ctx.BackToMain()
+		}),
+	)
+
+	if ok {
+		nav.Add(widget.NewLabel(fmt.Sprintf("%s", game.Date.Format(conf.DateFormatGame))))
+	}
+
+	return nav
 }
 
 func starsFromPerc(perc utils.Perc) fyne.CanvasObject {

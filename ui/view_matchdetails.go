@@ -30,7 +30,7 @@ func matchDetailsView(ctx *AppContext) *fyne.Container {
 
 	return NewFborder().
 		Top(
-			NewFborder().Left(backButton(ctx)).Get(
+			NewFborder().Left(topNavBar(ctx)).Get(
 				h1(fmt.Sprintf("Round %d", match.RoundIndex+1)),
 			),
 		).

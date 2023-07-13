@@ -10,7 +10,7 @@ func pressView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
 		Top(
 			NewFborder().
-				Left(backButton(ctx)).
+				Left(topNavBar(ctx)).
 				Get(centered(h1("Press"))),
 		).
 		Get(

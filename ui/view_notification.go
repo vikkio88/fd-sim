@@ -29,7 +29,7 @@ func notificationView(ctx *AppContext, route AppRoute) *fyne.Container {
 	}
 
 	return NewFborder().
-		Top(NewFborder().Left(backButton(ctx)).Get(centered(h1(title)))).
+		Top(NewFborder().Left(topNavBar(ctx)).Get(centered(h1(title)))).
 		Get(
 			content,
 		)

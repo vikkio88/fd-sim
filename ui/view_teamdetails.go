@@ -128,7 +128,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 
 	return NewFborder().
 		Top(
-			NewFborder().Left(backButton(ctx)).
+			NewFborder().Left(topNavBar(ctx)).
 				Get(
 					centered(
 						container.NewHBox(

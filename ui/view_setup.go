@@ -10,7 +10,7 @@ func setupView(ctx *AppContext) *fyne.Container {
 	return container.NewBorder(
 		centered(widget.NewLabel("Setup")),
 		leftAligned(
-			backButton(ctx),
+			topNavBar(ctx),
 		),
 		nil,
 		nil,

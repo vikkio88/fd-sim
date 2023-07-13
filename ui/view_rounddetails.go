@@ -16,7 +16,7 @@ func roundDetailsView(ctx *AppContext) *fyne.Container {
 	return NewFborder().
 		Top(
 			NewFborder().
-				Left(backButton(ctx)).
+				Left(topNavBar(ctx)).
 				Get(centered(container.NewVBox(
 					h1(fmt.Sprintf("Round %d", round.Index+1)),
 					h2(fmt.Sprintf("%s", round.Date.Format(conf.DateFormatGame))),
