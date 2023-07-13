@@ -46,6 +46,10 @@ func (r *Rng) Index(len int) int {
 }
 
 func (r *Rng) UInt(min, max int) int {
+	if min == max {
+		return min
+	}
+
 	if min > max {
 		max, min = min, max
 	}
