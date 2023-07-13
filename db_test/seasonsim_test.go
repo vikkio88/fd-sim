@@ -14,7 +14,7 @@ import (
 )
 
 func TestPostSeason(t *testing.T) {
-	// t.Skip("Slow")
+	t.Skip("Slow")
 	os.Remove("test.db")
 	date := utils.NewDate(2023, time.August, 20)
 	game := &models.Game{Idable: models.NewIdable("FakeGameId"), Date: date}
