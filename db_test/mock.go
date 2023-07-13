@@ -177,8 +177,10 @@ func (*MockTeamRepo) GetRandom() *models.TPH {
 }
 
 // OneByFame implements db.ITeamRepo.
-func (*MockTeamRepo) OneByFame(utils.Perc) *models.TPH {
-	panic("unimplemented")
+func (r *MockTeamRepo) OneByFame(utils.Perc) *models.TPH {
+	t := r.Teams[0].PH()
+
+	return &t
 }
 
 func (r *MockTeamRepo) InsertOne(t *models.Team) {

@@ -36,14 +36,23 @@ func TestSimulatorAdvancingTime(t *testing.T) {
 	events, _ := sim.Simulate(days)
 	assert.True(t, game.StartDate.Equal(startDate))
 	assert.Equal(t, 2, game.Date.Day())
-	assert.Empty(t, events)
+	assert.NotEmpty(t, events)
+	assert.Equal(t,
+		services.TransferMarketOpen.Event(time.Now(), models.EventParams{}).Description,
+		events[0].Description,
+	)
 
 	days = 7
 	events, _ = sim.Simulate(days)
 	assert.True(t, game.StartDate.Equal(startDate))
 	assert.Equal(t, 9, game.Date.Day())
 	assert.Equal(t, time.July, game.Date.Month())
-	assert.Empty(t, events)
+	if len(events) > 0 {
+		assert.Equal(t,
+			services.ContractOffer.Event(time.Now(), models.EventParams{}).Description,
+			events[0].Description,
+		)
+	}
 
 	days = 30 * 2
 	events, _ = sim.Simulate(days)
