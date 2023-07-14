@@ -70,7 +70,7 @@ func TestPostSeason(t *testing.T) {
 	game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
 
 	// this will already modify game to the new league
-	l2 := db.LeagueR().PostSeason(game, l.Name)
+	l2 := db.LeagueR().PostSeason(game)
 
 	// End of First Season
 	game.Date = utils.NewDate(2024, time.August, 20)
@@ -98,6 +98,6 @@ func TestPostSeason(t *testing.T) {
 	game.Wage.Add(utils.NewEurosUF(25_000, 0))
 
 	// End of Second Season
-	db.LeagueR().PostSeason(game, l2.Name)
+	db.LeagueR().PostSeason(game)
 	fmt.Println("Finished")
 }
