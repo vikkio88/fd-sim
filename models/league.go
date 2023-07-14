@@ -10,6 +10,36 @@ import (
 
 type TeamMap map[string]*Team
 
+type LeagueHistory struct {
+	Id          string
+	Name        string
+	Podium      []*TPHRow
+	BestScorers []*PlayerHistorical
+	Mvp         *PlayerHistorical
+
+	//TODO: maybe on the DBLayer store whether a player is retired and force NOT to navigate
+}
+
+func NewLeagueHistory(league *League, mvp *StatRowPH, statScorers []*StatRowPH) *LeagueHistory {
+	podium := make([]*TPHRow, 3)
+	podium[0] = league.TableRow(0)
+	podium[1] = league.TableRow(1)
+	podium[2] = league.TableRow(2)
+
+	x := make([]*PlayerHistorical, 3)
+	x[0] = NewPlayerHistoricalFromStatRowPH(statScorers[0])
+	x[1] = NewPlayerHistoricalFromStatRowPH(statScorers[1])
+	x[2] = NewPlayerHistoricalFromStatRowPH(statScorers[2])
+
+	return &LeagueHistory{
+		Id:          league.Id,
+		Name:        league.Name,
+		Podium:      podium,
+		BestScorers: x,
+		Mvp:         NewPlayerHistoricalFromStatRowPH(mvp),
+	}
+}
+
 type League struct {
 	Idable
 	Name    string
@@ -93,6 +123,7 @@ func (l *League) TableRows() []*TPHRow {
 	return l.Table.TPHRows(l.TeamMap)
 }
 
+// index is array index 0indexed
 func (l *League) TableRow(index int) *TPHRow {
 	team, row := l.Table.Get(index)
 	return &TPHRow{
