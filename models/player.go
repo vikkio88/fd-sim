@@ -27,6 +27,28 @@ type PlayerDetailed struct {
 	Team    *TPH
 }
 
+type PlayerHistorical struct {
+	Id      string
+	Name    string
+	Surname string
+	Team    *TPH
+	Played  int
+	Goals   int
+	Score   float64
+}
+
+func NewPlayerHistoricalFromStatRowPH(row *StatRowPH) *PlayerHistorical {
+	return &PlayerHistorical{
+		Id:      row.StatRow.Player.Id,
+		Name:    row.StatRow.Player.Name,
+		Surname: row.StatRow.Player.Surname,
+		Team:    row.Team,
+		Played:  row.Played,
+		Goals:   row.Goals,
+		Score:   row.Score,
+	}
+}
+
 func NewPlayer(name, surname string, age int, country enums.Country, role Role) Player {
 	return Player{
 		Idable: NewIdable(playerIdGenerator()),
