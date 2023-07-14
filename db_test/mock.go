@@ -260,8 +260,13 @@ type MockLeagueRepo struct {
 	Stats       *models.StatsMap
 }
 
+// HistoryById implements db.ILeagueRepo.
+func (*MockLeagueRepo) HistoryById(id string) *models.LeagueHistory {
+	panic("unimplemented")
+}
+
 // PostSeason implements db.ILeagueRepo.
-func (*MockLeagueRepo) PostSeason(*models.Game, string) *models.League {
+func (*MockLeagueRepo) PostSeason(*models.Game) *models.League {
 	panic("implement")
 }
 
