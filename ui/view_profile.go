@@ -24,7 +24,7 @@ func profileView(ctx *AppContext) *fyne.Container {
 	}
 
 	history := ctx.Db.GameR().GetFDHistory()
-	tabs.Append(container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeFDHistory(history)))
+	tabs.Append(container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeFDHistory(history, ctx.PushWithParam)))
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -74,7 +74,7 @@ func makeFDStats(stats *models.FDStatRow) fyne.CanvasObject {
 		))
 }
 
-func makeFDHistory(history []*models.FDHistoryRow) fyne.CanvasObject {
+func makeFDHistory(history []*models.FDHistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	if len(history) < 1 {
 		return centered(widget.NewLabel("No History yet"))
 	}
@@ -100,7 +100,7 @@ func makeFDHistory(history []*models.FDHistoryRow) fyne.CanvasObject {
 				columns,
 				widget.NewLabel("Year"),
 				widget.NewLabel("LeagueName"),
-				widget.NewLabel("Team"),
+				centered(widget.NewHyperlink("Team", nil)),
 				widget.NewLabel("Wage"),
 				widget.NewLabel("Signed"),
 				widget.NewLabel("Sold"),
@@ -123,8 +123,11 @@ func makeFDHistory(history []*models.FDHistoryRow) fyne.CanvasObject {
 			leagueLbl := cell.Objects[1].(*widget.Label)
 			leagueLbl.SetText(r.LeagueName)
 
-			teamLbl := cell.Objects[2].(*widget.Label)
-			teamLbl.SetText(r.TeamName)
+			teamHl := getCenteredHL(cell.Objects[2])
+			teamHl.SetText(r.TeamName)
+			teamHl.OnTapped = func() {
+				navigate(TeamDetails, r.TeamId)
+			}
 
 			wageLbl := cell.Objects[3].(*widget.Label)
 			wageLbl.SetText(r.Wage.StringKMB())
