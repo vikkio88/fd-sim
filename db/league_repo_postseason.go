@@ -13,12 +13,31 @@ import (
 
 type TeamLosingPlayersMap map[string]map[models.Role]int
 
-func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.League {
+func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	// TODO: maybe inject this
 	rng := libs.NewRng(time.Now().Unix())
 
+	league := lr.ById(game.LeagueId)
+	leagueName := league.Name
+
+	var playersStats []StatRowDto
+	lr.g.Model(&StatRowDto{}).
+		Preload(playerRel).
+		Preload(teamRel).
+		Order("goals desc, played asc, team_id asc").
+		Find(&playersStats)
+
+	var mvp StatRowDto
+	lr.g.Model(&StatRowDto{}).
+		Preload(playerRel).
+		Preload(teamRel).
+		Order("score desc, played desc").
+		First(&mvp)
+
+	lr.createLeagueHistory(league, mvp, playersStats[:3])
+
 	gameDate := game.Date
-	indexedP, _ := lr.convertStatsToHistory(leagueName, gameDate, game.LeagueId)
+	indexedP, _ := lr.convertStatsToHistory(game.LeagueId, leagueName, gameDate, playersStats)
 	teamLostPlayers := TeamLosingPlayersMap{}
 	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate, teamLostPlayers, rng)
 	lr.playersEndOfSeason(game, teamLostPlayers, rng)
@@ -30,6 +49,11 @@ func (lr *LeagueRepo) PostSeason(game *models.Game, leagueName string) *models.L
 	lr.updateFDInfo(game, leagueName)
 
 	return lr.createNewLeague(game)
+}
+
+func (lr *LeagueRepo) createLeagueHistory(league *models.League, mvp StatRowDto, scorers []StatRowDto) {
+	lh := NewLHistoryDtoFromLeague(league, mvp, scorers)
+	lr.g.Create(lh)
 }
 
 func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
@@ -135,7 +159,6 @@ func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
 	}
 
 	teamId := *p.TeamId
-	fmt.Println(teamId)
 
 	if pc, ok := tm[teamId]; ok {
 		pc[p.Role]++
@@ -145,9 +168,7 @@ func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
 	}
 }
 
-func (lr *LeagueRepo) convertStatsToHistory(leagueName string, gameDate time.Time, leagueId string) (map[string]PHistoryDto, map[string]THistoryDto) {
-	var playersStats []StatRowDto
-	lr.g.Model(&StatRowDto{}).Preload(teamRel).Find(&playersStats)
+func (lr *LeagueRepo) convertStatsToHistory(leagueId, leagueName string, gameDate time.Time, playersStats []StatRowDto) (map[string]PHistoryDto, map[string]THistoryDto) {
 
 	var pHistoryRows []PHistoryDto
 	lr.g.Model(&PHistoryDto{}).Find(&pHistoryRows)

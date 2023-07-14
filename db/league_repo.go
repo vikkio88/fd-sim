@@ -136,3 +136,12 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	sdtos := DtosFromStatsMap(stats)
 	lr.g.Save(sdtos)
 }
+
+// HistoryById implements ILeagueRepo.
+func (lr *LeagueRepo) HistoryById(id string) *models.LeagueHistory {
+	var dto LHistoryDto
+
+	lr.g.Model(&LHistoryDto{}).Find(&dto)
+
+	return dto.LeagueHistory()
+}
