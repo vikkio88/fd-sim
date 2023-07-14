@@ -169,7 +169,7 @@ func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamF
 			return container.New(
 				columns,
 				widget.NewLabel("Year"),
-				widget.NewLabel("LeagueName"),
+				hL("League", func() {}),
 				widget.NewLabel("Position"),
 				widget.NewLabel("Points"),
 				widget.NewLabel("W"),
@@ -186,8 +186,9 @@ func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamF
 			yearLbl := cell.Objects[0].(*widget.Label)
 			yearLbl.SetText(fmt.Sprintf("%d/%d", r.Year-1, r.Year))
 
-			leagueLbl := cell.Objects[1].(*widget.Label)
-			leagueLbl.SetText(r.LeagueName)
+			leagueHl := getCenteredHL(cell.Objects[1])
+			leagueHl.SetText(r.LeagueName)
+			leagueHl.OnTapped = func() { navigate(LeagueHistory, r.LeagueId) }
 
 			posLbl := cell.Objects[2].(*widget.Label)
 			posLbl.SetText(fmt.Sprintf("%d", r.FinalPosition))
