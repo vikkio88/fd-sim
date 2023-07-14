@@ -100,3 +100,15 @@ func signalFdTeam(lbl *widget.Label) {
 	lbl.SetText(signalFdTeamTxt(lbl.Text))
 	lbl.TextStyle = fyne.TextStyle{Bold: true}
 }
+
+// Little utility to get a Centered HL from row in a list
+// had to force center() as otherwise the underline goes all over the space
+func getCenteredHL(o fyne.CanvasObject) *widget.Hyperlink {
+	return o.(*fyne.Container).Objects[0].(*widget.Hyperlink)
+}
+
+func hL(label string, onTapped func()) fyne.CanvasObject {
+	hl := widget.NewHyperlink(label, nil)
+	hl.OnTapped = onTapped
+	return centered(hl)
+}
