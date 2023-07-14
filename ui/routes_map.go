@@ -21,6 +21,7 @@ func makeRouteMap(ctx *AppContext) map[AppRoute]func() *fyne.Container {
 		TeamDetails:   func() *fyne.Container { return teamDetailsView(ctx) },
 		PlayerDetails: func() *fyne.Container { return playerDetailsView(ctx) },
 		League:        func() *fyne.Container { return leagueView(ctx) },
+		LeagueHistory: func() *fyne.Container { return leaguehistoryView(ctx) },
 		RoundDetails:  func() *fyne.Container { return roundDetailsView(ctx) },
 		MatchDetails:  func() *fyne.Container { return matchDetailsView(ctx) },
 

@@ -25,6 +25,7 @@ const (
 	PlayerDetails
 
 	League
+	LeagueHistory
 	RoundDetails
 	MatchDetails
 
@@ -52,9 +53,10 @@ func getMapping() map[AppRoute]string {
 		TeamDetails:   e.TeamDetails,
 		PlayerDetails: e.PlayerDetails,
 
-		League:       e.League,
-		RoundDetails: e.RoundDetails,
-		MatchDetails: e.MatchDetails,
+		League:        e.League,
+		LeagueHistory: e.LeagueHistory,
+		RoundDetails:  e.RoundDetails,
+		MatchDetails:  e.MatchDetails,
 
 		Simulation: e.Simulation,
 
@@ -81,9 +83,10 @@ func getReverseMapping() map[string]AppRoute {
 		e.TeamDetails:   TeamDetails,
 		e.PlayerDetails: PlayerDetails,
 
-		e.League:       League,
-		e.RoundDetails: RoundDetails,
-		e.MatchDetails: MatchDetails,
+		e.League:        League,
+		e.LeagueHistory: LeagueHistory,
+		e.RoundDetails:  RoundDetails,
+		e.MatchDetails:  MatchDetails,
 
 		e.Simulation: Simulation,
 
