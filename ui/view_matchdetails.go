@@ -74,7 +74,7 @@ func makeTeamSide(team *models.Team /* lineup []string,*/, result *models.Result
 					func(lii widget.ListItemID, co fyne.CanvasObject) {
 						scorerId := scorers[lii]
 						scorer, ok := team.Roster.Player(scorerId)
-						hl := co.(*fyne.Container).Objects[0].(*widget.Hyperlink)
+						hl := getCenteredHL(co)
 						if ok {
 							hl.SetText(scorer.String())
 							hl.OnTapped = func() { navigate(PlayerDetails, scorerId) }

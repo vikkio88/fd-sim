@@ -124,7 +124,7 @@ func makeRoundWithResults(
 				signalFdTeam(homeLbl)
 			}
 			if result, ok := results[m.Id]; ok {
-				resHL := co.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				resHL := getCenteredHL(co.(*fyne.Container).Objects[1])
 				resHL.SetText(result.String())
 				resHL.OnTapped = func() {
 					navigate(MatchDetails, m.Id)
@@ -245,12 +245,12 @@ func makeStats(ctx *AppContext, leagueId string) fyne.CanvasObject {
 				statRow := stats[lii]
 				c := co.(*fyne.Container)
 				c.Objects[0].(*widget.Label).SetText(fmt.Sprintf("%d.", statRow.Index+1))
-				playerHL := c.Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				playerHL := getCenteredHL(c.Objects[1])
 				playerHL.SetText(statRow.Player.String())
 				playerHL.OnTapped = func() {
 					ctx.PushWithParam(PlayerDetails, statRow.Player.Id)
 				}
-				teamHL := c.Objects[2].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+				teamHL := getCenteredHL(c.Objects[2])
 				teamHL.SetText(statRow.Team.Name)
 				if !IsFDTeam(statRow.Team.Id) {
 					teamHL.SetText(statRow.Team.Name)

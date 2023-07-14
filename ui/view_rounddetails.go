@@ -51,7 +51,7 @@ func roundMatchList(
 				signalFdTeam(homeLbl)
 			}
 
-			resHL := co.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+			resHL := getCenteredHL(co.(*fyne.Container).Objects[1])
 			resHL.SetText(m.Result.String())
 			resHL.OnTapped = func() {
 				navigate(MatchDetails, m.Id)

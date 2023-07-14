@@ -111,7 +111,7 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			leagueLbl := cells.Objects[1].(*widget.Label)
 			leagueLbl.SetText(r.LeagueName)
 
-			teamHl := cells.Objects[2].(*fyne.Container).Objects[0].(*widget.Hyperlink)
+			teamHl := getCenteredHL(cells.Objects[2])
 			teamHl.SetText(r.TeamName)
 			teamHl.OnTapped = func() {
 				navigate(TeamDetails, r.TeamId)
