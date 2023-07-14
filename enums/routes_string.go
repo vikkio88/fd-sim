@@ -17,9 +17,10 @@ const (
 	TeamDetails   string = "TEAM_DETAILS"
 	PlayerDetails string = "PLAYER_DETAILS"
 
-	League       string = "LEAGUE"
-	RoundDetails string = "ROUND_DETAILS"
-	MatchDetails string = "MATCH_DETAILS"
+	League        string = "LEAGUE"
+	LeagueHistory string = "LEAGUE_HISTORY"
+	RoundDetails  string = "ROUND_DETAILS"
+	MatchDetails  string = "MATCH_DETAILS"
 
 	Simulation string = "SIMULATION"
 
