@@ -15,9 +15,9 @@ import (
 func playerDetailsView(ctx *AppContext) *fyne.Container {
 	id := ctx.RouteParam.(string)
 	g, isGameInit := ctx.GetGameState()
-	player := ctx.Db.PlayerR().ById(id)
+	player, exists := ctx.Db.PlayerR().ById(id)
 
-	if player == nil {
+	if !exists {
 		panic("HANDLE RETIRED")
 		// return centered(widget.NewLabel("retired"))
 	}

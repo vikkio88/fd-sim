@@ -49,8 +49,8 @@ func leaguehistoryView(ctx *AppContext) *fyne.Container {
 
 func makeMvpRow(mvp *models.PlayerHistorical, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	return container.NewGridWithColumns(5,
-		hL(fmt.Sprintf("%s %s", mvp.Name, mvp.Surname), func() {}),
-		hL(mvp.Team.Name, func() { navigate(PlayerDetails, mvp.Id) }),
+		hL(fmt.Sprintf("%s %s", mvp.Name, mvp.Surname), func() { navigate(PlayerDetails, mvp.Id) }),
+		hL(mvp.Team.Name, func() { navigate(TeamDetails, mvp.Team.Id) }),
 		valueLabel("Played:", widget.NewLabel(fmt.Sprintf("%d", mvp.Played))),
 		valueLabel("Goals:", widget.NewLabel(fmt.Sprintf("%d", mvp.Goals))),
 		valueLabel("Score:", widget.NewLabel(fmt.Sprintf("%.2f", mvp.Score/float64(mvp.Played)))),
@@ -63,7 +63,9 @@ func makeScorerRow(scorer *models.PlayerHistorical, position string, navigate Na
 		hL(fmt.Sprintf("%s %s", scorer.Name, scorer.Surname), func() {
 			navigate(PlayerDetails, scorer.Id)
 		}),
-		hL(scorer.Team.Name, func() {}),
+		hL(scorer.Team.Name, func() {
+			navigate(TeamDetails, scorer.Team.Id)
+		}),
 		valueLabel("Played:", widget.NewLabel(fmt.Sprintf("%d", scorer.Played))),
 		valueLabel("Goals:", widget.NewLabel(fmt.Sprintf("%d", scorer.Goals))),
 	)
@@ -71,10 +73,12 @@ func makeScorerRow(scorer *models.PlayerHistorical, position string, navigate Na
 
 func makePodiumRow(entry *models.TPHRow, position string, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	row := entry.Row
-	return container.NewGridWithColumns(4,
+	return container.NewGridWithColumns(2,
 		valueLabel(position, hL(entry.Team.Name, func() { navigate(TeamDetails, entry.Team.Id) })),
-		valueLabel("Points", widget.NewLabel(fmt.Sprintf("%d", row.Points))),
-		valueLabel("W/D/L", widget.NewLabel(fmt.Sprintf("%d/%d/%d", row.Wins, row.Draws, row.Losses))),
-		valueLabel("GS/GC", widget.NewLabel(fmt.Sprintf("%d/%d", row.GoalScored, row.GoalConceded))),
+		container.NewHBox(
+			valueLabel("Points", widget.NewLabel(fmt.Sprintf("%d", row.Points))),
+			valueLabel("W/D/L", widget.NewLabel(fmt.Sprintf("%d/%d/%d", row.Wins, row.Draws, row.Losses))),
+			valueLabel("GS/GC", widget.NewLabel(fmt.Sprintf("%d/%d", row.GoalScored, row.GoalConceded))),
+		),
 	)
 }

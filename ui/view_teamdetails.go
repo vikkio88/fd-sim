@@ -188,7 +188,9 @@ func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamF
 
 			leagueHl := getCenteredHL(cell.Objects[1])
 			leagueHl.SetText(r.LeagueName)
-			leagueHl.OnTapped = func() { navigate(LeagueHistory, r.LeagueId) }
+			leagueHl.OnTapped = func() {
+				navigate(LeagueHistory, r.LeagueId)
+			}
 
 			posLbl := cell.Objects[2].(*widget.Label)
 			posLbl.SetText(fmt.Sprintf("%d", r.FinalPosition))
