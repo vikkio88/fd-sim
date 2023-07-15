@@ -16,6 +16,12 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	id := ctx.RouteParam.(string)
 	g, isGameInit := ctx.GetGameState()
 	player := ctx.Db.PlayerR().ById(id)
+
+	if player == nil {
+		panic("HANDLE RETIRED")
+		// return centered(widget.NewLabel("retired"))
+	}
+
 	canSeeDetails := false
 	isManagedPlayer := false
 	if player.Team != nil {
@@ -25,27 +31,8 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	}
 
 	showStats := isGameInit
-	moraleInfo := valueLabel("Morale:", widgets.Icon("unknown"))
-	if canSeeDetails {
-		morale := vm.MoraleEmojFromPerc(player.Morale)
-		var moraleIcon *widget.Icon
-		switch morale {
-		case vm.Happy:
-			moraleIcon = widgets.Icon("happy_face")
-		case vm.Meh:
-			moraleIcon = widgets.Icon("meh_face")
-		case vm.Sad:
-			moraleIcon = widgets.Icon("sad_face")
-		}
-		moraleInfo = valueLabel("Morale:", moraleIcon)
-	}
-
-	skillInfo := centered(starsFromPerc(player.Skill))
-	if canSeeDetails {
-		skillInfo = centered(widget.NewLabel(player.Skill.String()))
-	}
 	main := container.NewAppTabs(
-		container.NewTabItemWithIcon("Info", theme.AccountIcon(), makePlayerMainDetailsView(player, moraleInfo, skillInfo, showStats, ctx, g)),
+		container.NewTabItemWithIcon("Info", theme.AccountIcon(), makePlayerMainDetailsView(player, canSeeDetails, showStats, ctx, g)),
 	)
 	if isManagedPlayer {
 		main.Append(
@@ -62,9 +49,16 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		Top(
 			NewFborder().
 				Left(topNavBar(ctx)).
-				Get(centered(h1(player.String()))),
+				Get(makePlayerHeader(player)),
 		).
 		Get(main)
+}
+
+func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {
+	return centered(container.NewHBox(
+		h1L(player.String()),
+		widget.NewLabel(fmt.Sprintf("(%d) - %s", player.Age, player.Role.StringShort())),
+	))
 }
 
 func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
@@ -142,24 +136,49 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 	return NewFborder().Top(headers).Get(historyList)
 }
 
-func makePlayerMainDetailsView(player *models.PlayerDetailed, moraleInfo *fyne.Container, skillInfo *fyne.Container, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {
+func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool, showStats bool, ctx *AppContext, g *models.Game) *fyne.Container {
+	moraleInfo := valueLabel("Morale:", widgets.Icon("unknown"))
+	if canSeeDetails {
+		morale := vm.MoraleEmojFromPerc(player.Morale)
+		var moraleIcon *widget.Icon
+		switch morale {
+		case vm.Happy:
+			moraleIcon = widgets.Icon("happy_face")
+		case vm.Meh:
+			moraleIcon = widgets.Icon("meh_face")
+		case vm.Sad:
+			moraleIcon = widgets.Icon("sad_face")
+		}
+		moraleInfo = valueLabel("Morale:", moraleIcon)
+	}
+	skillInfo := centered(starsFromPerc(player.Skill))
+	if canSeeDetails {
+		skillInfo = centered(widget.NewLabel(player.Skill.String()))
+	}
+
+	teamInfo := widget.NewCard("", "Team Info",
+		centered(widget.NewLabel("Free agent")),
+	)
+	if player.Team != nil {
+		teamInfo.SetContent(
+			container.NewVBox(
+				centered(widget.NewLabel(player.Team.Name)),
+				valueLabel("Fame:",
+					centered(starsFromPerc(player.Fame)),
+				),
+				valueLabel("Value:",
+					centered(widget.NewLabel(player.Value.StringKMB())),
+				),
+				valueLabel("Contract:",
+					widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
+				),
+				moraleInfo,
+			))
+	}
+
 	main := container.NewGridWithRows(2,
 		container.NewGridWithColumns(2,
-			widget.NewCard("", "Team Info",
-				container.NewVBox(
-					centered(widget.NewLabel(player.Team.Name)),
-					valueLabel("Fame:",
-						centered(starsFromPerc(player.Fame)),
-					),
-					valueLabel("Value:",
-						centered(widget.NewLabel(player.Value.StringKMB())),
-					),
-					valueLabel("Contract:",
-						widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
-					),
-					moraleInfo,
-				),
-			),
+			teamInfo,
 			widget.NewCard("", "Personal Info",
 				container.NewVBox(
 					valueLabel("Age:",

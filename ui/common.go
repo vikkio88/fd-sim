@@ -21,6 +21,20 @@ func h1(text string) *canvas.Text {
 	return txt
 }
 
+// h1 aligned Right
+func h1R(text string) *canvas.Text {
+	txt := h1(text)
+	txt.Alignment = fyne.TextAlignTrailing
+	return txt
+}
+
+// h1 aligned Left
+func h1L(text string) *canvas.Text {
+	txt := h1(text)
+	txt.Alignment = fyne.TextAlignLeading
+	return txt
+}
+
 func h2(text string) *canvas.Text {
 	txt := canvas.NewText(text, theme.ForegroundColor())
 	txt.TextSize = 18
