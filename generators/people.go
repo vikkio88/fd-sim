@@ -138,7 +138,7 @@ func (p *PeopleGen) getMorale() int {
 }
 
 func (p *PeopleGen) getFame(skill int) int {
-	return p.rng.UInt(skill+p.rng.PlusMinusVal(10, 20), 100)
+	return p.rng.UInt(20, skill+p.rng.PlusMinusVal(10, 20))
 }
 
 func (p *PeopleGen) Champion(country enums.Country) *models.Player {
@@ -194,7 +194,7 @@ func (p *PeopleGen) YoungPlayersWithRole(count int, role models.Role) []*models.
 		age := p.rng.UInt(p.plAgeRange.Min, 19)
 		pl := models.NewPlayer(name, surname, age, country, role)
 
-		skill := p.getSkill()
+		skill := p.rng.UInt(40, 65)
 		morale := p.getMorale()
 		fame := p.getFame(skill)
 
