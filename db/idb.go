@@ -88,6 +88,7 @@ type IPlayerRepo interface {
 	InsertOne(p *models.Player)
 	Insert(players []*models.Player)
 	ById(id string) (*models.PlayerDetailed, bool)
+	RetiredById(id string) (*models.RetiredPlayer, bool)
 	Truncate()
 	DeleteOne(id string)
 	Delete(ids []string)

@@ -84,21 +84,8 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		emails.Prepend(email)
 	})
 
-	trigNw := widget.NewButtonWithIcon("Trig News", theme.InfoIcon(), func() {
-		randomTeam := ctx.Db.TeamR().GetRandom()
-
-		newsI := models.NewNews(
-			fmt.Sprintf("%s did something", randomTeam.Name),
-			"Random Newspaper",
-			fmt.Sprintf("random news, from this team %s", conf.LinkBodyPH),
-			game.Date,
-			[]models.Link{
-				models.NewLink(randomTeam.Name, TeamDetails.String(), &randomTeam.Id),
-			},
-		)
-
-		ctx.Db.GameR().AddNews([]*models.News{newsI})
-		news.Prepend(newsI)
+	trigTest := widget.NewButtonWithIcon("Trig Test", theme.InfoIcon(), func() {
+		ctx.PushWithParam(PlayerDetails, "pmId_01H5CMA6RZEVX9T3CXAFYCAGYB")
 	})
 
 	startSim := widget.NewButtonWithIcon("Simulate", theme.MediaPlayIcon(), func() {
@@ -144,7 +131,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 			NewFborder().Right(
 				container.NewHBox(
 					trigEm,
-					trigNw,
+					trigTest,
 					nextDay,
 					startSim,
 				)).Get(),

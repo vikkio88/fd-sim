@@ -18,8 +18,9 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	player, exists := ctx.Db.PlayerR().ById(id)
 
 	if !exists {
-		panic("HANDLE RETIRED")
-		// return centered(widget.NewLabel("retired"))
+		retired, _ := ctx.Db.PlayerR().RetiredById(id)
+
+		return makeRetiredPlayerView(retired)
 	}
 
 	canSeeDetails := false
@@ -52,6 +53,10 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 				Get(makePlayerHeader(player)),
 		).
 		Get(main)
+}
+
+func makeRetiredPlayerView(retired *models.RetiredPlayer) *fyne.Container {
+	return centered(widget.NewLabel(retired.Name))
 }
 
 func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {

@@ -91,6 +91,7 @@ func TestSingleMatchFetching(t *testing.T) {
 	t.Skip("Slow")
 	rng := libs.NewRng(time.Now().Unix())
 	db := d.NewDb("test.db")
+
 	db.TruncateAll()
 	ts := generators.NewTeamGenSeeded(rng).Teams(2)
 	db.TeamR().Insert(ts)
@@ -119,4 +120,13 @@ func TestSingleMatchFetching(t *testing.T) {
 	assert.Equal(t, m1afterUpdate.Away.Id, m1.Away.Id)
 	assert.Equal(t, m1afterUpdate.RoundIndex, r1.Index)
 	assert.NotNil(t, m1afterUpdate.Result)
+}
+
+func TestNonExistingPlayer(t *testing.T) {
+	t.Skip("Slow")
+	db := d.NewDb("test.db")
+
+	p, ok := db.PlayerR().ById("nonExisting")
+	assert.False(t, ok)
+	assert.Nil(t, p)
 }

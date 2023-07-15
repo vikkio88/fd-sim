@@ -60,3 +60,23 @@ func NewRetiredPlayerFromDto(player PlayerDto, indexedStats map[string]PHistoryD
 		YearRetired: year,
 	}
 }
+
+func (rp *RetiredPlayerDto) RetiredPlayer() *models.RetiredPlayer {
+	subHistoryRows := unserialisePHistoryStats(rp.Stats)
+	history := make([]*models.PHistoryRow, len(subHistoryRows))
+	for i, sr := range subHistoryRows {
+		history[i] = sr.PHistoryRow()
+	}
+
+	return &models.RetiredPlayer{
+		Id:          rp.Id,
+		Name:        rp.Name,
+		Surname:     rp.Surname,
+		Country:     rp.Country,
+		Age:         rp.Age,
+		Role:        rp.Role,
+		YearRetired: rp.YearRetired,
+
+		History: history,
+	}
+}

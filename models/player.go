@@ -107,3 +107,15 @@ func NewRolePPHMap() map[Role][]PPH {
 
 	return result
 }
+
+type RetiredPlayer struct {
+	Id      string
+	Name    string
+	Surname string
+	Country enums.Country
+	Age     int
+	Role    Role
+
+	History     []*PHistoryRow
+	YearRetired int
+}
