@@ -87,7 +87,7 @@ type ITeamRepo interface {
 type IPlayerRepo interface {
 	InsertOne(p *models.Player)
 	Insert(players []*models.Player)
-	ById(id string) *models.PlayerDetailed
+	ById(id string) (*models.PlayerDetailed, bool)
 	Truncate()
 	DeleteOne(id string)
 	Delete(ids []string)

@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/models"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -31,11 +32,13 @@ func (pr *PlayerRepo) Insert(players []*models.Player) {
 	pr.g.Create(&pdtos)
 }
 
-func (pr *PlayerRepo) ById(id string) *models.PlayerDetailed {
+func (pr *PlayerRepo) ById(id string) (*models.PlayerDetailed, bool) {
 	var p PlayerDto
-	pr.g.Model(&PlayerDto{}).Preload(teamRel).Preload("History").Find(&p, "Id = ?", id)
+	trx := pr.g.Model(&PlayerDto{}).Preload(teamRel).Preload("History").Find(&p, "Id = ?", id)
+	fmt.Println(trx.Error, fmt.Sprintf("rows: %d", trx.RowsAffected))
+	//TODO: handle this better
 
-	return p.PlayerDetailed()
+	return p.PlayerDetailed(), true
 }
 
 func (pr *PlayerRepo) Truncate() {
