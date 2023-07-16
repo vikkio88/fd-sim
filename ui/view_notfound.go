@@ -4,6 +4,9 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 func notFoundView(ctx *AppContext, objectName string) *fyne.Container {
@@ -11,7 +14,10 @@ func notFoundView(ctx *AppContext, objectName string) *fyne.Container {
 		Top(leftAligned(topNavBar(ctx))).
 		Get(
 			centered(
-				h1(fmt.Sprintf("%s Not Found.", objectName)),
+				container.NewVBox(
+					widget.NewIcon(theme.ErrorIcon()),
+					h1(fmt.Sprintf("%s Not Found.", objectName)),
+				),
 			),
 		)
 }

@@ -85,7 +85,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	})
 
 	trigTest := widget.NewButtonWithIcon("Trig Test", theme.InfoIcon(), func() {
-		ctx.PushWithParam(PlayerDetails, "pmId_01H5CMA6RZEVX9T3CXAFYCAGYaaa")
+		ctx.PushWithParam(TeamDetails, "pmId_01H5CMA6RZEVX9T3CXAFYCAGYaaa")
 	})
 
 	startSim := widget.NewButtonWithIcon("Simulate", theme.MediaPlayIcon(), func() {

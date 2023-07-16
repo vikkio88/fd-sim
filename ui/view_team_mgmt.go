@@ -22,7 +22,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 			)
 	}
 
-	team := ctx.Db.TeamR().ById(game.Team.Id)
+	team, _ := ctx.Db.TeamR().ById(game.Team.Id)
 
 	return NewFborder().
 		Top(

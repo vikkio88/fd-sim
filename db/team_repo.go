@@ -45,9 +45,9 @@ func (tr *TeamRepo) Insert(teams []*models.Team) {
 	tr.g.Create(&tdtos)
 }
 
-func (tr *TeamRepo) ById(id string) *models.TeamDetailed {
+func (tr *TeamRepo) ById(id string) (*models.TeamDetailed, bool) {
 	var t TeamDto
-	tr.g.Model(&TeamDto{}).Preload(playersRel).
+	trx := tr.g.Model(&TeamDto{}).Preload(playersRel).
 		// Tried to db order players but it wont work
 		/*, func(db *gorm.DB) *gorm.DB {
 			return db.Order(`skill DESC`)
@@ -56,7 +56,11 @@ func (tr *TeamRepo) ById(id string) *models.TeamDetailed {
 		Preload("History").
 		Find(&t, "Id = ?", id)
 
-	return t.TeamDetailed()
+	if trx.RowsAffected != 1 {
+		return nil, false
+	}
+
+	return t.TeamDetailed(), true
 }
 
 func (tr *TeamRepo) OneByFame(fame utils.Perc) *models.TPH {

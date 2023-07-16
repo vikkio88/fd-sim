@@ -17,7 +17,11 @@ import (
 func teamDetailsView(ctx *AppContext) *fyne.Container {
 	_, isGameInit := ctx.GetGameState()
 	id := ctx.RouteParam.(string)
-	team := ctx.Db.TeamR().ById(id)
+	team, exists := ctx.Db.TeamR().ById(id)
+	if !exists {
+		return notFoundView(ctx, "Team")
+	}
+
 	stats := container.NewMax(centered(widget.NewLabel("No match played yet")))
 	if isGameInit {
 		row := ctx.Db.TeamR().TableRow(id)
