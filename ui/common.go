@@ -121,6 +121,7 @@ func getCenteredHL(o fyne.CanvasObject) *widget.Hyperlink {
 	return o.(*fyne.Container).Objects[0].(*widget.Hyperlink)
 }
 
+// Returns a Centered HL
 func hL(label string, onTapped func()) fyne.CanvasObject {
 	hl := widget.NewHyperlink(label, nil)
 	hl.OnTapped = onTapped

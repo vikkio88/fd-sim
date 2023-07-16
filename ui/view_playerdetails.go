@@ -19,8 +19,9 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 
 	if !exists {
 		retired, _ := ctx.Db.PlayerR().RetiredById(id)
+		// TODO: handle case of non existing player
 
-		return makeRetiredPlayerView(retired)
+		return makeRetiredPlayerView(retired, ctx)
 	}
 
 	canSeeDetails := false
@@ -55,12 +56,41 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		Get(main)
 }
 
-func makeRetiredPlayerView(retired *models.RetiredPlayer) *fyne.Container {
-	return centered(widget.NewLabel(retired.Name))
+func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne.Container {
+
+	return NewFborder().
+		Top(
+			NewFborder().
+				Left(topNavBar(ctx)).
+				Get(
+					centered(
+						container.NewHBox(
+							centered(widgets.FlagIcon(retired.Country)),
+							h1(fmt.Sprintf("%s", retired.String())),
+							h2(
+								fmt.Sprintf(" - (%s)",
+									retired.Role.StringShort(),
+								),
+							),
+						),
+					),
+				),
+		).
+		Get(
+			container.NewVBox(
+				centered(
+					valueLabel("Retired in:", widget.NewLabel(fmt.Sprintf("%d (%d years old)", retired.YearRetired, retired.Age))),
+				),
+				container.NewPadded(
+					makePHistory(retired.History, ctx.PushWithParam),
+				),
+			),
+		)
 }
 
 func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {
 	return centered(container.NewHBox(
+		widgets.FlagIcon(player.Country),
 		h1L(player.String()),
 		widget.NewLabel(fmt.Sprintf("(%d) - %s", player.Age, player.Role.StringShort())),
 	))
@@ -90,7 +120,7 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			return container.New(
 				columns,
 				widget.NewLabel("Y"),
-				widget.NewLabel("League"),
+				centered(widget.NewHyperlink("League", nil)),
 				centered(widget.NewHyperlink("Team", nil)),
 				widget.NewLabel("Played"),
 				widget.NewLabel("Goals"),
@@ -107,8 +137,9 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			// to showcase it in here
 			yearLbl.SetText(fmt.Sprintf("%d/%d", r.StartYear-1, r.StartYear))
 
-			leagueLbl := cells.Objects[1].(*widget.Label)
-			leagueLbl.SetText(r.LeagueName)
+			leagueHl := getCenteredHL(cells.Objects[1])
+			leagueHl.SetText(r.LeagueName)
+			leagueHl.OnTapped = func() { navigate(LeagueHistory, r.LeagueId) }
 
 			teamHl := getCenteredHL(cells.Objects[2])
 			teamHl.SetText(r.TeamName)
@@ -130,7 +161,7 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			sLbl.SetText(score)
 
 			costLbl := cells.Objects[6].(*widget.Label)
-			cost := ""
+			cost := "-"
 			if r.TransferCost != nil {
 				cost = *r.TransferCost
 			}
@@ -167,7 +198,7 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 	if player.Team != nil {
 		teamInfo.SetContent(
 			container.NewVBox(
-				centered(widget.NewLabel(player.Team.Name)),
+				hL(player.Team.Name, func() { ctx.PushWithParam(TeamDetails, player.Team.Id) }),
 				valueLabel("Fame:",
 					centered(starsFromPerc(player.Fame)),
 				),

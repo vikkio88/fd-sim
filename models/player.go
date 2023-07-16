@@ -119,3 +119,7 @@ type RetiredPlayer struct {
 	History     []*PHistoryRow
 	YearRetired int
 }
+
+func (p *RetiredPlayer) String() string {
+	return fmt.Sprintf("%s %s", p.Name, p.Surname)
+}
