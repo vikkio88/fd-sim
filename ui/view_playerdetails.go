@@ -18,8 +18,10 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	player, exists := ctx.Db.PlayerR().ById(id)
 
 	if !exists {
-		retired, _ := ctx.Db.PlayerR().RetiredById(id)
-		// TODO: handle case of non existing player
+		retired, exists := ctx.Db.PlayerR().RetiredById(id)
+		if !exists {
+			return notFoundView(ctx, "Player")
+		}
 
 		return makeRetiredPlayerView(retired, ctx)
 	}
