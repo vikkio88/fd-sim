@@ -136,6 +136,8 @@ func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Even
 func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
 	if league.IsFinished() {
 		firstRow := league.TableRow(0)
+		secondRow := league.TableRow(1)
+		thirdRow := league.TableRow(2)
 		events = append(
 			events,
 			LeagueFinished.Event(
@@ -146,6 +148,10 @@ func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Eve
 					LeagueName: league.Name,
 					TeamId:     firstRow.Team.Id,
 					TeamName:   firstRow.Team.Name,
+					TeamId1:    secondRow.Team.Id,
+					TeamName1:  secondRow.Team.Name,
+					TeamId2:    thirdRow.Team.Id,
+					TeamName2:  thirdRow.Team.Name,
 				},
 			),
 		)

@@ -18,25 +18,55 @@ const (
 func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	leagueId := params.LeagueId
 	leagueName := params.LeagueName
-	teamId := params.TeamId
-	teamName := params.TeamName
+	winnerId := params.TeamId
+	winnerName := params.TeamName
+	secondId := params.TeamId1
+	secondName := params.TeamName1
+	thirdId := params.TeamId2
+	thirdName := params.TeamName2
+
 	event := NewEvent(date, fmt.Sprintf("%s Finished", leagueName))
-	title := fmt.Sprintf("%s won %s!", teamName, leagueName)
+	title := fmt.Sprintf("%s won %s!", winnerName, leagueName)
 
 	event.TriggerNews = models.NewNews(
 		title,
 		data.GetNewspaper(params.Country),
 		fmt.Sprintf(
 			"Today the %s League officially finished, and the winner was %s."+
-				"\nFinal Table: %s Winner %s",
-			leagueName, teamName, conf.LinkBodyPH, conf.LinkBodyPH,
+				"\nFinal Table: %s Winner %s Second Place %s Third Place %s",
+			leagueName, winnerName,
+			conf.LinkBodyPH, conf.LinkBodyPH,
+			conf.LinkBodyPH, conf.LinkBodyPH,
 		),
 		date,
 		[]models.Link{
 			models.NewLink(leagueName, enums.League, &leagueId),
-			teamLink(teamName, teamId),
+			teamLink(winnerName, winnerId),
+			teamLink(secondName, secondId),
+			teamLink(thirdName, thirdId),
 		},
 	)
+
+	// if player team in those 3 top teams notify via email
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		ts := db.TeamR().GetByIds([]string{winnerId, secondId, thirdId})
+		for _, t := range ts {
+			if t.Id == winnerId {
+				t.Balance.Add(utils.NewEuros(20_000_000))
+			}
+			if t.Id == secondId {
+				t.Balance.Add(utils.NewEuros(10_000_000))
+			}
+			if t.Id == thirdId {
+				t.Balance.Add(utils.NewEuros(5_000_000))
+			}
+		}
+		for _, t := range ts {
+			db.TeamR().Update(t)
+		}
+	}
+
 	return event
 }
 

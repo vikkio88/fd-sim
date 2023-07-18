@@ -166,6 +166,19 @@ type MockTeamRepo struct {
 	Teams []*models.Team
 }
 
+func (m *MockTeamRepo) Update(team *models.Team) {
+	m.Teams = append(m.Teams, team)
+}
+
+// GetByIds implements db.ITeamRepo.
+func (m *MockTeamRepo) GetByIds(ids []string) []*models.Team {
+	ts := m.Teams
+
+	m.Teams = []*models.Team{}
+
+	return ts
+}
+
 // TableRow implements db.ITeamRepo.
 func (*MockTeamRepo) TableRow(id string) *models.TPHRow {
 	panic("unimplemented")

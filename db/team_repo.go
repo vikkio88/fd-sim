@@ -63,6 +63,18 @@ func (tr *TeamRepo) ById(id string) (*models.TeamDetailed, bool) {
 	return t.TeamDetailed(), true
 }
 
+func (tr *TeamRepo) GetByIds(ids []string) []*models.Team {
+	teams := []*models.Team{}
+
+	var tdtos []TeamDto
+	tr.g.Model(&TeamDto{}).Find(&tdtos, ids)
+	for _, t := range tdtos {
+		teams = append(teams, t.Team())
+	}
+
+	return teams
+}
+
 func (tr *TeamRepo) OneByFame(fame utils.Perc) *models.TPH {
 	var t TeamDto
 	tr.g.Raw(`select t.id, t.name
@@ -90,6 +102,15 @@ func (tr *TeamRepo) DeleteOne(id string) {
 
 func (tr *TeamRepo) Delete(ids []string) {
 	tr.g.Delete(&TeamDto{}, ids)
+}
+
+// this is to just update some fields, might need to check whether they changed before going throught the interface
+func (tr *TeamRepo) Update(team *models.Team) {
+	//TODO: Implement here an update without changing Coach/Players
+	// this is used to update Balance for example
+	tr.g.Model(&TeamDto{}).Where("id = ?", team.Id).UpdateColumns(map[string]interface{}{
+		"balance": team.Balance.Value(),
+	})
 }
 
 func (tr *TeamRepo) Count() int64 {

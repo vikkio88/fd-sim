@@ -16,7 +16,7 @@ type TeamDto struct {
 
 	LeagueId *string
 	CoachId  *string
-	Coach    CoachDto    `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Coach    *CoachDto   `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Players  []PlayerDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	History *THistoryDto `gorm:"foreignKey:team_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -84,10 +84,15 @@ func (t TeamDto) Team() *models.Team {
 		Roster:        models.NewRoster(),
 	}
 	ts.Id = t.Id
-	ts.Coach = t.Coach.Coach()
 
-	for _, p := range t.Players {
-		ts.Roster.AddPlayer(p.Player())
+	if t.Coach != nil {
+		ts.Coach = t.Coach.Coach()
+	}
+
+	if t.Players != nil {
+		for _, p := range t.Players {
+			ts.Roster.AddPlayer(p.Player())
+		}
 	}
 	return ts
 }

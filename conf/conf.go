@@ -7,7 +7,7 @@ const (
 
 	PlayerAgeRange = "16..40"
 	CoachAgeRange  = "30..80"
-	SimSpeedMs     = 500
+	SimDaySpeedMs  = 100
 
 	DateFormatGame  = "Mon, 02 January 2006"
 	DateFormatShort = "02/01/2006"

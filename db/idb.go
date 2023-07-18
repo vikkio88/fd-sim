@@ -75,10 +75,12 @@ type ITeamRepo interface {
 	OneByFame(utils.Perc) *models.TPH
 	GetRandom() *models.TPH
 	ById(id string) (*models.TeamDetailed, bool)
+	GetByIds(ids []string) []*models.Team
 	TableRow(id string) *models.TPHRow
 	Truncate()
 	DeleteOne(id string)
 	Delete(ids []string)
+	Update(teams *models.Team)
 	Count() int64
 	All() []*models.Team
 }

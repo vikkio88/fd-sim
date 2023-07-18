@@ -50,10 +50,10 @@ func DtoFromCoach(c *models.Coach) CoachDto {
 		RngSeed: c.RngSeed,
 	}
 }
-func DtoFromCoachWithTeam(c *models.Coach, teamId string) CoachDto {
+func DtoFromCoachWithTeam(c *models.Coach, teamId string) *CoachDto {
 	coach := DtoFromCoach(c)
 	coach.TeamId = &teamId
-	return coach
+	return &coach
 }
 
 func (c CoachDto) Coach() *models.Coach {

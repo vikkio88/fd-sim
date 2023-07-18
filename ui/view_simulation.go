@@ -130,7 +130,7 @@ func start(game *models.Game, sim *services.Simulator, messages chan Notificatio
 				} else {
 					emailsC, newsC := simTriggers(dateStr, news, emails, game, sim, events)
 					messages <- NotificationCount{NewEmails: emailsC, NewNews: newsC}
-					time.Sleep(time.Duration(conf.SimSpeedMs) * time.Millisecond)
+					time.Sleep(time.Duration(conf.SimDaySpeedMs) * time.Millisecond)
 				}
 			}
 		}

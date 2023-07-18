@@ -146,7 +146,7 @@ func teamGenerationStep(ctx *AppContext, step binding.Int, saveGame *models.Game
 		teamGenBtn.Enable()
 	})
 	ctrSelect.PlaceHolder = "Select Country"
-	numberSelect := widget.NewSliderWithData(2.0, 20.0, teamsNumber)
+	numberSelect := widget.NewSliderWithData(4.0, 20.0, teamsNumber)
 	numberSelect.Step = 2.0
 	numberText := widget.NewLabelWithData(binding.FloatToStringWithFormat(teamsNumber, "Teams: %.0f"))
 
