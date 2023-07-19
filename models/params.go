@@ -35,4 +35,6 @@ type EventParams struct {
 	BoolFlag2     bool
 	FdName        string
 	IsEmployed    bool
+	FdTeamId      string
+	FdTeamName    string
 }

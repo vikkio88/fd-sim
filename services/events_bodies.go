@@ -25,6 +25,10 @@ func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	thirdId := params.TeamId2
 	thirdName := params.TeamName2
 
+	prizeFirst := utils.NewEuros(20_000_000)
+	prizeSecond := utils.NewEuros(10_000_000)
+	prizeThird := utils.NewEuros(5_000_000)
+
 	event := NewEvent(date, fmt.Sprintf("%s Finished", leagueName))
 	title := fmt.Sprintf("%s won %s!", winnerName, leagueName)
 
@@ -47,19 +51,61 @@ func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 		},
 	)
 
-	// if player team in those 3 top teams notify via email
+	//TODO: if player team in those 3 top teams notify via email
+	if params.IsEmployed {
+		position := ""
+		subject := ""
+		prize := utils.NewEuros(0)
+		emailAddr := emailAddrFromTeamName(params.FdTeamName)
+
+		if params.FdTeamId == winnerId {
+			position = "first"
+			subject = "Amazing job, we won!"
+			prize = prizeFirst
+		}
+		if params.FdTeamId == secondId {
+			position = "second"
+			subject = "Great stuff, we got to second place!"
+			prize = prizeSecond
+		}
+		if params.FdTeamId == thirdId {
+			position = "third"
+			subject = "Good job this year, we got to third place."
+			prize = prizeThird
+		}
+
+		if position != "" {
+			event.TriggerEmail = models.NewEmail(
+				emailAddr, subject, fmt.Sprintf("We managed to get to %s position. We won %s which was added to our team budget. %s", position, prize.StringKMB(), conf.LinkBodyPH), date,
+				[]models.Link{
+					models.NewLink(leagueName, enums.League, &leagueId),
+				},
+			)
+		} else {
+			event.TriggerEmail = models.NewEmail(
+				emailAddr,
+				"We did not make it to top 3 this year.",
+				fmt.Sprintf("Good job this season, but we did not manage to get to top 3. %s", conf.LinkBodyPH),
+				date,
+				[]models.Link{
+					models.NewLink(leagueName, enums.League, &leagueId),
+				},
+			)
+		}
+
+	}
 
 	event.TriggerChanges = func(game *models.Game, db db.IDb) {
 		ts := db.TeamR().GetByIds([]string{winnerId, secondId, thirdId})
 		for _, t := range ts {
 			if t.Id == winnerId {
-				t.Balance.Add(utils.NewEuros(20_000_000))
+				t.Balance.Add(prizeFirst)
 			}
 			if t.Id == secondId {
-				t.Balance.Add(utils.NewEuros(10_000_000))
+				t.Balance.Add(prizeSecond)
 			}
 			if t.Id == thirdId {
-				t.Balance.Add(utils.NewEuros(5_000_000))
+				t.Balance.Add(prizeThird)
 			}
 		}
 		for _, t := range ts {

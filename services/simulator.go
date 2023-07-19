@@ -138,6 +138,15 @@ func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Eve
 		firstRow := league.TableRow(0)
 		secondRow := league.TableRow(1)
 		thirdRow := league.TableRow(2)
+
+		isEmployed := sim.game.IsEmployed()
+		fdTeamId := ""
+		fdTeamName := ""
+		if isEmployed {
+			fdTeamId = sim.game.Team.Id
+			fdTeamName = sim.game.Team.Name
+		}
+
 		events = append(
 			events,
 			LeagueFinished.Event(
@@ -152,6 +161,9 @@ func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Eve
 					TeamName1:  secondRow.Team.Name,
 					TeamId2:    thirdRow.Team.Id,
 					TeamName2:  thirdRow.Team.Name,
+					IsEmployed: isEmployed,
+					FdTeamId:   fdTeamId,
+					FdTeamName: fdTeamName,
 				},
 			),
 		)
