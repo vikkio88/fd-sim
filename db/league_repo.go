@@ -54,16 +54,19 @@ func (lr *LeagueRepo) ById(id string) *models.League {
 }
 
 // Load a full League with all the info
-func (lr *LeagueRepo) ByIdFull(id string) *models.League {
+func (lr *LeagueRepo) ByIdFull(id string) (*models.League, bool) {
 	var ldto LeagueDto
-	lr.g.Model(&LeagueDto{}).
+	trx := lr.g.Model(&LeagueDto{}).
 		Preload(teamsRel).
 		Preload(teamsAndPlayersRel).
 		Preload(teamsAndCoachRel).
 		Preload(roundsAndMatchesRel).
 		Preload(tableRowsRel).
 		Find(&ldto, "Id = ?", id)
-	return ldto.League()
+	if trx.RowsAffected != 1 {
+		return nil, false
+	}
+	return ldto.League(), true
 }
 
 func (lr *LeagueRepo) RoundWithResults(roundId string) *models.RPHTPH {

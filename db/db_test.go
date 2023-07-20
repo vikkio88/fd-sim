@@ -21,7 +21,7 @@ func TestLeagueParity(t *testing.T) {
 	l := models.NewLeague(ts, time.Now())
 	db.LeagueR().InsertOne(l)
 
-	dbRestoreLeague := db.LeagueR().ByIdFull(l.Id)
+	dbRestoreLeague, _ := db.LeagueR().ByIdFull(l.Id)
 	for _, team := range dbRestoreLeague.Teams() {
 		assert.NotNil(t, team.Coach)
 		assert.NotEmpty(t, team.Roster.Players())
@@ -50,7 +50,7 @@ func TestLeagueParity(t *testing.T) {
 	db.LeagueR().UpdateStats(stats1)
 
 	//checking if stored stuff is correct
-	l = db.LeagueR().ByIdFull(dbRestoreLeague.Id)
+	l, _ = db.LeagueR().ByIdFull(dbRestoreLeague.Id)
 	assert.Equal(t, l.RPointer, dbRestoreLeague.RPointer)
 
 	// check if matches are stored correctly
@@ -67,7 +67,7 @@ func TestLeagueParity(t *testing.T) {
 	}
 
 	// reload League and see if tables Matches
-	restoredLeague := db.LeagueR().ByIdFull(dbRestoreLeague.Id)
+	restoredLeague, _ := db.LeagueR().ByIdFull(dbRestoreLeague.Id)
 	assert.Equal(t, restoredLeague.Table.Rows()[0].Team, dbRestoreLeague.Table.Rows()[0].Team)
 
 	r2, ok := restoredLeague.NextRound()
@@ -99,7 +99,7 @@ func TestSingleMatchFetching(t *testing.T) {
 	l := models.NewLeague(ts, time.Now())
 	db.LeagueR().InsertOne(l)
 
-	league := db.LeagueR().ByIdFull(l.Id)
+	league, _ := db.LeagueR().ByIdFull(l.Id)
 
 	r1, ok := league.NextRound()
 	assert.True(t, ok)

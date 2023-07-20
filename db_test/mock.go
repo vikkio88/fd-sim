@@ -306,8 +306,8 @@ func (r *MockLeagueRepo) ById(id string) *models.League {
 }
 
 // Load a full League with all the info
-func (r *MockLeagueRepo) ByIdFull(id string) *models.League {
-	return r.League
+func (r *MockLeagueRepo) ByIdFull(id string) (*models.League, bool) {
+	return r.League, true
 }
 
 func (r *MockLeagueRepo) RoundCountByDate(date time.Time) int64 {

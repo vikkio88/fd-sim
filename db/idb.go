@@ -50,7 +50,7 @@ type ILeagueRepo interface {
 	// Loads League with Teams (no players), Rounds (no Matches) and Table
 	ById(id string) *models.League
 	// Load a full League with all the info
-	ByIdFull(id string) *models.League
+	ByIdFull(id string) (*models.League, bool)
 	RoundCountByDate(date time.Time) int64
 	RoundByIndex(league *models.League, index int) *models.RoundResult
 	// get Round with all the results

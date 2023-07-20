@@ -74,8 +74,11 @@ func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 	lr.g.Save(&newLeagueDto)
 	gameDto := DtoFromGame(game)
 	lr.g.Save(&gameDto)
+	lr.g.Where("id = ?", oldLeague.Id).Delete(&LeagueDto{})
 
-	return lr.ByIdFull(newLeague.Id)
+	nl, _ := lr.ByIdFull(newLeague.Id)
+
+	return nl
 }
 func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) {
 	pg := generators.NewPeopleGenSeeded(rng)

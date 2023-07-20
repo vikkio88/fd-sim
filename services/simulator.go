@@ -60,7 +60,7 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 	// Check if there are matches during this day
 	if sim.checkForMatches(newDate) {
 		fmt.Printf("Had Matches\n")
-		league := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
+		league, _ := sim.db.LeagueR().ByIdFull(sim.game.LeagueId)
 
 		// TODO: maybe double check that the round date is the same?
 		round, _ := league.NextRound()
@@ -198,7 +198,6 @@ func (sim *Simulator) simulateRound(round *models.Round, league *models.League) 
 }
 
 func (sim *Simulator) SettleEventsTriggers(events []*Event) ([]*models.Email, []*models.News) {
-
 	emails := []*models.Email{}
 	news := []*models.News{}
 	for _, e := range events {

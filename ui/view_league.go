@@ -16,7 +16,11 @@ import (
 func leagueView(ctx *AppContext) *fyne.Container {
 	leagueId := ctx.RouteParam.(string)
 	saveGame, _ := ctx.GetGameState()
-	league := ctx.Db.LeagueR().ByIdFull(leagueId)
+	league, exists := ctx.Db.LeagueR().ByIdFull(leagueId)
+	if !exists {
+		return leaguehistoryView(ctx)
+	}
+
 	navigate := ctx.PushWithParam
 	rows := league.TableRows()
 	leagueTable := container.NewMax(
