@@ -141,10 +141,13 @@ func (lr *LeagueRepo) UpdateStats(stats models.StatsMap) {
 	lr.g.Save(sdtos)
 }
 
-func (lr *LeagueRepo) HistoryById(id string) *models.LeagueHistory {
+func (lr *LeagueRepo) HistoryById(id string) (*models.LeagueHistory, bool) {
 	var dto LHistoryDto
 
-	lr.g.Model(&LHistoryDto{}).Where("id = ?", id).Find(&dto)
+	trx := lr.g.Model(&LHistoryDto{}).Where("id = ?", id).Find(&dto)
+	if trx.RowsAffected != 1 {
+		return nil, false
+	}
 
-	return dto.LeagueHistory()
+	return dto.LeagueHistory(), true
 }

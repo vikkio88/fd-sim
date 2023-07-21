@@ -274,7 +274,7 @@ type MockLeagueRepo struct {
 }
 
 // HistoryById implements db.ILeagueRepo.
-func (*MockLeagueRepo) HistoryById(id string) *models.LeagueHistory {
+func (*MockLeagueRepo) HistoryById(id string) (*models.LeagueHistory, bool) {
 	panic("unimplemented")
 }
 

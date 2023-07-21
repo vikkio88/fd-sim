@@ -12,7 +12,10 @@ import (
 func leaguehistoryView(ctx *AppContext) *fyne.Container {
 	leagueId := ctx.RouteParam.(string)
 
-	league := ctx.Db.LeagueR().HistoryById(leagueId)
+	league, exists := ctx.Db.LeagueR().HistoryById(leagueId)
+	if !exists {
+		return notFoundView(ctx, "League")
+	}
 	mvp := league.Mvp
 
 	navigate := ctx.PushWithParam

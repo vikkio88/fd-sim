@@ -62,7 +62,7 @@ type ILeagueRepo interface {
 	BestScorers(leagueId string) []*models.StatRowPH
 	GetStats(leagueId string) models.StatsMap
 	UpdateStats(stats models.StatsMap)
-	HistoryById(id string) *models.LeagueHistory
+	HistoryById(id string) (*models.LeagueHistory, bool)
 
 	// execute PostSeason actions returns new league
 	PostSeason(game *models.Game) *models.League
