@@ -13,7 +13,8 @@ type LHistoryDto struct {
 	BestScorers string
 	Mvp         string
 
-	//TODO: maybe on the DBLayer store whether a player is retired and force NOT to navigate
+	BestScorerId string
+	MvpId        string
 }
 
 func (l *LHistoryDto) LeagueHistory() *models.LeagueHistory {
@@ -89,6 +90,9 @@ func DtoFromLeagueHistory(l *models.LeagueHistory) LHistoryDto {
 		Podium:      serialisePodium(l.Podium),
 		BestScorers: serialiseBestScorers(l.BestScorers),
 		Mvp:         serialiseMvp(l.Mvp),
+
+		MvpId:        l.Mvp.Id,
+		BestScorerId: l.BestScorers[0].Id,
 	}
 }
 
