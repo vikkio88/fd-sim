@@ -61,11 +61,18 @@ func NewRetiredPlayerFromDto(player PlayerDto, indexedStats map[string]PHistoryD
 	}
 }
 
-func (rp *RetiredPlayerDto) RetiredPlayer() *models.RetiredPlayer {
+func (rp *RetiredPlayerDto) RetiredPlayer(awardsRows []LHistoryDto) *models.RetiredPlayer {
 	subHistoryRows := unserialisePHistoryStats(rp.Stats)
 	history := make([]*models.PHistoryRow, len(subHistoryRows))
 	for i, sr := range subHistoryRows {
 		history[i] = sr.PHistoryRow()
+	}
+
+	awards := []models.Award{}
+	if len(awardsRows) > 0 {
+		for _, a := range awardsRows {
+			awards = append(awards, a.Award(rp.Id))
+		}
 	}
 
 	return &models.RetiredPlayer{
@@ -78,5 +85,6 @@ func (rp *RetiredPlayerDto) RetiredPlayer() *models.RetiredPlayer {
 		YearRetired: rp.YearRetired,
 
 		History: history,
+		Awards:  awards,
 	}
 }

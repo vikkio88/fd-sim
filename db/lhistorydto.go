@@ -17,6 +17,44 @@ type LHistoryDto struct {
 	MvpId        string
 }
 
+func (l *LHistoryDto) Award(playerId string) models.Award {
+	scorer := l.BestScorerId == playerId
+	mvp := l.MvpId == playerId
+	lh := l.LeagueHistory()
+	goals := 0
+	played := 0
+	score := 0.0
+
+	var team models.TPH
+
+	if scorer {
+		topScorer := lh.BestScorers[0]
+		goals = topScorer.Goals
+		played = topScorer.Played
+		team = *topScorer.Team
+	}
+
+	if mvp {
+		score = lh.Mvp.Score
+		played = lh.Mvp.Played
+		team = *lh.Mvp.Team
+	}
+
+	return models.Award{
+		LeagueId:   l.Id,
+		LeagueName: l.Name,
+
+		Scorer: scorer,
+		Mvp:    mvp,
+
+		Goals:  goals,
+		Score:  score,
+		Played: played,
+
+		Team: team,
+	}
+}
+
 func (l *LHistoryDto) LeagueHistory() *models.LeagueHistory {
 	return &models.LeagueHistory{
 		Id:          l.Id,

@@ -85,7 +85,7 @@ func (p PlayerDto) Player() *models.Player {
 	return player
 }
 
-func (p PlayerDto) PlayerDetailed() *models.PlayerDetailed {
+func (p PlayerDto) PlayerDetailed(awardsRows []LHistoryDto) *models.PlayerDetailed {
 	player := models.Player{
 		Role: p.Role,
 	}
@@ -113,9 +113,18 @@ func (p PlayerDto) PlayerDetailed() *models.PlayerDetailed {
 		history = p.History.HistoryRows()
 	}
 
+	var awards = []models.Award{}
+
+	if len(awardsRows) > 0 {
+		for _, s := range awardsRows {
+			awards = append(awards, s.Award(p.Id))
+		}
+	}
+
 	return &models.PlayerDetailed{
 		Player:  player,
 		History: history,
 		Team:    team,
+		Awards:  awards,
 	}
 }

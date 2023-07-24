@@ -49,6 +49,11 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		makePHistory(player.History, ctx.PushWithParam),
 	))
 
+	main.Append(container.NewTabItemWithIcon("Awards",
+		theme.DocumentIcon(),
+		makePAwards(player.Awards, ctx.PushWithParam),
+	))
+
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -59,7 +64,6 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 }
 
 func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne.Container {
-
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -83,6 +87,11 @@ func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne
 				centered(
 					valueLabel("Retired in:", widget.NewLabel(fmt.Sprintf("%d (%d years old)", retired.YearRetired, retired.Age))),
 				),
+				h2("Awards"),
+				container.NewPadded(
+					makePAwards(retired.Awards, ctx.PushWithParam),
+				),
+				h2("History"),
 				container.NewPadded(
 					makePHistory(retired.History, ctx.PushWithParam),
 				),
@@ -96,6 +105,58 @@ func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {
 		h1L(player.String()),
 		widget.NewLabel(fmt.Sprintf("(%d) - %s", player.Age, player.Role.StringShort())),
 	))
+}
+
+func makePAwards(awards []models.Award, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	if len(awards) < 1 {
+		return centered(widget.NewLabel("No Awards yet"))
+	}
+
+	columns := widgets.NewColumnsLayout([]float32{100, 100, 100, 100})
+	headers := widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("League", fyne.TextAlignCenter),
+			widgets.NewListCol("Team", fyne.TextAlignCenter),
+			widgets.NewListCol("Awards", fyne.TextAlignCenter),
+			widgets.NewListCol("Stats", fyne.TextAlignCenter),
+		},
+		columns,
+	)
+
+	awardList := widget.NewList(
+		func() int { return len(awards) },
+		func() fyne.CanvasObject {
+			return container.New(
+				columns,
+				centered(widget.NewHyperlink("League", nil)),
+				centered(widget.NewHyperlink("Team", nil)),
+				widget.NewLabel("Awards"),
+				widget.NewLabel("Stats"),
+			)
+		},
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			ar := awards[lii]
+			cells := co.(*fyne.Container)
+
+			leagueHl := getCenteredHL(cells.Objects[0])
+			leagueHl.SetText(ar.LeagueName)
+			leagueHl.OnTapped = func() { navigate(LeagueHistory, ar.LeagueId) }
+
+			teamHl := getCenteredHL(cells.Objects[1])
+			teamHl.SetText(ar.Team.Name)
+			teamHl.OnTapped = func() {
+				navigate(TeamDetails, ar.Team.Id)
+			}
+
+			awLbl := cells.Objects[2].(*widget.Label)
+			awLbl.SetText(ar.String())
+
+			statsLbl := cells.Objects[3].(*widget.Label)
+			statsLbl.SetText(ar.StatString())
+
+		},
+	)
+	return NewFborder().Top(headers).Get(awardList)
 }
 
 func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
