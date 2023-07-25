@@ -76,7 +76,7 @@ type ITeamRepo interface {
 	GetRandom() *models.TPH
 	ById(id string) (*models.TeamDetailed, bool)
 	GetByIds(ids []string) []*models.Team
-	TableRow(id string) *models.TPHRow
+	TableRow(teamId string) *models.TPHRow
 	Truncate()
 	DeleteOne(id string)
 	Delete(ids []string)

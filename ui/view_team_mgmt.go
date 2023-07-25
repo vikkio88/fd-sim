@@ -23,6 +23,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 	}
 
 	team, _ := ctx.Db.TeamR().ById(game.Team.Id)
+	trow := ctx.Db.TeamR().TableRow(team.Id)
 
 	return NewFborder().
 		Top(
@@ -32,7 +33,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		).
 		Get(
 			container.NewAppTabs(
-				container.NewTabItem("Roster", makeRosterManagement(team, ctx.PushWithParam)),
+				container.NewTabItem("Roster", makeRosterManagement(team, trow, ctx.PushWithParam)),
 				container.NewTabItem("Finance", centered(widget.NewLabel("Finance"))),
 				container.NewTabItem("Board/Supporters", centered(widget.NewLabel("Board/Supporters"))),
 				container.NewTabItem("Transfer Market", centered(widget.NewLabel("Transfer"))),
@@ -41,12 +42,21 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeRosterManagement(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
-	return container.NewMax(
-		container.NewGridWithColumns(2,
-			makeLineup(team, navigate),
-			centered(widget.NewLabel("Performance")),
-		))
+func makeRosterManagement(team *models.TeamDetailed, trow *models.TPHRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	teamDetailsBtn := widget.NewButton(fmt.Sprintf("%s - Team Details", team.Name), func() { navigate(TeamDetails, team.Id) })
+	teamDetailsBtn.Importance = widget.LowImportance
+
+	return NewFborder().
+		Top(
+			teamDetailsBtn,
+		).
+		Get(
+			container.NewMax(
+				container.NewGridWithColumns(2,
+					makeLineup(team, navigate),
+					makeTeamStats(trow),
+				)),
+		)
 }
 
 func makeLineup(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
