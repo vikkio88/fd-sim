@@ -73,8 +73,24 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 	//Events triggering
 	events = sim.stateTriggeredEvents(events, newDate)
 
+	// Date triggered Events
+	events = sim.dateTriggeredEvents(events, newDate)
+
 	// set new date
 	sim.game.Date = newDate
+	return events
+}
+
+func (sim *Simulator) dateTriggeredEvents(events []*Event, newDate time.Time) []*Event {
+	// Season is over
+	if newDate.Day() == 1 && newDate.Month() == time.June {
+		events = append(events, SeasonOver.Event(newDate, models.EventParams{
+			Country:  sim.game.BaseCountry,
+			LeagueId: sim.game.LeagueId,
+		}))
+
+	}
+
 	return events
 }
 
@@ -135,39 +151,47 @@ func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Even
 
 func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
 	if league.IsFinished() {
-		firstRow := league.TableRow(0)
-		secondRow := league.TableRow(1)
-		thirdRow := league.TableRow(2)
-
-		isEmployed := sim.game.IsEmployed()
-		fdTeamId := ""
-		fdTeamName := ""
-		if isEmployed {
-			fdTeamId = sim.game.Team.Id
-			fdTeamName = sim.game.Team.Name
-		}
-
-		events = append(
-			events,
-			LeagueFinished.Event(
-				newDate,
-				models.EventParams{
-					Country:    sim.game.BaseCountry,
-					LeagueId:   league.Id,
-					LeagueName: league.Name,
-					TeamId:     firstRow.Team.Id,
-					TeamName:   firstRow.Team.Name,
-					TeamId1:    secondRow.Team.Id,
-					TeamName1:  secondRow.Team.Name,
-					TeamId2:    thirdRow.Team.Id,
-					TeamName2:  thirdRow.Team.Name,
-					IsEmployed: isEmployed,
-					FdTeamId:   fdTeamId,
-					FdTeamName: fdTeamName,
-				},
-			),
-		)
+		events = sim.leagueEnd(league, events, newDate)
+		// TODO: maybe this on the first of june?
+		sim.db.LeagueR().PostSeason(sim.game)
+		//
 	}
+	return events
+}
+
+func (sim *Simulator) leagueEnd(league *models.League, events []*Event, newDate time.Time) []*Event {
+	firstRow := league.TableRow(0)
+	secondRow := league.TableRow(1)
+	thirdRow := league.TableRow(2)
+
+	isEmployed := sim.game.IsEmployed()
+	fdTeamId := ""
+	fdTeamName := ""
+	if isEmployed {
+		fdTeamId = sim.game.Team.Id
+		fdTeamName = sim.game.Team.Name
+	}
+
+	events = append(
+		events,
+		LeagueFinished.Event(
+			newDate,
+			models.EventParams{
+				Country:    sim.game.BaseCountry,
+				LeagueId:   league.Id,
+				LeagueName: league.Name,
+				TeamId:     firstRow.Team.Id,
+				TeamName:   firstRow.Team.Name,
+				TeamId1:    secondRow.Team.Id,
+				TeamName1:  secondRow.Team.Name,
+				TeamId2:    thirdRow.Team.Id,
+				TeamName2:  thirdRow.Team.Name,
+				IsEmployed: isEmployed,
+				FdTeamId:   fdTeamId,
+				FdTeamName: fdTeamName,
+			},
+		),
+	)
 	return events
 }
 

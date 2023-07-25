@@ -17,6 +17,7 @@ const (
 	RoundPlayed EventType = iota
 	// Needs LeagueId and LeagueName, TeamId and TeamName for Winner
 	LeagueFinished
+	SeasonOver
 
 	// TransferMarket
 	TransferMarketOpen
@@ -85,6 +86,8 @@ func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 		return roundPlayedEvent(params, date)
 	case LeagueFinished:
 		return leagueFinishedEvent(params, date)
+	case SeasonOver:
+		return seasonOverEvent(params, date)
 	case TransferMarketOpen:
 		return transferMarketOpen(params, date)
 	case TransferMarketClose:

@@ -15,6 +15,30 @@ const (
 	a_day = time.Duration(1) * time.Hour * 24
 )
 
+func seasonOverEvent(params models.EventParams, date time.Time) *Event {
+	country := params.Country
+	event := NewEvent(date, fmt.Sprintf("Season Over"))
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		db.LeagueR().PostSeason(game)
+	}
+
+	event.TriggerNews = models.NewNews(
+		"New Season Starting today",
+		data.GetNewspaper(country),
+		fmt.Sprintf(
+			"After an amazing season, today Season %d/%d officially starts.\n%s",
+			date.Year(), date.Year()+1, conf.LinkBodyPH,
+		),
+		date,
+		[]models.Link{
+			models.NewLink("Previous Season", enums.LeagueHistory, &params.LeagueId),
+		},
+	)
+
+	return event
+}
+
 func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 	leagueId := params.LeagueId
 	leagueName := params.LeagueName
