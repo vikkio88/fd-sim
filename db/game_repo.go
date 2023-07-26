@@ -177,3 +177,12 @@ func (repo *GameRepo) GetFDStats() *models.FDStatRow {
 
 	return stat.FDStatRow()
 }
+
+// GetEvents implements IGameRepo.
+func (*GameRepo) GetEvents(triggerDate time.Time) []DbEventDto {
+	return []DbEventDto{}
+}
+
+func (*GameRepo) StoreEvents([]DbEventDto) {
+
+}

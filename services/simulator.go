@@ -76,8 +76,17 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 	// Date triggered Events
 	events = sim.dateTriggeredEvents(events, newDate)
 
+	// Db Triggered Events
+	events = sim.dbTriggeredEvents(events, newDate)
+
 	// set new date
 	sim.game.Date = newDate
+	return events
+}
+
+func (sim *Simulator) dbTriggeredEvents(events []*Event, newDate time.Time) []*Event {
+	newEvents := parseDbEvents(sim.db.GameR().GetEvents(newDate))
+	events = append(events, newEvents...)
 	return events
 }
 
@@ -88,7 +97,6 @@ func (sim *Simulator) dateTriggeredEvents(events []*Event, newDate time.Time) []
 			Country:  sim.game.BaseCountry,
 			LeagueId: sim.game.LeagueId,
 		}))
-
 	}
 
 	return events
@@ -152,9 +160,6 @@ func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Even
 func (sim *Simulator) checkIfLeagueFinished(league *models.League, events []*Event, newDate time.Time) []*Event {
 	if league.IsFinished() {
 		events = sim.leagueEnd(league, events, newDate)
-		// TODO: maybe this on the first of june?
-		sim.db.LeagueR().PostSeason(sim.game)
-		//
 	}
 	return events
 }

@@ -64,7 +64,7 @@ func (p *PeopleGen) getContractInfo(idealWage utils.Money) (utils.Money, uint8) 
 	return utils.NewEurosFromF(wage), contractYears
 }
 
-func (p *PeopleGen) getWage(skill, age int, isCoach bool) utils.Money {
+func (p *PeopleGen) GetWage(skill, age int, isCoach bool) utils.Money {
 	if age < 19 {
 		return utils.NewEuros(int64(p.rng.UInt(5_000, 150_000)))
 	}
@@ -96,7 +96,7 @@ func (p *PeopleGen) getWage(skill, age int, isCoach bool) utils.Money {
 
 }
 
-func (p *PeopleGen) getValue(skill, age int) utils.Money {
+func (p *PeopleGen) GetValue(skill, age int) utils.Money {
 	var baseVal int
 
 	switch {
@@ -153,9 +153,9 @@ func (p *PeopleGen) Champion(country enums.Country) *models.Player {
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
-	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+	pl.Value = p.GetValue(pl.Skill.Val(), pl.Age)
 
-	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+	pl.IdealWage = p.GetWage(pl.Skill.Val(), pl.Age, false)
 	wage, contract := p.getContractInfo(pl.IdealWage)
 	pl.Wage = wage
 	pl.YContract = contract
@@ -174,8 +174,8 @@ func (p *PeopleGen) PlayerWithRole(country enums.Country, role models.Role) *mod
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
-	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
-	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+	pl.IdealWage = p.GetWage(pl.Skill.Val(), pl.Age, false)
+	pl.Value = p.GetValue(pl.Skill.Val(), pl.Age)
 
 	wage, contract := p.getContractInfo(pl.IdealWage)
 	pl.Wage = wage
@@ -199,9 +199,9 @@ func (p *PeopleGen) YoungPlayersWithRole(count int, role models.Role) []*models.
 		fame := p.getFame(skill)
 
 		pl.SetVals(skill, morale, fame)
-		pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+		pl.Value = p.GetValue(pl.Skill.Val(), pl.Age)
 
-		pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+		pl.IdealWage = p.GetWage(pl.Skill.Val(), pl.Age, false)
 		wage, _ := p.getContractInfo(pl.IdealWage)
 		pl.Wage = wage
 		// young players always 1 year
@@ -235,9 +235,9 @@ func (p *PeopleGen) Player(country enums.Country) *models.Player {
 	fame := p.getFame(skill)
 
 	pl.SetVals(skill, morale, fame)
-	pl.Value = p.getValue(pl.Skill.Val(), pl.Age)
+	pl.Value = p.GetValue(pl.Skill.Val(), pl.Age)
 
-	pl.IdealWage = p.getWage(pl.Skill.Val(), pl.Age, false)
+	pl.IdealWage = p.GetWage(pl.Skill.Val(), pl.Age, false)
 	wage, contract := p.getContractInfo(pl.IdealWage)
 	pl.Wage = wage
 	pl.YContract = contract
@@ -258,7 +258,7 @@ func (p *PeopleGen) Coach(country enums.Country) *models.Coach {
 	fame := p.getFame(skill)
 
 	c.SetVals(skill, morale, fame)
-	c.IdealWage = p.getWage(c.Skill.Val(), c.Age, true)
+	c.IdealWage = p.GetWage(c.Skill.Val(), c.Age, true)
 	wage, contract := p.getContractInfo(c.IdealWage)
 	c.Wage = wage
 	c.YContract = contract

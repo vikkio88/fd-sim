@@ -40,6 +40,9 @@ type IGameRepo interface {
 	MarkNewsAsRead(id string)
 	GetFDStats() *models.FDStatRow
 	GetFDHistory() []*models.FDHistoryRow
+
+	GetEvents(time.Time) []DbEventDto
+	StoreEvents([]DbEventDto)
 }
 
 // ILeagueRepo ...

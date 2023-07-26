@@ -34,7 +34,7 @@ func (DBGen) Run(seed int64, teams int) {
 	game.Surname = "Mc Test"
 	game.SaveName = "TestSave"
 	game.Fame = utils.NewPerc(80)
-	game.YContract = 1
+	game.YContract = 2
 	game.OnEmployed = func() {}
 	game.OnUnEmployed = func() {}
 
@@ -58,6 +58,10 @@ func (DBGen) Run(seed int64, teams int) {
 
 	fmt.Println("Simulating season 3")
 	simulateSeason(l3, db, game)
+
+	// Setting date after post season trigger
+	game.Date = utils.NewDate(game.Date.Year(), time.July, 1)
+	db.GameR().Update(game)
 
 	fmt.Println("Finished")
 }

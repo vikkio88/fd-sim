@@ -11,7 +11,9 @@ func triggerJobOffer(sim *Simulator, events []*Event, newDate time.Time) []*Even
 	// this should be linked to fame
 	var money float64 = float64(sim.rng.UInt(1, 500)) * 1000.0
 
-	years := sim.rng.UInt(1, 3)
+	// TODO: fix this
+	// if the contract is offered after Jan it will be half a season
+	years := sim.rng.UInt(2, 3)
 	events = append(events,
 		ContractOffer.Event(
 			newDate,

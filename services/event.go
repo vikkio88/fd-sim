@@ -32,3 +32,17 @@ func NewEvent(date time.Time, description string) *Event {
 		TriggerChanges: func(game *models.Game, db db.IDb) {},
 	}
 }
+
+// DbTriggered events have json serialised payload
+func parseDbEvents(dbEvents []db.DbEventDto) []*Event {
+	result := make([]*Event, len(dbEvents))
+
+	for i, dbe := range dbEvents {
+		result[i] = parseDbEvent(dbe)
+	}
+	return result
+}
+
+func parseDbEvent(dbe db.DbEventDto) *Event {
+	return &Event{}
+}

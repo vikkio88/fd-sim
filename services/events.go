@@ -33,6 +33,9 @@ const (
 	TestingActionYes
 	TestingActionNo
 
+	// Those Events are created by other events and triggered on a certain date
+	DbStoredEvent
+
 	Null
 )
 
@@ -92,6 +95,7 @@ func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 		return transferMarketOpen(params, date)
 	case TransferMarketClose:
 		return transferMarketClose(params, date)
+
 		//TODO: Remove Tests Action
 	case TestingActionYes:
 		{
@@ -133,4 +137,8 @@ func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 	}
 
 	return nil
+}
+
+func makeDbEvent(date time.Time) *Event {
+	return NewEvent(date, "db_event")
 }

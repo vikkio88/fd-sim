@@ -190,6 +190,14 @@ func (g *Game) IsEmployed() bool {
 	return g.Team != nil
 }
 
+func (g *Game) GetTeamIdOrEmpty() string {
+	if g.Team != nil {
+		return g.Team.Id
+	}
+
+	return ""
+}
+
 func (g *Game) IsUnemployedAndNoOfferPending() bool {
 	_, hasContract := g.YourContract()
 

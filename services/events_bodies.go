@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-const (
-	a_day = time.Duration(1) * time.Hour * 24
-)
-
 func seasonOverEvent(params models.EventParams, date time.Time) *Event {
 	country := params.Country
 	event := NewEvent(date, fmt.Sprintf("Season Over"))
@@ -250,7 +246,7 @@ func contractOffered(params models.EventParams, date time.Time) *Event {
 			params,
 		),
 	)
-	event.TriggerEmail.SetExpiry(date.Add(2 * a_day))
+	event.TriggerEmail.SetExpiry(date.Add(2 * enums.A_day))
 
 	event.TriggerFlags = func(f models.Flags) models.Flags {
 		f.HasAContractOffer = true

@@ -1,10 +1,13 @@
 package db
 
 import (
+	"encoding/json"
 	"fdsim/data"
+	"fdsim/enums"
 	"fdsim/generators"
 	"fdsim/libs"
 	"fdsim/models"
+	"fdsim/utils"
 	"fmt"
 	"time"
 
@@ -16,9 +19,11 @@ type TeamLosingPlayersMap map[string]map[models.Role]int
 func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	// TODO: maybe inject this
 	rng := libs.NewRng(time.Now().Unix())
+	dbEvents := []DbEventDto{}
 
 	league := lr.ById(game.LeagueId)
 	leagueName := league.Name
+	winnerTeamId := league.TableRow(0).Team.Id
 
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).
@@ -34,26 +39,39 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 		Order("score desc, played desc").
 		First(&mvp)
 
-	lr.createLeagueHistory(league, mvp, playersStats[:3])
+	resultEvents := lr.createLeagueHistory(league, mvp, playersStats[:3])
+	dbEvents = append(dbEvents, resultEvents...)
 
-	gameDate := game.Date
-	indexedP, _ := lr.convertStatsToHistory(game.LeagueId, leagueName, gameDate, playersStats)
+	resultEvents, indexedP := lr.convertStatsToHistory(game, leagueName, playersStats)
+	dbEvents = append(dbEvents, resultEvents...)
+
 	teamLostPlayers := TeamLosingPlayersMap{}
-	lr.retirePlayers(indexedP, game.LeagueId, leagueName, gameDate, teamLostPlayers, rng)
-	lr.playersEndOfSeason(game, teamLostPlayers, rng)
+	resultEvents = lr.retirePlayers(indexedP, game, leagueName, teamLostPlayers, rng)
+	dbEvents = append(dbEvents, resultEvents...)
+
+	resultEvents = lr.playersEndOfSeason(game, teamLostPlayers, winnerTeamId, rng)
+	dbEvents = append(dbEvents, resultEvents...)
 
 	// add young players/replace retired
-	lr.generateYoungReplacements(game, teamLostPlayers, rng)
+	resultEvents = lr.generateYoungReplacements(game, teamLostPlayers, rng)
+	dbEvents = append(dbEvents, resultEvents...)
 
 	//TODO: store fd info/stats
-	lr.updateFDInfo(game, leagueName)
+	resultEvents = lr.updateFDInfo(game, leagueName)
+	dbEvents = append(dbEvents, resultEvents...)
+
+	if len(dbEvents) > 0 {
+		lr.g.Model(&DbEventDto{}).Create(&dbEvents)
+	}
 
 	return lr.createNewLeague(game)
 }
 
-func (lr *LeagueRepo) createLeagueHistory(league *models.League, mvp StatRowDto, scorers []StatRowDto) {
+func (lr *LeagueRepo) createLeagueHistory(league *models.League, mvp StatRowDto, scorers []StatRowDto) []DbEventDto {
 	lh := NewLHistoryDtoFromLeague(league, mvp, scorers)
 	lr.g.Create(lh)
+
+	return []DbEventDto{}
 }
 
 func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
@@ -80,8 +98,10 @@ func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
 
 	return nl
 }
-func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) {
+func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) []DbEventDto {
 	pg := generators.NewPeopleGenSeeded(rng)
+	fdTeamId := game.GetTeamIdOrEmpty()
+
 	pToAdd := []PlayerDto{}
 	for teamId, rc := range tm {
 		for role, count := range rc {
@@ -95,19 +115,24 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 				nteamId := teamId
 				pdto.TeamId = &nteamId
 				pToAdd = append(pToAdd, pdto)
+
+				if nteamId == fdTeamId {
+					// add to list of new players to report to FD
+				}
 			}
 		}
 	}
 
 	lr.g.Create(&pToAdd)
+
+	return []DbEventDto{}
 }
 
-// Check contracts and if 0 put them on the free market
-func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, rng *libs.Rng) {
-	fdTeamId := ""
-	if game.IsEmployed() {
-		fdTeamId = game.Team.Id
-	}
+// Checks contracts and if 0 put them on the free market
+// grows players skills and fame
+func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, winningTeamId string, rng *libs.Rng) []DbEventDto {
+	fdTeamId := game.GetTeamIdOrEmpty()
+	pg := generators.NewPeopleGenSeeded(rng)
 
 	var expiredContractsP []PlayerDto
 	lr.g.Exec("update player_dtos set y_contract = y_contract - 1 where team_id is not null")
@@ -123,12 +148,50 @@ func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayers
 			countPlayerLoss(p, tm)
 		}
 	}
+
 	if len(expiredContractsP) > 0 {
 		lr.g.Save(&expiredContractsP)
 	}
+
+	//TODO: this is the slowest of them all
+	var playersDto []PlayerDto
+	lr.g.Model(&PlayerDto{}).Find(&playersDto)
+	for _, p := range playersDto {
+		// Increase Players Skill if Young
+		if p.Age < 22 {
+			nSkill := utils.NewPerc(p.Skill + rng.UInt(5, 10))
+			p.Skill = nSkill.Val()
+		}
+
+		// Decrease Players Skill if Older
+		if p.Age > 29 {
+			nSkill := utils.NewPerc(p.Skill - rng.UInt(5, 10))
+			p.Skill = nSkill.Val()
+		}
+
+		// Calculate new Value and Ideal Wage
+		p.IdealWage = pg.GetWage(p.Skill, p.Age, false).Val
+		p.Value = pg.GetValue(p.Skill, p.Age).Val
+
+		// If player won, increase fame
+		if p.TeamId == &winningTeamId {
+			nFame := utils.NewPerc(p.Fame + rng.UInt(5, 10))
+			p.Fame = nFame.Val()
+		}
+
+		// maybe here I need some DbSide Events that can be stored and fetched
+
+		lr.g.Save(p)
+	}
+
+	return []DbEventDto{}
 }
 
-func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, leagueName string, gameDate time.Time, tm TeamLosingPlayersMap, rng *libs.Rng) {
+func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *models.Game, leagueName string, tm TeamLosingPlayersMap, rng *libs.Rng) []DbEventDto {
+	leagueId := game.LeagueId
+	gameDate := game.Date
+	fdTeamId := game.GetTeamIdOrEmpty()
+
 	// Age players/Coach
 	trx := lr.g.Exec("update player_dtos set age = age + 1 where 1=1; update coach_dtos set age = age + 1 where 1=1;")
 	if trx.RowsAffected < 1 {
@@ -139,14 +202,18 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 	var playersToRetire []PlayerDto
 	lr.g.Raw("select * from player_dtos where age > 35 order by RANDOM() LIMIT ?", int(playersCount)/rng.UInt(2, 10)).Preload(teamRel).Find(&playersToRetire)
 	if len(playersToRetire) == 0 {
-		return
+		return []DbEventDto{}
 	}
 	//TODO: maybe ad add a way to replace players
 	pIds := make([]string, len(playersToRetire))
 	retiring := make([]RetiredPlayerDto, len(playersToRetire))
+	playerTeamRetired := []*models.PNPH{}
 	for i, p := range playersToRetire {
 		retiring[i] = NewRetiredPlayerFromDto(p, indexedP, gameDate.Year(), leagueId, leagueName)
 		pIds[i] = p.Id
+		if p.TeamId != nil && *p.TeamId == fdTeamId {
+			playerTeamRetired = append(playerTeamRetired, p.PlayerPH())
+		}
 
 		countPlayerLoss(p, tm)
 	}
@@ -154,6 +221,14 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, leagueId, l
 
 	lr.g.Delete(&PHistoryDto{}, pIds)
 	lr.g.Delete(&PlayerDto{}, pIds)
+
+	events := []DbEventDto{}
+	if len(playerTeamRetired) > 0 {
+		data, _ := json.Marshal(&playerTeamRetired)
+		events = append(events, NewDbEventDto(DbEvPlRetiredFdTeam, game.BaseCountry, string(data), gameDate.Add(enums.A_day)))
+	}
+
+	return events
 }
 
 func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
@@ -171,7 +246,12 @@ func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
 	}
 }
 
-func (lr *LeagueRepo) convertStatsToHistory(leagueId, leagueName string, gameDate time.Time, playersStats []StatRowDto) (map[string]PHistoryDto, map[string]THistoryDto) {
+func (lr *LeagueRepo) convertStatsToHistory(game *models.Game, leagueName string, playersStats []StatRowDto) (
+	[]DbEventDto,
+	map[string]PHistoryDto,
+) {
+	leagueId := game.LeagueId
+	gameDate := game.Date
 
 	var pHistoryRows []PHistoryDto
 	lr.g.Model(&PHistoryDto{}).Find(&pHistoryRows)
@@ -228,7 +308,7 @@ func (lr *LeagueRepo) convertStatsToHistory(leagueId, leagueName string, gameDat
 	lr.g.Save(phrows)
 	lr.g.Save(throws)
 
-	return indexedPHRows, indexedTHRows
+	return []DbEventDto{}, indexedPHRows
 }
 
 func (lr *LeagueRepo) backFillEmptyStatsHistory(leagueId, leagueName string, gameDate time.Time) []PHistoryDto {
@@ -247,11 +327,11 @@ func (lr *LeagueRepo) backFillEmptyStatsHistory(leagueId, leagueName string, gam
 	return phrows
 }
 
-func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
+func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) []DbEventDto {
 	game.Age++
 
 	if !game.IsEmployed() {
-		return
+		return []DbEventDto{}
 	}
 
 	var stat FDStatRowDto
@@ -265,8 +345,10 @@ func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) {
 		game.UnsetTeamContract()
 	} else {
 		newStat := models.NewFDStatRow(game.Date, stat.TeamId, stat.TeamName)
-		lr.g.Model(&FDStatRowDto{}).Create(&newStat)
+		lr.g.Model(&FDStatRowDto{}).Create(DtoFromFDStatRow(newStat))
 	}
+
+	return []DbEventDto{}
 }
 
 func (lr *LeagueRepo) cleanStats() {
