@@ -83,17 +83,26 @@ func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne
 				),
 		).
 		Get(
-			container.NewVBox(
-				centered(
-					valueLabel("Retired in:", widget.NewLabel(fmt.Sprintf("%d (%d years old)", retired.YearRetired, retired.Age))),
-				),
-				h2("Awards"),
-				container.NewPadded(
-					makePAwards(retired.Awards, ctx.PushWithParam),
-				),
-				h2("History"),
-				container.NewPadded(
-					makePHistory(retired.History, ctx.PushWithParam),
+			container.NewMax(
+				NewFborder().Top(
+					centered(
+						valueLabel("Retired in:", widget.NewLabel(fmt.Sprintf("%d (%d years old)", retired.YearRetired, retired.Age))),
+					),
+				).Get(
+					NewFborder().
+						Bottom(
+							container.NewVBox(
+								h2("Awards"),
+								container.NewPadded(
+									makePAwards(retired.Awards, ctx.PushWithParam),
+								),
+							),
+						).
+						Get(
+							container.NewPadded(
+								makePHistory(retired.History, ctx.PushWithParam),
+							),
+						),
 				),
 			),
 		)
@@ -109,7 +118,7 @@ func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {
 
 func makePAwards(awards []models.Award, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	if len(awards) < 1 {
-		return centered(widget.NewLabel("No Awards yet"))
+		return centered(widget.NewLabel("No Awards."))
 	}
 
 	columns := widgets.NewColumnsLayout([]float32{100, 100, 100, 100})
@@ -122,7 +131,6 @@ func makePAwards(awards []models.Award, navigate NavigateWithParamFunc) fyne.Can
 		},
 		columns,
 	)
-
 	awardList := widget.NewList(
 		func() int { return len(awards) },
 		func() fyne.CanvasObject {

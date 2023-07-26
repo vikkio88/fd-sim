@@ -38,11 +38,10 @@ func parseDbEvents(dbEvents []db.DbEventDto) []*Event {
 	result := make([]*Event, len(dbEvents))
 
 	for i, dbe := range dbEvents {
-		result[i] = parseDbEvent(dbe)
+		ev := getEventFromDbEvent(dbe)
+		if ev != nil {
+			result[i] = ev
+		}
 	}
 	return result
-}
-
-func parseDbEvent(dbe db.DbEventDto) *Event {
-	return &Event{}
 }

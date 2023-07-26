@@ -225,7 +225,14 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *model
 	events := []DbEventDto{}
 	if len(playerTeamRetired) > 0 {
 		data, _ := json.Marshal(&playerTeamRetired)
-		events = append(events, NewDbEventDto(DbEvPlRetiredFdTeam, game.BaseCountry, string(data), gameDate.Add(enums.A_day)))
+		events = append(
+			events,
+			NewDbEventDto(
+				DbEvPlRetiredFdTeam, game.BaseCountry, string(data),
+				models.EventParams{TeamName: game.Team.Name},
+				gameDate.Add(enums.A_day),
+			),
+		)
 	}
 
 	return events

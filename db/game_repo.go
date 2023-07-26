@@ -179,8 +179,13 @@ func (repo *GameRepo) GetFDStats() *models.FDStatRow {
 }
 
 // GetEvents implements IGameRepo.
-func (*GameRepo) GetEvents(triggerDate time.Time) []DbEventDto {
-	return []DbEventDto{}
+func (repo *GameRepo) GetEvents(currentDate time.Time) []DbEventDto {
+	var ev []DbEventDto
+	// get then delete
+	repo.g.Model(&DbEventDto{}).Where("trigger_date < ?", currentDate).Find(&ev)
+	repo.g.Where("trigger_date < ?", currentDate).Delete(&DbEventDto{})
+
+	return ev
 }
 
 func (*GameRepo) StoreEvents([]DbEventDto) {

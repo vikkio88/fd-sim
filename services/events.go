@@ -138,7 +138,3 @@ func (ev EventType) Event(date time.Time, params models.EventParams) *Event {
 
 	return nil
 }
-
-func makeDbEvent(date time.Time) *Event {
-	return NewEvent(date, "db_event")
-}
