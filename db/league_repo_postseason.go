@@ -46,10 +46,11 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	dbEvents = append(dbEvents, resultEvents...)
 
 	teamLostPlayers := TeamLosingPlayersMap{}
-	resultEvents = lr.retirePlayers(indexedP, game, leagueName, teamLostPlayers, rng)
+
+	resultEvents = lr.playersEndOfSeason(game, teamLostPlayers, winnerTeamId, leagueName, rng)
 	dbEvents = append(dbEvents, resultEvents...)
 
-	resultEvents = lr.playersEndOfSeason(game, teamLostPlayers, winnerTeamId, rng)
+	resultEvents = lr.retirePlayers(indexedP, game, leagueName, teamLostPlayers, rng)
 	dbEvents = append(dbEvents, resultEvents...)
 
 	// add young players/replace retired
@@ -130,42 +131,34 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 
 // Checks contracts and if 0 put them on the free market
 // grows players skills and fame
-func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, winningTeamId string, rng *libs.Rng) []DbEventDto {
+func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, winningTeamId, leagueName string, rng *libs.Rng) []DbEventDto {
 	fdTeamId := game.GetTeamIdOrEmpty()
 	pg := generators.NewPeopleGenSeeded(rng)
 
-	var expiredContractsP []PlayerDto
 	lr.g.Exec("update player_dtos set y_contract = y_contract - 1 where team_id is not null")
 
-	lr.g.Model(&PlayerDto{}).Where("y_contract < ?", 1).Find(&expiredContractsP)
-	for i, p := range expiredContractsP {
-		// 50% chance of renewing contract for 1 year
-		// if not in FDTeam
-		if p.TeamId != &fdTeamId && rng.ChanceI(50) {
-			expiredContractsP[i].YContract = 1
-		} else {
-			expiredContractsP[i].TeamId = nil
-			countPlayerLoss(p, tm)
-		}
-	}
-
-	if len(expiredContractsP) > 0 {
-		lr.g.Save(&expiredContractsP)
-	}
-
 	//TODO: this is the slowest of them all
-	var playersDto []PlayerDto
-	lr.g.Model(&PlayerDto{}).Find(&playersDto)
-	for _, p := range playersDto {
+	// ITERATE OVER EVERY PLAYER
+	var allPlayers []*PlayerDto
+	lr.g.Model(&PlayerDto{}).Preload(teamRel).Find(&allPlayers)
+
+	trophies := []TrophyDto{}
+	for _, p := range allPlayers {
 		// Increase Players Skill if Young
 		if p.Age < 22 {
-			nSkill := utils.NewPerc(p.Skill + rng.UInt(5, 10))
+			nSkill := utils.NewPerc(p.Skill + rng.UInt(2, 8))
 			p.Skill = nSkill.Val()
 		}
 
 		// Decrease Players Skill if Older
 		if p.Age > 29 {
-			nSkill := utils.NewPerc(p.Skill - rng.UInt(5, 10))
+			nSkill := utils.NewPerc(p.Skill - rng.UInt(1, 5))
+			p.Skill = nSkill.Val()
+		}
+
+		// If it has been the whole year with no team
+		if p.TeamId == nil {
+			nSkill := utils.NewPerc(p.Skill + rng.PlusMinusVal(3, 50))
 			p.Skill = nSkill.Val()
 		}
 
@@ -174,15 +167,27 @@ func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayers
 		p.Value = pg.GetValue(p.Skill, p.Age).Val
 
 		// If player won, increase fame
-		if p.TeamId == &winningTeamId {
+		if p.TeamId != nil && *p.TeamId == winningTeamId {
 			nFame := utils.NewPerc(p.Fame + rng.UInt(5, 10))
 			p.Fame = nFame.Val()
+			trophies = append(trophies, NewTrophyDto(p.Id, game.LeagueId, leagueName, *p.TeamId, p.Team.Name, game.Date.Year()))
 		}
 
-		// maybe here I need some DbSide Events that can be stored and fetched
+		// contract expiry
+		if p.YContract < 1 && p.TeamId != nil {
+			if *p.TeamId != fdTeamId && rng.ChanceI(50) {
+				p.YContract = 1
+			} else {
+				countPlayerLoss(p, tm)
+				p.TeamId = nil
+				p.Team = nil
+				p.Wage = 0
+			}
+		}
 
-		lr.g.Save(p)
 	}
+	lr.g.Save(allPlayers)
+	lr.g.Save(trophies)
 
 	return []DbEventDto{}
 }
@@ -215,7 +220,7 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *model
 			playerTeamRetired = append(playerTeamRetired, p.PlayerPH())
 		}
 
-		countPlayerLoss(p, tm)
+		countPlayerLoss(&p, tm)
 	}
 	lr.g.Create(&retiring)
 
@@ -238,7 +243,7 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *model
 	return events
 }
 
-func countPlayerLoss(p PlayerDto, tm TeamLosingPlayersMap) {
+func countPlayerLoss(p *PlayerDto, tm TeamLosingPlayersMap) {
 	if p.TeamId == nil {
 		return
 	}
