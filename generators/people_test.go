@@ -21,7 +21,7 @@ func TestPeopleGenBuilderPlayerGenerator(t *testing.T) {
 	assert.Greater(t, pl.Value.Val, int64(1000))
 	assert.Greater(t, pl.IdealWage.Val, int64(1000))
 	assert.Greater(t, pl.Wage.Val, int64(1000))
-	assert.Greater(t, pl.YContract, uint8(0))
+	assert.Greater(t, pl.YContract, 0)
 	pl2 := g.PlayerWithRole(enums.IT, models.GK)
 	assert.Equal(t, models.GK, pl2.Role)
 }
@@ -36,7 +36,7 @@ func TestPeopleGenBuilderCoachGenerator(t *testing.T) {
 
 	assert.Greater(t, c.IdealWage.Val, int64(1000))
 	assert.Greater(t, c.Wage.Val, int64(1000))
-	assert.Greater(t, c.YContract, uint8(0))
+	assert.Greater(t, c.YContract, 0)
 }
 
 func TestGenerateManyPlayers(t *testing.T) {

@@ -64,7 +64,7 @@ type MockGameR struct{}
 
 // GetEvents implements db.IGameRepo.
 func (*MockGameR) GetEvents(time.Time) []db.DbEventDto {
-	panic("unimplemented")
+	return []db.DbEventDto{}
 }
 
 // StoreEvents implements db.IGameRepo.
