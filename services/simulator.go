@@ -65,6 +65,7 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 		// TODO: maybe double check that the round date is the same?
 		round, _ := league.NextRound()
 
+		// TODO: remove this log
 		fmt.Printf("Simulating Round %d\n", round.Index+1)
 		events = append(events, sim.simulateRound(round, league))
 		events = sim.checkIfLeagueFinished(league, events, newDate)
