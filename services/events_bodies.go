@@ -269,7 +269,7 @@ func transferMarketOpen(params models.EventParams, date time.Time) *Event {
 		"Transfer Market is open!",
 		data.GetNewspaper(params.Country),
 		fmt.Sprintf(
-			"Today the transfer market for the %s session officially opened!\nIt will stay open until %s",
+			"Today the transfer window for the %s session officially opened!\nIt will stay open until %s",
 			session,
 			params.Label2,
 		),
