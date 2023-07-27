@@ -25,6 +25,11 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 	team, _ := ctx.Db.TeamR().ById(game.Team.Id)
 	trow := ctx.Db.TeamR().TableRow(team.Id)
 
+	trsf := "closed"
+	if game.IsTransferWindowOpen() {
+		trsf = "open"
+	}
+
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -36,7 +41,7 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 				container.NewTabItem("Roster", makeRosterManagement(team, trow, ctx.PushWithParam)),
 				container.NewTabItem("Finance", centered(widget.NewLabel("Finance"))),
 				container.NewTabItem("Board/Supporters", centered(widget.NewLabel("Board/Supporters"))),
-				container.NewTabItem("Transfer Market", centered(widget.NewLabel("Transfer"))),
+				container.NewTabItem("Transfer Market", centered(widget.NewLabel(fmt.Sprintf("Transfer window is %s.", trsf)))),
 				container.NewTabItem("Misc", centered(widget.NewLabel("Misc"))),
 			),
 		)

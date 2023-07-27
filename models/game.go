@@ -186,6 +186,12 @@ func (g *Game) SetTeamContract(yContract int, wage utils.Money, team *TPH) {
 	g.OnEmployed()
 }
 
+func (g *Game) IsTransferWindowOpen() bool {
+	mc := CalculateTransferWindowDates(g.Date)
+
+	return mc.IsOpen()
+}
+
 func (g *Game) IsEmployed() bool {
 	return g.Team != nil
 }
@@ -202,4 +208,72 @@ func (g *Game) IsUnemployedAndNoOfferPending() bool {
 	_, hasContract := g.YourContract()
 
 	return !hasContract && !g.Flags.HasAContractOffer
+}
+
+type MarketCheck struct {
+	OpeningDate bool
+	ClosingDate bool
+	Summer      bool
+	Winter      bool
+	Opening     string
+	Closing     string
+}
+
+func (m MarketCheck) IsOpen() bool {
+	return m.OpeningDate || (m.Summer || m.Winter)
+}
+
+func MakeMarketWindows(date time.Time) []time.Time {
+	thisYear := date.Year()
+
+	return []time.Time{
+		utils.NewDate(thisYear, conf.SummerMarketWindowStart, 1),
+		utils.NewDate(thisYear, conf.SummerMarketWindowEnd, 31),
+		utils.NewDate(thisYear, conf.WinterMarketWindowStart, 1),
+		utils.NewDate(thisYear, conf.WinterMarketWindowEnd, 31),
+	}
+}
+
+func CalculateTransferWindowDates(date time.Time) MarketCheck {
+	dates := MakeMarketWindows(date)
+
+	if date.Equal(dates[0]) {
+		return MarketCheck{
+			OpeningDate: true, Summer: true,
+			Opening: dates[0].Format(conf.DateFormatShort),
+			Closing: dates[1].Format(conf.DateFormatShort),
+		}
+	}
+
+	if date.Equal(dates[1]) {
+		return MarketCheck{ClosingDate: true, Summer: true,
+			Opening: dates[0].Format(conf.DateFormatShort),
+			Closing: dates[1].Format(conf.DateFormatShort),
+		}
+	}
+
+	if date.Equal(dates[2]) {
+		return MarketCheck{OpeningDate: true, Winter: true,
+			Opening: dates[2].Format(conf.DateFormatShort),
+			Closing: dates[3].Format(conf.DateFormatShort)}
+	}
+
+	if date.Equal(dates[3]) {
+		return MarketCheck{ClosingDate: true, Winter: true,
+			Opening: dates[2].Format(conf.DateFormatShort),
+			Closing: dates[3].Format(conf.DateFormatShort),
+		}
+	}
+
+	if date.After(dates[0]) && date.Before(dates[1]) {
+		return MarketCheck{Summer: true,
+			Opening: dates[2].Format(conf.DateFormatShort),
+			Closing: dates[3].Format(conf.DateFormatShort)}
+	}
+
+	if date.After(dates[2]) && date.Before(dates[3]) {
+		return MarketCheck{Winter: true}
+	}
+
+	return MarketCheck{}
 }
