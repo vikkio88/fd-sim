@@ -51,7 +51,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 
 	main.Append(container.NewTabItemWithIcon("Awards",
 		theme.DocumentIcon(),
-		makePAwards(player.Awards, ctx.PushWithParam),
+		makePAwards(player.Awards, player.Trophies, ctx.PushWithParam),
 	))
 
 	return NewFborder().
@@ -94,9 +94,8 @@ func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne
 							makePHistory(retired.History, ctx.PushWithParam),
 						),
 						container.NewVBox(
-							h2("Awards"),
 							container.NewPadded(
-								makePAwards(retired.Awards, ctx.PushWithParam),
+								makePAwards(retired.Awards, retired.Trophies, ctx.PushWithParam),
 							),
 						),
 					),
@@ -113,13 +112,9 @@ func makePlayerHeader(player *models.PlayerDetailed) fyne.CanvasObject {
 	))
 }
 
-func makePAwards(awards []models.Award, navigate NavigateWithParamFunc) fyne.CanvasObject {
-	if len(awards) < 1 {
-		return centered(widget.NewLabel("No Awards."))
-	}
-
+func makePAwards(awards []models.Award, trophies []models.Trophy, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	columns := widgets.NewColumnsLayout([]float32{100, 100, 100, 100})
-	headers := widgets.NewListHeader(
+	headersAwards := widgets.NewListHeader(
 		[]widgets.ListColumn{
 			widgets.NewListCol("League", fyne.TextAlignCenter),
 			widgets.NewListCol("Team", fyne.TextAlignCenter),
@@ -128,40 +123,108 @@ func makePAwards(awards []models.Award, navigate NavigateWithParamFunc) fyne.Can
 		},
 		columns,
 	)
-	awardList := widget.NewList(
-		func() int { return len(awards) },
-		func() fyne.CanvasObject {
-			return container.New(
-				columns,
-				centered(widget.NewHyperlink("League", nil)),
-				centered(widget.NewHyperlink("Team", nil)),
-				widget.NewLabel("Awards"),
-				widget.NewLabel("Stats"),
-			)
+	headersTrophies := widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("Year", fyne.TextAlignCenter),
+			widgets.NewListCol("League", fyne.TextAlignCenter),
+			widgets.NewListCol("Team", fyne.TextAlignCenter),
+			widgets.NewListCol("Trophy", fyne.TextAlignCenter),
 		},
-		func(lii widget.ListItemID, co fyne.CanvasObject) {
-			ar := awards[lii]
-			cells := co.(*fyne.Container)
-
-			leagueHl := getCenteredHL(cells.Objects[0])
-			leagueHl.SetText(ar.LeagueName)
-			leagueHl.OnTapped = func() { navigate(LeagueHistory, ar.LeagueId) }
-
-			teamHl := getCenteredHL(cells.Objects[1])
-			teamHl.SetText(ar.Team.Name)
-			teamHl.OnTapped = func() {
-				navigate(TeamDetails, ar.Team.Id)
-			}
-
-			awLbl := cells.Objects[2].(*widget.Label)
-			awLbl.SetText(ar.String())
-
-			statsLbl := cells.Objects[3].(*widget.Label)
-			statsLbl.SetText(ar.StatString())
-
-		},
+		columns,
 	)
-	return NewFborder().Top(headers).Get(awardList)
+
+	var awardList fyne.CanvasObject
+	awardList = container.NewVBox(centered(h2("Nothing here")))
+	if len(awards) > 0 {
+		awardList = widget.NewList(
+			func() int { return len(awards) },
+			func() fyne.CanvasObject {
+				return container.New(
+					columns,
+					centered(widget.NewHyperlink("League", nil)),
+					centered(widget.NewHyperlink("Team", nil)),
+					widget.NewLabel("Awards"),
+					widget.NewLabel("Stats"),
+				)
+			},
+			func(lii widget.ListItemID, co fyne.CanvasObject) {
+				ar := awards[lii]
+				cells := co.(*fyne.Container)
+
+				leagueHl := getCenteredHL(cells.Objects[0])
+				leagueHl.SetText(ar.LeagueName)
+				leagueHl.OnTapped = func() { navigate(LeagueHistory, ar.LeagueId) }
+
+				teamHl := getCenteredHL(cells.Objects[1])
+				teamHl.SetText(ar.Team.Name)
+				teamHl.OnTapped = func() {
+					navigate(TeamDetails, ar.Team.Id)
+				}
+
+				awLbl := cells.Objects[2].(*widget.Label)
+				awLbl.SetText(ar.String())
+
+				statsLbl := cells.Objects[3].(*widget.Label)
+				statsLbl.SetText(ar.StatString())
+
+			},
+		)
+	}
+
+	var trophiesList fyne.CanvasObject
+	trophiesList = container.NewVBox(centered(h2("Nothing here")))
+	if len(trophies) > 0 {
+		trophiesList = widget.NewList(
+			func() int { return len(trophies) },
+			func() fyne.CanvasObject {
+				return container.New(
+					columns,
+					widget.NewLabel("Year"),
+					centered(widget.NewHyperlink("League", nil)),
+					centered(widget.NewHyperlink("Team", nil)),
+					widget.NewLabel("Trophy"),
+				)
+			},
+			func(lii widget.ListItemID, co fyne.CanvasObject) {
+				tf := trophies[lii]
+				cells := co.(*fyne.Container)
+				yearLbl := cells.Objects[0].(*widget.Label)
+				yearLbl.SetText(fmt.Sprintf("%d", tf.Year))
+
+				leagueHl := getCenteredHL(cells.Objects[1])
+				leagueHl.SetText(tf.LeagueName)
+				leagueHl.OnTapped = func() { navigate(LeagueHistory, tf.LeagueId) }
+
+				teamHl := getCenteredHL(cells.Objects[2])
+				teamHl.SetText(tf.Team.Name)
+				teamHl.OnTapped = func() {
+					navigate(TeamDetails, tf.Team.Id)
+				}
+
+				tfLbl := cells.Objects[3].(*widget.Label)
+				tfLbl.SetText("League Winner")
+
+			},
+		)
+	}
+	return container.NewGridWithColumns(2,
+		NewFborder().
+			Top(
+				container.NewVBox(
+					h2("Individual Awards"),
+					headersAwards,
+				),
+			).
+			Get(awardList),
+		NewFborder().
+			Top(
+				container.NewVBox(
+					h2("Trophies"),
+					headersTrophies,
+				),
+			).
+			Get(trophiesList),
+	)
 }
 
 func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {
