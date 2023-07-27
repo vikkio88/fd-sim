@@ -13,5 +13,5 @@ type Person struct {
 	Country   enums.Country
 
 	Wage      utils.Money
-	YContract uint8
+	YContract int
 }

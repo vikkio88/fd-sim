@@ -89,20 +89,17 @@ func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne
 						valueLabel("Retired in:", widget.NewLabel(fmt.Sprintf("%d (%d years old)", retired.YearRetired, retired.Age))),
 					),
 				).Get(
-					NewFborder().
-						Bottom(
-							container.NewVBox(
-								h2("Awards"),
-								container.NewPadded(
-									makePAwards(retired.Awards, ctx.PushWithParam),
-								),
-							),
-						).
-						Get(
+					container.NewGridWithRows(2,
+						container.NewPadded(
+							makePHistory(retired.History, ctx.PushWithParam),
+						),
+						container.NewVBox(
+							h2("Awards"),
 							container.NewPadded(
-								makePHistory(retired.History, ctx.PushWithParam),
+								makePAwards(retired.Awards, ctx.PushWithParam),
 							),
 						),
+					),
 				),
 			),
 		)

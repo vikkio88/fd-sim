@@ -58,9 +58,9 @@ func (p *PeopleGen) getEnumsGen() *EnumsGen {
 	return p.eGen
 }
 
-func (p *PeopleGen) getContractInfo(idealWage utils.Money) (utils.Money, uint8) {
+func (p *PeopleGen) getContractInfo(idealWage utils.Money) (utils.Money, int) {
 	wage := idealWage.Value() * p.rng.PercR(80, 110)
-	contractYears := uint8(p.rng.UInt(1, 5))
+	contractYears := p.rng.UInt(1, 5)
 	return utils.NewEurosFromF(wage), contractYears
 }
 

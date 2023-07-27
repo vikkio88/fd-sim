@@ -22,7 +22,7 @@ type CoachDto struct {
 
 	TeamId    *string
 	Wage      int64
-	YContract uint8
+	YContract int
 
 	RngSeed int64
 }

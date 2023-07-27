@@ -40,8 +40,10 @@ func (pr *PlayerRepo) RetiredById(id string) (*models.RetiredPlayer, bool) {
 
 	var awardsRows []LHistoryDto
 	pr.g.Model(&LHistoryDto{}).Where("best_scorer_id = ? or mvp_id = ?", id, id).Find(&awardsRows)
+	var trophiesRows []TrophyDto
+	pr.g.Model(&TrophyDto{}).Where("player_id = ?", id).Find(&trophiesRows)
 
-	return p.RetiredPlayer(awardsRows), true
+	return p.RetiredPlayer(awardsRows, trophiesRows), true
 }
 
 func (pr *PlayerRepo) ById(id string) (*models.PlayerDetailed, bool) {
@@ -52,8 +54,10 @@ func (pr *PlayerRepo) ById(id string) (*models.PlayerDetailed, bool) {
 	}
 	var awardsRows []LHistoryDto
 	pr.g.Model(&LHistoryDto{}).Where("best_scorer_id = ? or mvp_id = ?", id, id).Find(&awardsRows)
+	var trophiesRows []TrophyDto
+	pr.g.Model(&TrophyDto{}).Where("player_id = ?", id).Find(&trophiesRows)
 
-	return p.PlayerDetailed(awardsRows), true
+	return p.PlayerDetailed(awardsRows, trophiesRows), true
 }
 
 func (pr *PlayerRepo) Truncate() {

@@ -27,15 +27,7 @@ func NewDb(fileName string) IDb {
 		panic(err)
 	}
 
-	g.AutoMigrate(
-		&LeagueDto{}, &MatchDto{}, &ResultDto{},
-		&TableRowDto{}, &RoundDto{}, &TeamDto{},
-		&PlayerDto{}, &CoachDto{}, &GameDto{},
-		&StatRowDto{}, &NewsDto{}, &EmailDto{},
-		&PHistoryDto{}, &THistoryDto{}, &FDStatRowDto{},
-		&RetiredPlayerDto{}, &FDHistoryDto{}, &LHistoryDto{},
-		&DbEventDto{},
-	)
+	migrate(g)
 	cache := map[string]interface{}{}
 	return &Db{g, cache}
 }
