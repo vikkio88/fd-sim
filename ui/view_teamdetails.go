@@ -33,32 +33,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		roster.Append(p)
 	}
 
-	coachSkillInfo := starsFromPerc(team.Coach.Skill)
-	if IsFDTeam(id) {
-		coachSkillInfo = widget.NewLabel(team.Coach.Skill.String())
-	}
-
-	coach := widget.NewCard(
-		"",
-		"Coach",
-		container.NewVBox(
-			centered(widget.NewLabel(fmt.Sprintf("%s (%d)", team.Coach.String(), team.Coach.Age))),
-			centered(
-				widgets.FlagIcon(team.Coach.Country),
-			),
-			centered(
-				coachSkillInfo,
-			),
-			container.NewGridWithColumns(2,
-				widget.NewLabel("Contract"),
-				widget.NewLabel(fmt.Sprintf("%s / %d ys", team.Coach.Wage.StringKMB(), team.Coach.YContract)),
-			),
-			container.NewGridWithColumns(2,
-				widget.NewLabel("Module:"),
-				widget.NewLabel(team.Coach.Module.String()),
-			),
-		),
-	)
+	coach := makeCoachCard(team.Coach, IsFDTeam(id), false)
 
 	finances := widget.NewCard("",
 		"Finances",
@@ -145,6 +120,46 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		Get(
 			main,
 		)
+}
+
+func makeCoachCard(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
+	coachSkillInfo := starsFromPerc(coach.Skill)
+	if showSkillInfo {
+		coachSkillInfo = widget.NewLabel(coach.Skill.String())
+	}
+
+	details := container.NewVBox(
+		centered(widget.NewLabel(fmt.Sprintf("%s (%d)", coach.String(), coach.Age))),
+		centered(
+			widgets.FlagIcon(coach.Country),
+		),
+		centered(
+			coachSkillInfo,
+		),
+		container.NewGridWithColumns(2,
+			widget.NewLabel("Contract"),
+			widget.NewLabel(fmt.Sprintf("%s / %d ys", coach.Wage.StringKMB(), coach.YContract)),
+		),
+	)
+
+	if !interactive {
+		details.Add(
+			container.NewGridWithColumns(2,
+				widget.NewLabel("Module:"),
+				widget.NewLabel(coach.Module.String()),
+			),
+		)
+	} else {
+		details.Add(
+			widget.NewButton("Chat", func() { fmt.Println("Chat") }),
+		)
+	}
+
+	return widget.NewCard(
+		"",
+		"Coach",
+		details,
+	)
 }
 
 func makeTHistory(tHistoryRow []*models.THistoryRow, navigate NavigateWithParamFunc) fyne.CanvasObject {

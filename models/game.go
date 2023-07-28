@@ -186,10 +186,10 @@ func (g *Game) SetTeamContract(yContract int, wage utils.Money, team *TPH) {
 	g.OnEmployed()
 }
 
-func (g *Game) IsTransferWindowOpen() bool {
+func (g *Game) IsTransferWindowOpen() (bool, MarketCheck) {
 	mc := CalculateTransferWindowDates(g.Date)
 
-	return mc.IsOpen()
+	return mc.IsOpen(), mc
 }
 
 func (g *Game) IsEmployed() bool {
