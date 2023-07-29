@@ -9,7 +9,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -26,15 +25,11 @@ func rosterUi(team *models.TeamDetailed, ctx *AppContext, isGameInit bool) fyne.
 }
 
 func simpleRoster(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
-	roster := binding.NewUntypedList()
-	for _, p := range team.Roster.PlayersByRole() {
-		roster.Append(p)
-	}
-
-	return widget.NewListWithData(
-		roster,
+	players := team.Roster.PlayersByRole()
+	return widget.NewList(
+		func() int { return len(players) },
 		simpleRosterListRow,
-		makeSimpleRosterRowBind(navigate, team.Id),
+		makeBindSimpleRosterRow(players, navigate, team.Id),
 	)
 }
 
@@ -58,9 +53,9 @@ func simpleRosterListRow() fyne.CanvasObject {
 		)
 }
 
-func makeSimpleRosterRowBind(navigate NavigateWithParamFunc, teamId string) func(di binding.DataItem, co fyne.CanvasObject) {
-	return func(di binding.DataItem, co fyne.CanvasObject) {
-		player := vm.PlayerFromDi(di)
+func makeBindSimpleRosterRow(players []*models.Player, navigate NavigateWithParamFunc, teamId string) func(widget.ListItemID, fyne.CanvasObject) {
+	return func(index widget.ListItemID, co fyne.CanvasObject) {
+		player := players[index]
 		c := co.(*fyne.Container)
 
 		ctn := c.Objects[0].(*fyne.Container)
