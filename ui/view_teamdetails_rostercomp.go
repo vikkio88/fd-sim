@@ -13,7 +13,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func rosterUi(team *models.TeamDetailed, ctx *AppContext, teamId string) fyne.CanvasObject {
+func rosterUi(team *models.TeamDetailed, ctx *AppContext) fyne.CanvasObject {
 	roster := binding.NewUntypedList()
 	for _, p := range team.Roster.PlayersByRole() {
 		roster.Append(p)
@@ -22,7 +22,7 @@ func rosterUi(team *models.TeamDetailed, ctx *AppContext, teamId string) fyne.Ca
 	return widget.NewListWithData(
 		roster,
 		simpleRosterListRow,
-		makeSimpleRosterRowBind(ctx, teamId),
+		makeSimpleRosterRowBind(ctx, team.Id),
 	)
 }
 
