@@ -1,15 +1,12 @@
 package ui
 
 import (
-	"fdsim/enums"
 	"fdsim/models"
-	vm "fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -27,10 +24,6 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		row := ctx.Db.TeamR().TableRow(id)
 		stats.RemoveAll()
 		stats.Add(makeTeamStats(row))
-	}
-	roster := binding.NewUntypedList()
-	for _, p := range team.Roster.PlayersByRole() {
-		roster.Append(p)
 	}
 
 	coach := makeCoachCard(team.Coach, IsFDTeam(id), false)
@@ -100,7 +93,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
-		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(roster, ctx, id)),
+		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(team, ctx, id)),
 		container.NewTabItemWithIcon("Season Stats", theme.DocumentIcon(), stats),
 		container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeTHistory(team.History, ctx.PushWithParam)),
 	)
@@ -266,64 +259,4 @@ func makeTeamStats(row *models.TPHRow) fyne.CanvasObject {
 				centered(widget.NewLabel(fmt.Sprintf("%d", row.Row.Points))),
 			),
 		))
-}
-
-func rosterUi(roster binding.DataList, ctx *AppContext, teamId string) fyne.CanvasObject {
-	return widget.NewListWithData(
-		roster,
-		simpleRosterListRow,
-		makeSimpleRosterRowBind(ctx, teamId),
-	)
-}
-
-func simpleRosterListRow() fyne.CanvasObject {
-	return NewFborder().
-		Get(
-			container.NewMax(
-				container.NewGridWithColumns(
-					4,
-					centered(widget.NewHyperlink("", nil)),
-					centered(widget.NewLabel("Role")),
-					centered(widgets.NewFlag(enums.EN)),
-					centered(
-						container.NewHBox(
-							starsFromf64(0),
-							widget.NewLabel(""),
-						),
-					),
-				),
-			),
-		)
-}
-
-func makeSimpleRosterRowBind(ctx *AppContext, teamId string) func(di binding.DataItem, co fyne.CanvasObject) {
-	return func(di binding.DataItem, co fyne.CanvasObject) {
-		player := vm.PlayerFromDi(di)
-		c := co.(*fyne.Container)
-
-		ctn := c.Objects[0].(*fyne.Container)
-		mx := ctn.Objects[0].(*fyne.Container)
-		ctr := mx.Objects[0].(*fyne.Container)
-		l := ctr.Objects[0].(*widget.Hyperlink)
-
-		l.SetText(fmt.Sprintf("%s (%d)", player.String(), player.Age))
-		l.OnTapped = func() {
-			ctx.PushWithParam(PlayerDetails, player.Id)
-		}
-
-		mx.Objects[1].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Role.String())
-		f := mx.Objects[2].(*fyne.Container).Objects[0].(*widgets.Flag)
-		f.SetCountry(player.Country)
-		values := mx.Objects[3].(*fyne.Container).Objects[0].(*fyne.Container)
-
-		star := values.Objects[0].(*widgets.StarRating)
-		value := values.Objects[1].(*widget.Label)
-		if IsFDTeam(teamId) {
-			value.SetText(player.Skill.String())
-			star.Hide()
-		} else {
-			star.SetValues(vm.PercToStars(player.Skill))
-			value.Hide()
-		}
-	}
 }
