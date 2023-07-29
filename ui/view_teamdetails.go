@@ -93,10 +93,13 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 
 	main := container.NewAppTabs(
 		container.NewTabItemWithIcon("Club Details", widgets.Icon("city").Resource, teamDetails),
-		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(team, ctx)),
-		container.NewTabItemWithIcon("Season Stats", theme.DocumentIcon(), stats),
-		container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeTHistory(team.History, ctx.PushWithParam)),
+		container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, rosterUi(team, ctx, isGameInit)),
 	)
+
+	if isGameInit {
+		main.Append(container.NewTabItemWithIcon("Season Stats", theme.DocumentIcon(), stats))
+		main.Append(container.NewTabItemWithIcon("History", theme.DocumentIcon(), makeTHistory(team.History, ctx.PushWithParam)))
+	}
 
 	return NewFborder().
 		Top(

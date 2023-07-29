@@ -13,7 +13,19 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func rosterUi(team *models.TeamDetailed, ctx *AppContext) fyne.CanvasObject {
+func rosterUi(team *models.TeamDetailed, ctx *AppContext, isGameInit bool) fyne.CanvasObject {
+	if team.Id != fdTeamId {
+		return simpleRoster(team, ctx.PushWithParam)
+	}
+
+	return container.NewAppTabs(
+		container.NewTabItem("Roles", simpleRoster(team, ctx.PushWithParam)),
+		container.NewTabItem("Contracts", simpleRoster(team, ctx.PushWithParam)),
+		container.NewTabItem("Performance", simpleRoster(team, ctx.PushWithParam)),
+	)
+}
+
+func simpleRoster(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.CanvasObject {
 	roster := binding.NewUntypedList()
 	for _, p := range team.Roster.PlayersByRole() {
 		roster.Append(p)
@@ -22,7 +34,7 @@ func rosterUi(team *models.TeamDetailed, ctx *AppContext) fyne.CanvasObject {
 	return widget.NewListWithData(
 		roster,
 		simpleRosterListRow,
-		makeSimpleRosterRowBind(ctx, team.Id),
+		makeSimpleRosterRowBind(navigate, team.Id),
 	)
 }
 
@@ -46,7 +58,7 @@ func simpleRosterListRow() fyne.CanvasObject {
 		)
 }
 
-func makeSimpleRosterRowBind(ctx *AppContext, teamId string) func(di binding.DataItem, co fyne.CanvasObject) {
+func makeSimpleRosterRowBind(navigate NavigateWithParamFunc, teamId string) func(di binding.DataItem, co fyne.CanvasObject) {
 	return func(di binding.DataItem, co fyne.CanvasObject) {
 		player := vm.PlayerFromDi(di)
 		c := co.(*fyne.Container)
@@ -58,7 +70,7 @@ func makeSimpleRosterRowBind(ctx *AppContext, teamId string) func(di binding.Dat
 
 		l.SetText(fmt.Sprintf("%s (%d)", player.String(), player.Age))
 		l.OnTapped = func() {
-			ctx.PushWithParam(PlayerDetails, player.Id)
+			navigate(PlayerDetails, player.Id)
 		}
 
 		mx.Objects[1].(*fyne.Container).Objects[0].(*widget.Label).SetText(player.Role.String())
