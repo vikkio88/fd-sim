@@ -118,7 +118,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeCoachCard(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
+func makeCoachDetails(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
 	coachSkillInfo := starsFromPerc(coach.Skill)
 	if showSkillInfo {
 		coachSkillInfo = widget.NewLabel(coach.Skill.String())
@@ -151,10 +151,15 @@ func makeCoachCard(coach *models.Coach, showSkillInfo bool, interactive bool) fy
 		)
 	}
 
+	return details
+}
+
+func makeCoachCard(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
+
 	return widget.NewCard(
 		"",
 		"Coach",
-		details,
+		makeCoachDetails(coach, showSkillInfo, interactive),
 	)
 }
 

@@ -205,6 +205,28 @@ func (r *Roster) PlayersByRole() []*Player {
 	return players
 }
 
+func (r *Roster) PlayersByContract() []*Player {
+	players := r.Players()
+	sort.Slice(players, func(i, j int) bool {
+		if players[i].YContract != players[j].YContract {
+			return players[i].YContract < players[j].YContract
+		}
+		return players[i].Wage.Val > players[j].Wage.Val
+	})
+	return players
+}
+
+func (r *Roster) PlayersByValueSkill() []*Player {
+	players := r.Players()
+	sort.Slice(players, func(i, j int) bool {
+		if players[i].Skill.Val() != players[j].Skill.Val() {
+			return players[i].Skill.Val() > players[j].Skill.Val()
+		}
+		return players[i].Value.Val > players[j].Value.Val
+	})
+	return players
+}
+
 type TeamStats struct {
 	Skill  float64
 	Morale float64
