@@ -46,7 +46,7 @@ func loadGameView(ctx *AppContext) *fyne.Container {
 	}
 	return NewFborder().
 		Top(centered(h1("Load Game"))).
-		Bottom(leftAligned(topNavBar(ctx))).
+		Bottom(leftAligned(widget.NewButtonWithIcon("Back", theme.NavigateBackIcon(), func() { ctx.Pop() }))).
 		Get(
 			container.NewCenter(pHolder),
 			gamesList,
