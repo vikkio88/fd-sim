@@ -76,7 +76,7 @@ func leagueFinishedEvent(params models.EventParams, date time.Time) *Event {
 		position := ""
 		subject := ""
 		prize := utils.NewEuros(0)
-		emailAddr := emailAddrFromTeamName(params.FdTeamName)
+		emailAddr := emailAddrFromTeamName(params.FdTeamName, "hr")
 
 		if params.FdTeamId == winnerId {
 			position = "first"
@@ -177,7 +177,7 @@ func contractAccepted(params models.EventParams, date time.Time) *Event {
 
 	event := NewEvent(date, title)
 	event.TriggerEmail = models.NewEmail(
-		emailAddrFromTeamName(teamName),
+		emailAddrFromTeamName(teamName, "hr"),
 		fmt.Sprintf("Welcome to %s", teamName),
 		fmt.Sprintf(
 			"Thanks Mr %s for joining us, we are delighted to have you on board."+
@@ -228,7 +228,7 @@ func contractOffered(params models.EventParams, date time.Time) *Event {
 
 	event := NewEvent(date, title)
 	event.TriggerEmail = models.NewEmailWithAction(
-		emailAddrFromTeamName(teamName),
+		emailAddrFromTeamName(teamName, "hr"),
 		title,
 		fmt.Sprintf(
 			"We are willing to offer you %s per year for a lentgth of %d year(s)."+

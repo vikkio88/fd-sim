@@ -8,7 +8,7 @@ import (
 )
 
 // Utils formatters
-func emailAddrFromTeamName(teamName string) string {
+func emailAddrFromTeamName(teamName string, department string) string {
 	website := strings.ToLower(teamName)
 	website = strings.ReplaceAll(website, " ", "")
 	return fmt.Sprintf("hr@%s.com", website)

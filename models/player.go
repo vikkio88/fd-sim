@@ -89,6 +89,23 @@ type PNPH struct {
 	Surname string
 }
 
+// Player Placeholder with Name and Some holding values, to Trigger events on db side
+type PNPHVals struct {
+	PNPH
+
+	ValueI  int
+	ValueI1 int
+	ValueI2 int
+
+	ValueF  float64
+	ValueF1 float64
+	ValueF2 float64
+
+	ValueS  string
+	ValueS1 string
+	ValueS2 string
+}
+
 func (p *PNPH) String() string {
 	return fmt.Sprintf("%s %s", p.Name, p.Surname)
 }

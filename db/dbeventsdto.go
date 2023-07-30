@@ -24,8 +24,7 @@ const (
 	DbEvPlRetiredFdTeam DbEventType = iota
 	DbEvYoungJoinedFdTeam
 	DbEvPlayerWentFreeAgent
-	DbEvPlayersImproved
-	DbEvPlayersWorsened
+	DbEvPlayersSkillChanged
 )
 
 func NewDbEventDto(kind DbEventType, country enums.Country, payload string, evParams models.EventParams, triggerDate time.Time) DbEventDto {

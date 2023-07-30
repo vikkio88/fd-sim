@@ -156,6 +156,7 @@ func (lr *LeagueRepo) playersEndOfSeason(
 	lr.g.Model(&PlayerDto{}).Preload(teamRel).Find(&allPlayers)
 
 	trophies := []TrophyDto{}
+	fdPlayersSkillChanged := [2][]*models.PNPHVals{{}, {}}
 	for _, p := range allPlayers {
 		// check if player is FD Managed
 		isFdTeamPlayer := false
@@ -165,13 +166,26 @@ func (lr *LeagueRepo) playersEndOfSeason(
 
 		// Increase Players Skill if Young
 		if p.Age < 22 {
-			nSkill := utils.NewPerc(p.Skill + rng.UInt(2, 8))
+			inc := rng.UInt(2, 8)
+			if inc > 6 && isFdTeamPlayer {
+				ph := p.PlayerPH()
+				pv := &models.PNPHVals{PNPH: *ph, ValueI: inc}
+
+				fdPlayersSkillChanged[0] = append(fdPlayersSkillChanged[0], pv)
+			}
+			nSkill := utils.NewPerc(p.Skill + inc)
 			p.Skill = nSkill.Val()
 		}
 
 		// Decrease Players Skill if Older
 		if p.Age > 29 {
-			nSkill := utils.NewPerc(p.Skill - rng.UInt(1, 5))
+			dec := rng.UInt(1, 5)
+			if dec > 3 && isFdTeamPlayer {
+				ph := p.PlayerPH()
+				pv := &models.PNPHVals{PNPH: *ph, ValueI: dec}
+				fdPlayersSkillChanged[1] = append(fdPlayersSkillChanged[1], pv)
+			}
+			nSkill := utils.NewPerc(p.Skill - dec)
 			p.Skill = nSkill.Val()
 		}
 
@@ -183,6 +197,8 @@ func (lr *LeagueRepo) playersEndOfSeason(
 
 		// Calculate new Value and new Ideal Wage
 		p.IdealWage = pg.GetWage(p.Skill, p.Age, false).Val
+
+		//TODO: maybe add here if the Value increased a bit more than usual trigger event
 		p.Value = pg.GetValue(p.Skill, p.Age).Val
 
 		// If player won, increase fame
@@ -219,7 +235,21 @@ func (lr *LeagueRepo) playersEndOfSeason(
 	lr.g.Save(allPlayers)
 	lr.g.Save(trophies)
 
-	return []DbEventDto{}
+	events := []DbEventDto{}
+	if len(fdPlayersSkillChanged) > 0 && game.Team != nil {
+		data, _ := json.Marshal(&fdPlayersSkillChanged)
+		events = append(events,
+			NewDbEventDto(
+				DbEvPlayersSkillChanged,
+				game.BaseCountry,
+				string(data),
+				models.EventParams{TeamName: game.Team.Name},
+				game.Date,
+			),
+		)
+	}
+
+	return events
 }
 
 func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *models.Game, leagueName string, tm TeamLosingPlayersMap, rng *libs.Rng) []DbEventDto {
