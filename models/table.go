@@ -154,6 +154,10 @@ func (t *Table) updateTableOrder() {
 	})
 }
 
+func (t *Table) Len() int {
+	return t.count
+}
+
 func (t *Table) Rows() []*Row {
 	rows := make([]*Row, t.count)
 	for i, id := range t.order {
