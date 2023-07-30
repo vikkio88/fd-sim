@@ -9,6 +9,7 @@ import (
 	"fdsim/models"
 	"fdsim/utils"
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/maps"
@@ -24,6 +25,12 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	league := lr.ById(game.LeagueId)
 	leagueName := league.Name
 	winnerTeamId := league.TableRow(0).Team.Id
+	teamsC := league.Table.Len()
+	losersIds := []string{
+		league.TableRow(teamsC - 1).Team.Id,
+		league.TableRow(teamsC - 2).Team.Id,
+		league.TableRow(teamsC - 3).Team.Id,
+	}
 
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).
@@ -47,7 +54,7 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 
 	teamLostPlayers := TeamLosingPlayersMap{}
 
-	resultEvents = lr.playersEndOfSeason(game, teamLostPlayers, winnerTeamId, leagueName, rng)
+	resultEvents = lr.playersEndOfSeason(game, teamLostPlayers, winnerTeamId, leagueName, losersIds, rng)
 	dbEvents = append(dbEvents, resultEvents...)
 
 	resultEvents = lr.retirePlayers(indexedP, game, leagueName, teamLostPlayers, rng)
@@ -131,19 +138,31 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 
 // Checks contracts and if 0 put them on the free market
 // grows players skills and fame
-func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayersMap, winningTeamId, leagueName string, rng *libs.Rng) []DbEventDto {
+func (lr *LeagueRepo) playersEndOfSeason(
+	game *models.Game, tm TeamLosingPlayersMap,
+	winningTeamId, leagueName string, losersIds []string,
+	rng *libs.Rng,
+) []DbEventDto {
+	losersStr := strings.Join(losersIds, ", ")
 	fdTeamId := game.GetTeamIdOrEmpty()
 	pg := generators.NewPeopleGenSeeded(rng)
 
 	lr.g.Exec("update player_dtos set y_contract = y_contract - 1 where team_id is not null")
 
 	//TODO: this is the slowest of them all
+	// TODO: Add events for players team
 	// ITERATE OVER EVERY PLAYER
 	var allPlayers []*PlayerDto
 	lr.g.Model(&PlayerDto{}).Preload(teamRel).Find(&allPlayers)
 
 	trophies := []TrophyDto{}
 	for _, p := range allPlayers {
+		// check if player is FD Managed
+		isFdTeamPlayer := false
+		if p.TeamId != nil && *p.TeamId == fdTeamId {
+			isFdTeamPlayer = true
+		}
+
 		// Increase Players Skill if Young
 		if p.Age < 22 {
 			nSkill := utils.NewPerc(p.Skill + rng.UInt(2, 8))
@@ -162,7 +181,7 @@ func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayers
 			p.Skill = nSkill.Val()
 		}
 
-		// Calculate new Value and Ideal Wage
+		// Calculate new Value and new Ideal Wage
 		p.IdealWage = pg.GetWage(p.Skill, p.Age, false).Val
 		p.Value = pg.GetValue(p.Skill, p.Age).Val
 
@@ -171,11 +190,22 @@ func (lr *LeagueRepo) playersEndOfSeason(game *models.Game, tm TeamLosingPlayers
 			nFame := utils.NewPerc(p.Fame + rng.UInt(5, 10))
 			p.Fame = nFame.Val()
 			trophies = append(trophies, NewTrophyDto(p.Id, game.LeagueId, leagueName, *p.TeamId, p.Team.Name, game.Date.Year()))
+
+			// if withing last 3 teams decrease fame
+		} else if p.TeamId != nil && strings.Contains(losersStr, *p.TeamId) {
+			nFame := utils.NewPerc(p.Fame - rng.UInt(2, 5))
+			p.Fame = nFame.Val()
+
+			// otherwise randomly increase or decrease
+		} else {
+			nFame := utils.NewPerc(p.Fame + rng.PlusMinusVal(2, 50))
+			p.Fame = nFame.Val()
 		}
 
 		// contract expiry
 		if p.YContract < 1 && p.TeamId != nil {
-			if *p.TeamId != fdTeamId && rng.ChanceI(50) {
+			// 50% chance autorenew if not managed by FD
+			if !isFdTeamPlayer && rng.ChanceI(50) {
 				p.YContract = 1
 			} else {
 				countPlayerLoss(p, tm)
