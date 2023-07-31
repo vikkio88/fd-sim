@@ -160,7 +160,7 @@ func roundCard(round *models.RPHTPH, matchList *widget.List) fyne.CanvasObject {
 }
 
 func makeTableView(table []*models.TPHRow, navigate NavigateWithParamFunc) *fyne.Container {
-	columns := widgets.NewColumnsLayout([]float32{-1, 350, 50, 50, 50, 50, 50, 50, 50})
+	columns := widgets.NewColumnsLayout([]float32{50, 350, 50, 50, 50, 50, 50, 50, 50})
 	header := widgets.NewListHeader(
 		[]widgets.ListColumn{
 			widgets.NewListCol("", fyne.TextAlignCenter),
