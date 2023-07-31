@@ -40,7 +40,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	)
 	if isManagedPlayer {
 		main.Append(
-			container.NewTabItemWithIcon("Manage", theme.DocumentIcon(), centered(widget.NewLabel("Manage"))),
+			container.NewTabItemWithIcon("Manage", theme.AccountIcon(), centered(widget.NewLabel("Manage"))),
 		)
 	}
 
@@ -56,7 +56,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 
 	if g.IsEmployed() && !isManagedPlayer {
 		main.Append(container.NewTabItemWithIcon("Transfer",
-			theme.DocumentIcon(),
+			widgets.Icon("transfers").Resource,
 			makePTransferTab(player, g),
 		))
 	}
