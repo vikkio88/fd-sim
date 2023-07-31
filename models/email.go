@@ -80,7 +80,7 @@ func (e *Email) Answer(choice *Choosable) {
 }
 
 func (e Email) String() string {
-	return fmt.Sprintf("%s - %s - %s", e.Sender, e.Date.Format(conf.DateFormatShort), e.Subject)
+	return fmt.Sprintf("%s - %s - %s", e.Subject, e.Sender, e.Date.Format(conf.DateFormatShort))
 }
 
 func (e *Email) IsActionable() (*time.Time, bool) {
