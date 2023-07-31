@@ -2,10 +2,12 @@ package ui
 
 import (
 	"fdsim/models"
+	"fdsim/widgets"
 	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -33,11 +35,11 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 		).
 		Get(
 			container.NewAppTabs(
-				container.NewTabItem("Roster", makeRosterManagement(team, trow, ctx.PushWithParam)),
-				container.NewTabItem("Finance", centered(widget.NewLabel("Finance"))),
-				container.NewTabItem("Board/Supporters", centered(widget.NewLabel("Board/Supporters"))),
-				container.NewTabItem("Transfer Market", makeMarketMgMtTab(game, ctx.PushWithParam)),
-				container.NewTabItem("Misc", centered(widget.NewLabel("Misc"))),
+				container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, makeRosterManagement(team, trow, ctx.PushWithParam)),
+				container.NewTabItemWithIcon("Finance", widgets.Icon("money").Resource, centered(widget.NewLabel("Finance"))),
+				container.NewTabItemWithIcon("Board/Supporters", theme.AccountIcon(), centered(widget.NewLabel("Board/Supporters"))),
+				container.NewTabItemWithIcon("Transfer Market", widgets.Icon("transfers").Resource, makeMarketMgMtTab(game, ctx.PushWithParam)),
+				container.NewTabItemWithIcon("Misc", theme.SettingsIcon(), centered(widget.NewLabel("Misc"))),
 			),
 		)
 }
