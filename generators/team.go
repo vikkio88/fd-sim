@@ -49,7 +49,7 @@ func (t *TeamGen) cityName(country enums.Country) string {
 	return cities[idx]
 }
 
-func (t *TeamGen) teamName(country enums.Country) string {
+func (t *TeamGen) teamNamePattern(country enums.Country) string {
 	tnp := data.GetTeamNamePattern(country)
 	idx := t.rng.Index(len(tnp))
 	return tnp[idx]
@@ -76,12 +76,12 @@ func (t *TeamGen) TeamsWithCountryUnique(count int, country enums.Country) []*mo
 			}
 
 			city := t.cityName(country)
-			teamName := t.teamName(country)
+			teamNameP := t.teamNamePattern(country)
 			team.City = city
-			team.Name = teamName
-
+			team.Name = fmt.Sprintf(teamNameP, city)
 		}
-		teams[i] = t.Team(country)
+
+		teams[i] = team
 	}
 
 	return teams
@@ -98,8 +98,8 @@ func (t *TeamGen) Teams(count int) []*models.Team {
 
 func (t *TeamGen) Team(country enums.Country) *models.Team {
 	city := t.cityName(country)
-	teamName := t.teamName(country)
-	team := models.NewTeam(fmt.Sprintf(teamName, city), city, country)
+	teamNamePattern := t.teamNamePattern(country)
+	team := models.NewTeam(fmt.Sprintf(teamNamePattern, city), city, country)
 	players := []*models.Player{}
 
 	for role, count := range t.config {
