@@ -127,6 +127,7 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 	fdTeamId := game.GetTeamIdOrEmpty()
 
 	pToAdd := []PlayerDto{}
+	youngFdTeamJoined := []*models.PNPH{}
 	for teamId, rc := range tm {
 		for role, count := range rc {
 			if count == 0 {
@@ -141,7 +142,7 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 				pToAdd = append(pToAdd, pdto)
 
 				if nteamId == fdTeamId {
-					// add to list of new players to report to FD
+					youngFdTeamJoined = append(youngFdTeamJoined, pdto.PlayerPH())
 				}
 			}
 		}
@@ -149,7 +150,20 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 
 	lr.g.Create(&pToAdd)
 
-	return []DbEventDto{}
+	events := []DbEventDto{}
+	if len(youngFdTeamJoined) > 0 {
+		data, _ := json.Marshal(&youngFdTeamJoined)
+		events = append(
+			events,
+			NewDbEventDto(
+				DbEvYoungJoinedFdTeam, game.BaseCountry, string(data),
+				models.EventParams{TeamName: game.Team.Name},
+				game.Date.Add(enums.A_day),
+			),
+		)
+	}
+
+	return events
 }
 
 // Checks contracts and if 0 put them on the free market
@@ -306,12 +320,12 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *model
 	//TODO: maybe ad add a way to replace players
 	pIds := make([]string, len(playersToRetire))
 	retiring := make([]RetiredPlayerDto, len(playersToRetire))
-	playerTeamRetired := []*models.PNPH{}
+	fdTeamRetired := []*models.PNPH{}
 	for i, p := range playersToRetire {
 		retiring[i] = NewRetiredPlayerFromDto(p, indexedP, gameDate.Year(), leagueId, leagueName)
 		pIds[i] = p.Id
 		if p.TeamId != nil && *p.TeamId == fdTeamId {
-			playerTeamRetired = append(playerTeamRetired, p.PlayerPH())
+			fdTeamRetired = append(fdTeamRetired, p.PlayerPH())
 		}
 
 		countPlayerLoss(&p, tm)
@@ -322,8 +336,8 @@ func (lr *LeagueRepo) retirePlayers(indexedP map[string]PHistoryDto, game *model
 	lr.g.Delete(&PlayerDto{}, pIds)
 
 	events := []DbEventDto{}
-	if len(playerTeamRetired) > 0 {
-		data, _ := json.Marshal(&playerTeamRetired)
+	if len(fdTeamRetired) > 0 {
+		data, _ := json.Marshal(&fdTeamRetired)
 		events = append(
 			events,
 			NewDbEventDto(

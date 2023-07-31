@@ -16,6 +16,26 @@ func parsePNPH(dbe db.DbEventDto) []*models.PNPH {
 	return result
 }
 
+func dbEvYoungPlayers(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	youngs := parsePNPH(dbe)
+
+	links := make([]models.Link, len(youngs))
+	body := "The following players joined your team from youth squad:"
+	for i, rp := range youngs {
+		links[i] = models.NewLink(rp.String(), enums.PlayerDetails, &rp.Id)
+		body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+	}
+
+	event.TriggerEmail = models.NewEmail(
+		emailAddrFromTeamName(params.TeamName, "hr"),
+		fmt.Sprintf("%d players promoted to first team.", len(youngs)),
+		body,
+		dbe.TriggerDate,
+		links,
+	)
+	return event
+}
+
 func dbEvRetiredPlayers(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
 	retired := parsePNPH(dbe)
 
@@ -106,7 +126,7 @@ func dbEvIndividualAwards(dbe db.DbEventDto, event *Event, params models.EventPa
 	}
 	body := fmt.Sprintf(`The individual Awards for %s were assigned.
 
-	
+
 MVP
 %s %s
  With an average score of %2.f in %d matches.

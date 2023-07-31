@@ -28,6 +28,8 @@ func getEventFromDbEvent(dbe db.DbEventDto) *Event {
 	params := parseEventParams(dbe.EventParams)
 
 	switch dbe.Type {
+	case db.DbEvYoungJoinedFdTeam:
+		return dbEvYoungPlayers(dbe, event, params)
 	case db.DbEvPlRetiredFdTeam:
 		return dbEvRetiredPlayers(dbe, event, params)
 	case db.DbEvPlayersSkillChanged:
