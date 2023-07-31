@@ -29,7 +29,7 @@ func loadNews(db d.IDb) {
 	newsDb := db.GameR().GetNews()
 
 	for _, n := range newsDb {
-		news.Prepend(n)
+		news.Append(n)
 	}
 }
 
@@ -42,7 +42,7 @@ func loadEmails(db d.IDb) {
 	emailsDb := db.GameR().GetEmails()
 
 	for _, e := range emailsDb {
-		emails.Prepend(e)
+		emails.Append(e)
 	}
 }
 

@@ -93,7 +93,7 @@ func (repo *GameRepo) UpdateEmail(email *models.Email) {
 
 func (repo *GameRepo) GetEmails() []*models.Email {
 	var dtos []EmailDto
-	repo.g.Model(&EmailDto{}).Order("date asc").Find(&dtos)
+	repo.g.Model(&EmailDto{}).Order("date desc").Find(&dtos)
 
 	result := make([]*models.Email, len(dtos))
 	for i, dto := range dtos {
@@ -131,7 +131,7 @@ func (repo *GameRepo) AddNews(news []*models.News) {
 
 func (repo *GameRepo) GetNews() []*models.News {
 	var dtos []NewsDto
-	repo.g.Model(&NewsDto{}).Find(&dtos)
+	repo.g.Model(&NewsDto{}).Order("date desc").Find(&dtos)
 
 	result := make([]*models.News, len(dtos))
 	for i, dto := range dtos {
