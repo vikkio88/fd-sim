@@ -47,27 +47,31 @@ func (DBGen) Run(seed int64, teams int) {
 	)
 
 	fmt.Println("Simulating season 1")
-	l2 := simulateSeason(l, db, game)
+	l2 := simulateSeason(l, db, game, false)
 	// Moving up to the next season
 	game.Date = utils.NewDate(2024, time.August, 20)
 
 	fmt.Println("Simulating season 2")
-	l3 := simulateSeason(l2, db, game)
+	l3 := simulateSeason(l2, db, game, false)
 	// Moving up to the next season
 	game.Date = utils.NewDate(2025, time.August, 20)
 
 	fmt.Println("Simulating season 3")
-	simulateSeason(l3, db, game)
+	// stopping before post season
+	simulateSeason(l3, db, game, true)
 
 	// Setting date after post season trigger
-	game.Date = utils.NewDate(game.Date.Year(), time.July, 1)
+	// this is commented if the :61 is true
+	// game.Date = utils.NewDate(game.Date.Year(), time.July, 1)
+	// this is 31st because :61 is true
+	game.Date = utils.NewDate(game.Date.Year(), time.May, 30)
 	db.GameR().Update(game)
 
 	fmt.Println("Finished")
 }
 
 // Simulating a whole season
-func simulateSeason(l *models.League, db d.IDb, game *models.Game) *models.League {
+func simulateSeason(l *models.League, db d.IDb, game *models.Game, stopBeforePostSeason bool) *models.League {
 	for {
 		r, hasMore := l.NextRound()
 		if !hasMore {
@@ -90,6 +94,11 @@ func simulateSeason(l *models.League, db d.IDb, game *models.Game) *models.Leagu
 	// if teams number is small
 	if len(l.Teams()) < 10 {
 		game.Date = game.Date.Add(time.Duration(24*60) * time.Hour)
+	}
+
+	if stopBeforePostSeason {
+		fmt.Println("\t skipping post season")
+		return l
 	}
 
 	return db.LeagueR().PostSeason(game)
