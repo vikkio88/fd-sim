@@ -93,7 +93,7 @@ func (repo *GameRepo) UpdateEmail(email *models.Email) {
 
 func (repo *GameRepo) GetEmails() []*models.Email {
 	var dtos []EmailDto
-	repo.g.Model(&EmailDto{}).Find(&dtos)
+	repo.g.Model(&EmailDto{}).Order("date asc").Find(&dtos)
 
 	result := make([]*models.Email, len(dtos))
 	for i, dto := range dtos {
