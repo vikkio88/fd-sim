@@ -54,6 +54,13 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		makePAwards(player.Awards, player.Trophies, ctx.PushWithParam),
 	))
 
+	if g.IsEmployed() && !isManagedPlayer {
+		main.Append(container.NewTabItemWithIcon("Transfer",
+			theme.DocumentIcon(),
+			makePTransferTab(player, g),
+		))
+	}
+
 	return NewFborder().
 		Top(
 			NewFborder().
@@ -61,6 +68,10 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 				Get(makePlayerHeader(player)),
 		).
 		Get(main)
+}
+
+func makePTransferTab(player *models.PlayerDetailed, game *models.Game) fyne.CanvasObject {
+	return centered(h1("Transfer"))
 }
 
 func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne.Container {
