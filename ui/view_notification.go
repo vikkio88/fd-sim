@@ -41,7 +41,9 @@ func makeNews(id string, ctx *AppContext) fyne.CanvasObject {
 		widget.NewCard(
 			news.Title,
 			fmt.Sprintf("%s - %s", news.Date.Format(conf.DateFormatShort), news.NewsPaper),
-			parseBody(news.Body, news.Links, ctx),
+			container.NewVScroll(
+				parseBody(news.Body, news.Links, ctx),
+			),
 		),
 	)
 }
@@ -63,7 +65,9 @@ func makeEmail(id string, ctx *AppContext) fyne.CanvasObject {
 		widget.NewCard(
 			email.Subject,
 			fmt.Sprintf("%s - %s", email.Date.Format(conf.DateFormatShort), email.Sender),
-			body.Get(content),
+			container.NewVScroll(
+				body.Get(content),
+			),
 		),
 	)
 }
