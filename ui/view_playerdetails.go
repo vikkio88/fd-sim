@@ -275,7 +275,9 @@ func makePHistory(pHistoryRow []*models.PHistoryRow, navigate NavigateWithParamF
 			teamHl := getCenteredHL(cells.Objects[2])
 			teamHl.SetText(r.TeamName)
 			teamHl.OnTapped = func() {
-				navigate(TeamDetails, r.TeamId)
+				if r.TeamId != "" {
+					navigate(TeamDetails, r.TeamId)
+				}
 			}
 
 			pLbl := cells.Objects[3].(*widget.Label)
