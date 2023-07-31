@@ -26,11 +26,12 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	leagueName := league.Name
 	winnerTeamId := league.TableRow(0).Team.Id
 	teamsC := league.Table.Len()
-	losersIds := []string{
+	losersIdsArr := []string{
 		league.TableRow(teamsC - 1).Team.Id,
 		league.TableRow(teamsC - 2).Team.Id,
 		league.TableRow(teamsC - 3).Team.Id,
 	}
+	losersIds := strings.Join(losersIdsArr, ", ")
 
 	var playersStats []StatRowDto
 	lr.g.Model(&StatRowDto{}).
@@ -46,7 +47,7 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 		Order("score desc, played desc").
 		First(&mvp)
 
-	resultEvents := lr.createLeagueHistory(league, mvp, playersStats[:3])
+	resultEvents := lr.createLeagueHistory(game, league, mvp, playersStats[:3])
 	dbEvents = append(dbEvents, resultEvents...)
 
 	resultEvents, indexedP := lr.convertStatsToHistory(game, leagueName, playersStats)
@@ -65,7 +66,7 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	dbEvents = append(dbEvents, resultEvents...)
 
 	//TODO: store fd info/stats
-	resultEvents = lr.updateFDInfo(game, leagueName)
+	resultEvents = lr.updateFDInfo(game, leagueName, winnerTeamId, losersIds, rng)
 	dbEvents = append(dbEvents, resultEvents...)
 
 	if len(dbEvents) > 0 {
@@ -75,11 +76,26 @@ func (lr *LeagueRepo) PostSeason(game *models.Game) *models.League {
 	return lr.createNewLeague(game)
 }
 
-func (lr *LeagueRepo) createLeagueHistory(league *models.League, mvp StatRowDto, scorers []StatRowDto) []DbEventDto {
+func (lr *LeagueRepo) createLeagueHistory(game *models.Game, league *models.League, mvp StatRowDto, scorers []StatRowDto) []DbEventDto {
 	lh := NewLHistoryDtoFromLeague(league, mvp, scorers)
 	lr.g.Create(lh)
 
-	return []DbEventDto{}
+	statRows := []*models.StatRow{
+		mvp.StatRow(),
+		scorers[0].StatRow(),
+	}
+	data, _ := json.Marshal(&statRows)
+	events := []DbEventDto{
+		NewDbEventDto(
+			DbEvIndividualAwards,
+			game.BaseCountry,
+			string(data),
+			models.EventParams{LeagueName: league.Name},
+			game.Date,
+		),
+	}
+
+	return events
 }
 
 func (lr *LeagueRepo) createNewLeague(game *models.Game) *models.League {
@@ -140,10 +156,9 @@ func (lr *LeagueRepo) generateYoungReplacements(game *models.Game, tm TeamLosing
 // grows players skills and fame
 func (lr *LeagueRepo) playersEndOfSeason(
 	game *models.Game, tm TeamLosingPlayersMap,
-	winningTeamId, leagueName string, losersIds []string,
+	winningTeamId, leagueName, losersIds string,
 	rng *libs.Rng,
 ) []DbEventDto {
-	losersStr := strings.Join(losersIds, ", ")
 	fdTeamId := game.GetTeamIdOrEmpty()
 	pg := generators.NewPeopleGenSeeded(rng)
 
@@ -157,6 +172,7 @@ func (lr *LeagueRepo) playersEndOfSeason(
 
 	trophies := []TrophyDto{}
 	fdPlayersSkillChanged := [2][]*models.PNPHVals{{}, {}}
+	fdPlayersFreeAgent := []*models.PNPH{}
 	for _, p := range allPlayers {
 		// check if player is FD Managed
 		isFdTeamPlayer := false
@@ -208,7 +224,7 @@ func (lr *LeagueRepo) playersEndOfSeason(
 			trophies = append(trophies, NewTrophyDto(p.Id, game.LeagueId, leagueName, *p.TeamId, p.Team.Name, game.Date.Year()))
 
 			// if withing last 3 teams decrease fame
-		} else if p.TeamId != nil && strings.Contains(losersStr, *p.TeamId) {
+		} else if p.TeamId != nil && strings.Contains(losersIds, *p.TeamId) {
 			nFame := utils.NewPerc(p.Fame - rng.UInt(2, 5))
 			p.Fame = nFame.Val()
 
@@ -224,6 +240,11 @@ func (lr *LeagueRepo) playersEndOfSeason(
 			if !isFdTeamPlayer && rng.ChanceI(50) {
 				p.YContract = 1
 			} else {
+
+				if isFdTeamPlayer {
+					fdPlayersFreeAgent = append(fdPlayersFreeAgent, p.PlayerPH())
+				}
+
 				countPlayerLoss(p, tm)
 				p.TeamId = nil
 				p.Team = nil
@@ -241,6 +262,19 @@ func (lr *LeagueRepo) playersEndOfSeason(
 		events = append(events,
 			NewDbEventDto(
 				DbEvPlayersSkillChanged,
+				game.BaseCountry,
+				string(data),
+				models.EventParams{TeamName: game.Team.Name},
+				game.Date,
+			),
+		)
+	}
+
+	if len(fdPlayersFreeAgent) > 0 {
+		data, _ := json.Marshal(&fdPlayersFreeAgent)
+		events = append(events,
+			NewDbEventDto(
+				DbEvPlayerLeftFreeAgent,
 				game.BaseCountry,
 				string(data),
 				models.EventParams{TeamName: game.Team.Name},
@@ -325,6 +359,7 @@ func (lr *LeagueRepo) convertStatsToHistory(game *models.Game, leagueName string
 	leagueId := game.LeagueId
 	gameDate := game.Date
 
+	// Get all History Rows stored in the db
 	var pHistoryRows []PHistoryDto
 	lr.g.Model(&PHistoryDto{}).Find(&pHistoryRows)
 	indexedPHRows := indexPHistoryRows(pHistoryRows)
@@ -347,6 +382,7 @@ func (lr *LeagueRepo) convertStatsToHistory(game *models.Game, leagueName string
 		}
 	}
 	phrows := maps.Values(indexedPHRows)
+	// backfill history if players have not played this season
 	phrows = append(phrows, lr.backFillEmptyStatsHistory(leagueId, leagueName, gameDate)...)
 
 	var teamsStats []TableRowIndexDto
@@ -386,8 +422,14 @@ func (lr *LeagueRepo) convertStatsToHistory(game *models.Game, leagueName string
 func (lr *LeagueRepo) backFillEmptyStatsHistory(leagueId, leagueName string, gameDate time.Time) []PHistoryDto {
 	var ps []PlayerDto
 	phrows := []PHistoryDto{}
-	// Players with no stats
-	lr.g.Raw("select pd.* from player_dtos pd left join stat_row_dtos srd on pd.id  = srd.player_id where srd.player_id is null").Preload(teamRel).Find(&ps)
+	// Players with no stats this season and no history
+	lr.g.Raw(
+		`select pd.* from player_dtos pd
+		left join stat_row_dtos srd on pd.id = srd.player_id
+		left join p_history_dtos phd on phd.player_id = pd.id
+		where srd.player_id is null
+		and phd.player_id is NULL
+		`).Preload(teamRel).Find(&ps)
 	for _, p := range ps {
 		if p.Team != nil {
 			phrows = append(phrows, *NewEmptyHistoryRow(p.Id, leagueId, leagueName, *p.TeamId, p.Team.Name, gameDate.Year()))
@@ -399,11 +441,21 @@ func (lr *LeagueRepo) backFillEmptyStatsHistory(leagueId, leagueName string, gam
 	return phrows
 }
 
-func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName string) []DbEventDto {
+func (lr *LeagueRepo) updateFDInfo(game *models.Game, leagueName, winnerTeamId, losersIds string, rng *libs.Rng) []DbEventDto {
 	game.Age++
 
 	if !game.IsEmployed() {
 		return []DbEventDto{}
+	}
+
+	if game.Team.Id == winnerTeamId {
+		nFame := utils.NewPerc(game.Fame.Val() + rng.UInt(5, 10))
+		game.Fame = nFame
+	}
+
+	if strings.Contains(losersIds, game.Team.Id) {
+		nFame := utils.NewPerc(game.Fame.Val() - rng.UInt(1, 5))
+		game.Fame = nFame
 	}
 
 	var stat FDStatRowDto
