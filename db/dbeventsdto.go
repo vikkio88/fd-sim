@@ -23,8 +23,9 @@ type DbEventType = uint16
 const (
 	DbEvPlRetiredFdTeam DbEventType = iota
 	DbEvYoungJoinedFdTeam
-	DbEvPlayerWentFreeAgent
+	DbEvPlayerLeftFreeAgent
 	DbEvPlayersSkillChanged
+	DbEvIndividualAwards
 )
 
 func NewDbEventDto(kind DbEventType, country enums.Country, payload string, evParams models.EventParams, triggerDate time.Time) DbEventDto {
