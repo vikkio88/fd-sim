@@ -1,7 +1,7 @@
 package locales
 
 var ItalianTeams = []string{
-	"%s Calcio", "%s FC", "AC %s", "AS %s", "%s", "%s Sport", "Città di %s",
+	"%s Calcio", "%s FC", "AC %s", "AS %s", "%s", "%s", "%s", "%s", "%s Sport",
 }
 
 var ItalianCities = []string{

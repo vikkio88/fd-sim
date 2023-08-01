@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/models"
+	"fdsim/utils"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -57,7 +58,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 	if g.IsEmployed() && !isManagedPlayer {
 		main.Append(container.NewTabItemWithIcon("Transfer",
 			widgets.Icon("transfers").Resource,
-			makePTransferTab(player, g),
+			makePTransferTab(ctx, player, canSeeDetails),
 		))
 	}
 
@@ -68,10 +69,6 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 				Get(makePlayerHeader(player)),
 		).
 		Get(main)
-}
-
-func makePTransferTab(player *models.PlayerDetailed, game *models.Game) fyne.CanvasObject {
-	return centered(h1("Transfer"))
 }
 
 func makeRetiredPlayerView(retired *models.RetiredPlayer, ctx *AppContext) *fyne.Container {
@@ -332,8 +329,12 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 		moraleInfo = valueLabel("Morale:", moraleIcon)
 	}
 	skillInfo := centered(starsFromPerc(player.Skill))
+	playerValue := "?"
+	playerWage := "?"
 	if canSeeDetails {
 		skillInfo = centered(widget.NewLabel(player.Skill.String()))
+		playerValue = player.Value.StringKMB()
+		playerWage = player.Wage.StringKMB()
 	}
 
 	teamInfo := widget.NewCard("", "Team Info",
@@ -347,10 +348,10 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 					centered(starsFromPerc(player.Fame)),
 				),
 				valueLabel("Value:",
-					centered(widget.NewLabel(player.Value.StringKMB())),
+					centered(widget.NewLabel(playerValue)),
 				),
 				valueLabel("Contract:",
-					widget.NewLabel(fmt.Sprintf("%s / %d years", player.Wage.StringKMB(), player.YContract)),
+					widget.NewLabel(fmt.Sprintf("%s / %d years", playerWage, player.YContract)),
 				),
 				moraleInfo,
 			))
@@ -398,7 +399,64 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 					centered(widget.NewLabel(fmt.Sprintf("%.1f", score))),
 				),
 			))
-		main.AddObject(statsWrapper)
+		main.Add(statsWrapper)
 	}
 	return main
+}
+
+func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDetails bool) fyne.CanvasObject {
+	tInfo, ok := ctx.Db.GameR().GetTransferMarketInfo()
+
+	if !ok {
+		// this should not happen as it wont appear if you have no team
+		//maybe panic
+		panic("you should not see this if you are hired")
+	}
+
+	iWage := getApproxMoney(player.IdealWage)
+	wage := getApproxMoney(player.Wage)
+	value := getApproxMoney(player.Value)
+
+	lowerV, higherV := utils.GetApproxRangeF(player.Value.Value())
+	lowerW, higherW := utils.GetApproxRangeF(player.IdealWage.Value())
+
+	isFreeAgent := player.Team == nil
+	actionBtn := widget.NewButton("Offer Contract", func() {
+		contractY := 1
+		ctx.PushWithParam(Chat, ChatParams{
+			IsPlayerOffer: true,
+			Player:        player,
+			ValueF:        lowerW,
+			ValueF1:       higherW,
+			ValueI:        &contractY,
+		})
+	})
+	if !isFreeAgent {
+		actionBtn = widget.NewButton("Make an Offer", func() {
+			ctx.PushWithParam(Chat, ChatParams{
+				IsPlayerOffer: true,
+				Player:        player,
+				Team:          player.Team,
+				ValueF:        lowerV,
+				ValueF1:       higherV,
+			})
+		})
+	}
+
+	contractInfo := valueLabel("Contract", widget.NewLabel("-"))
+	if !isFreeAgent {
+		contractInfo = valueLabel("Contract", widget.NewLabel(fmt.Sprintf("%s / %d yrs", wage, player.YContract)))
+	}
+
+	return NewFborder().Top(
+		centered(h2(fmt.Sprintf("Transfer Budget: %s", tInfo.TransferBudget.StringKMB()))),
+	).
+		Bottom(rightAligned(actionBtn)).
+		Get(container.NewVBox(
+			valueLabel("Value: ", widget.NewLabel(value)),
+			valueLabel("Ideal Wage: ", widget.NewLabel(iWage)),
+			contractInfo,
+		),
+		)
+
 }

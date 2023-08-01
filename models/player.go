@@ -82,6 +82,14 @@ func (p *Player) PH() PPH {
 	}
 }
 
+func (p *Player) PHName() *PNPH {
+	return &PNPH{
+		Id:      p.Id,
+		Name:    p.Name,
+		Surname: p.Surname,
+	}
+}
+
 // Player Placeholder name
 type PNPH struct {
 	Id      string

@@ -138,3 +138,16 @@ func DtoFromGameWithLeague(game *models.Game, leagueId string) GameDto {
 	g.LeagueID = &leagueId
 	return g
 }
+
+type transfMkInfoDto struct {
+	TeamId        string
+	Balance       float64
+	TransferRatio float64
+}
+
+func (t *transfMkInfoDto) TransferMarketInfo() *models.TransferMarketInfo {
+	tr := t.Balance * t.TransferRatio
+	return &models.TransferMarketInfo{
+		TransferBudget: utils.NewEurosFromF(tr),
+	}
+}

@@ -43,6 +43,8 @@ type IGameRepo interface {
 
 	GetEvents(time.Time) []DbEventDto
 	StoreEvents([]DbEventDto)
+
+	GetTransferMarketInfo() (*models.TransferMarketInfo, bool)
 }
 
 // ILeagueRepo ...

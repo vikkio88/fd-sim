@@ -17,6 +17,10 @@ func gameIdGenerator() string {
 	return fmt.Sprintf("%s_%s", gameInMemoryId, ulid.Make())
 }
 
+type TransferMarketInfo struct {
+	TransferBudget utils.Money
+}
+
 type FootDirector struct {
 	Name    string
 	Surname string

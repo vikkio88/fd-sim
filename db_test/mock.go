@@ -62,6 +62,11 @@ func (d *MockDb) CoachR() db.ICoachRepo {
 
 type MockGameR struct{}
 
+// GetTransferMarketInfo implements db.IGameRepo.
+func (*MockGameR) GetTransferMarketInfo() (*models.TransferMarketInfo, bool) {
+	panic("unimplemented")
+}
+
 // GetEvents implements db.IGameRepo.
 func (*MockGameR) GetEvents(time.Time) []db.DbEventDto {
 	return []db.DbEventDto{}

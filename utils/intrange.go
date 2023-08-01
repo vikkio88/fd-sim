@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -32,4 +34,25 @@ func NewIntRangeFromStr(rng string) IntRange {
 	}
 
 	return NewIntRange(int(min), int(max))
+}
+
+func GetApproxRangeI(number int) IntRange {
+	power := int(math.Pow(10, float64(len(fmt.Sprint(number)))-1))
+	lower := (number / power) * power
+	upper := lower + power
+	return NewIntRange(lower, upper)
+}
+
+func GetApproxRangeF(number float64) (float64, float64) {
+	intPart, _ := math.Modf(number)
+	power := math.Pow(10, math.Floor(math.Log10(math.Abs(intPart))))
+	lower := math.Floor(intPart/power) * power
+	upper := lower + power
+	return lower, upper
+}
+
+func GetApproxRangeM(money Money) (Money, Money) {
+	lower, upper := GetApproxRangeF(money.Value())
+
+	return NewMoneyFromF(money.Currency, lower), NewMoneyFromF(money.Currency, upper)
 }
