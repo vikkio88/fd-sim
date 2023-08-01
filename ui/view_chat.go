@@ -105,11 +105,18 @@ func chatView(ctx *AppContext) *fyne.Container {
 }
 
 func simpleChat(params ChatParams, ctx *AppContext) *fyne.Container {
+	isCoachChat := params.Coach != nil
+	chatTitle := "Chat with: "
+	if isCoachChat {
+		chatTitle += fmt.Sprintf("%s (Coach)", params.Coach.String())
+	} else {
+		chatTitle += fmt.Sprintf("%s (Player)", params.Player.String())
+	}
 	return NewFborder().
 		Top(
 			NewFborder().
 				Left(topNavBar(ctx)).
-				Get(centered(h1("Chat"))),
+				Get(centered(h1(chatTitle))),
 		).
 		Get(
 			container.NewCenter(

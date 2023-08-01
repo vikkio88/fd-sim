@@ -26,7 +26,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		stats.Add(makeTeamStats(row))
 	}
 
-	coach := makeCoachCard(team.Coach, IsFDTeam(id), false)
+	coach := makeCoachCard(team.Coach, ctx.PushWithParam, IsFDTeam(id), false)
 
 	finances := widget.NewCard("",
 		"Finances",
@@ -118,7 +118,7 @@ func teamDetailsView(ctx *AppContext) *fyne.Container {
 		)
 }
 
-func makeCoachDetails(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
+func makeCoachDetails(coach *models.Coach, navigate NavigateWithParamFunc, showSkillInfo bool, interactive bool) fyne.CanvasObject {
 	coachSkillInfo := starsFromPerc(coach.Skill)
 	if showSkillInfo {
 		coachSkillInfo = widget.NewLabel(coach.Skill.String())
@@ -147,19 +147,19 @@ func makeCoachDetails(coach *models.Coach, showSkillInfo bool, interactive bool)
 		)
 	} else {
 		details.Add(
-			widget.NewButton("Chat", func() { fmt.Println("Chat") }),
+			widget.NewButton("Chat", func() { navigate(Chat, ChatParams{Coach: coach, IsChat: true}) }),
 		)
 	}
 
 	return details
 }
 
-func makeCoachCard(coach *models.Coach, showSkillInfo bool, interactive bool) fyne.CanvasObject {
+func makeCoachCard(coach *models.Coach, navigate NavigateWithParamFunc, showSkillInfo bool, interactive bool) fyne.CanvasObject {
 
 	return widget.NewCard(
 		"",
 		"Coach",
-		makeCoachDetails(coach, showSkillInfo, interactive),
+		makeCoachDetails(coach, navigate, showSkillInfo, interactive),
 	)
 }
 

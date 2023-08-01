@@ -120,7 +120,7 @@ func makeLineup(team *models.TeamDetailed, navigate NavigateWithParamFunc) fyne.
 			),
 			container.NewVBox(
 				widget.NewLabel("Coach"),
-				makeCoachDetails(team.Coach, true, true),
+				makeCoachDetails(team.Coach, navigate, true, true),
 				widget.NewLabel(fmt.Sprintf("Module: %s", lineup.Module.String())),
 				stats,
 			),
