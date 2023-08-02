@@ -64,9 +64,9 @@ type Game struct {
 	// so I can create News without having to fetch League
 	BaseCountry enums.Country
 
-	Decisions   map[string]*Decision
-	Flags       Flags
-	ActionsExps []time.Time
+	EmailDecisions map[string]*Decision
+	Flags          Flags
+	ActionsExps    []time.Time
 
 	// Adding some callbacks to trigger some ui changes
 	OnEmployed   func()
@@ -108,8 +108,8 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		Date:     date,
 		LeagueId: leagueId,
 
-		Decisions: map[string]*Decision{},
-		Flags:     Flags{},
+		EmailDecisions: map[string]*Decision{},
+		Flags:          Flags{},
 
 		OnEmployed:   func() {},
 		OnUnEmployed: func() {},
@@ -124,7 +124,7 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 		Surname:  surname,
 		Age:      age,
 
-		Decisions: map[string]*Decision{},
+		EmailDecisions: map[string]*Decision{},
 
 		OnEmployed:   func() {},
 		OnUnEmployed: func() {},
@@ -132,11 +132,11 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 }
 
 func (g *Game) FreeDecisionQueue() {
-	g.Decisions = map[string]*Decision{}
+	g.EmailDecisions = map[string]*Decision{}
 }
 
 func (g *Game) QueueDecision(decision *Decision) {
-	g.Decisions[decision.EmailId] = decision
+	g.EmailDecisions[decision.EmailId] = decision
 }
 
 func (g *Game) IsFDTeam(teamId string) bool {
@@ -166,7 +166,7 @@ func (g *Game) YourContract() (*YourContract, bool) {
 
 func (g *Game) HasAllNeededDecisions(emailIds []*Idable) bool {
 	for _, idable := range emailIds {
-		if _, ok := g.Decisions[idable.Id]; !ok {
+		if _, ok := g.EmailDecisions[idable.Id]; !ok {
 			return false
 		}
 	}

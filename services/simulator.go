@@ -148,7 +148,7 @@ func (sim *Simulator) marketEvents(events []*Event, mc models.MarketCheck, newDa
 
 func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Event {
 	// maybe use Decisions as queue and pop
-	for _, d := range sim.game.Decisions {
+	for _, d := range sim.game.EmailDecisions {
 		decisionEvent := ParseDecision(newDate, &d.Choice)
 		if decisionEvent != nil {
 			events = append(events, decisionEvent)
