@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"fdsim/models"
 	"fdsim/utils"
+	"fdsim/vm"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -11,20 +11,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type ChatParams struct {
-	IsPlayerOffer bool
-	IsChat        bool
-	Player        *models.PlayerDetailed
-	Team          *models.TPH
-	Coach         *models.Coach
-	ValueF        float64
-	ValueF1       float64
-	ValueI        *int
-}
-
 func chatView(ctx *AppContext) *fyne.Container {
-	params := ctx.RouteParam.(ChatParams)
-	if params.IsChat && !params.IsPlayerOffer {
+	params := ctx.RouteParam.(vm.ChatParams)
+	if params.IsSimpleChat() {
 		return simpleChat(params, ctx)
 	}
 
@@ -104,10 +93,9 @@ func chatView(ctx *AppContext) *fyne.Container {
 
 }
 
-func simpleChat(params ChatParams, ctx *AppContext) *fyne.Container {
-	isCoachChat := params.Coach != nil
+func simpleChat(params vm.ChatParams, ctx *AppContext) *fyne.Container {
 	chatTitle := "Chat with: "
-	if isCoachChat {
+	if params.IsCoachChat() {
 		chatTitle += fmt.Sprintf("%s (Coach)", params.Coach.String())
 	} else {
 		chatTitle += fmt.Sprintf("%s (Player)", params.Player.String())

@@ -423,7 +423,7 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 	isFreeAgent := player.Team == nil
 	actionBtn := widget.NewButton("Offer Contract", func() {
 		contractY := 1
-		ctx.PushWithParam(Chat, ChatParams{
+		ctx.PushWithParam(Chat, vm.ChatParams{
 			IsPlayerOffer: true,
 			Player:        player,
 			ValueF:        lowerW,
@@ -433,7 +433,7 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 	})
 	if !isFreeAgent {
 		actionBtn = widget.NewButton("Make an Offer", func() {
-			ctx.PushWithParam(Chat, ChatParams{
+			ctx.PushWithParam(Chat, vm.ChatParams{
 				IsPlayerOffer: true,
 				Player:        player,
 				Team:          player.Team,

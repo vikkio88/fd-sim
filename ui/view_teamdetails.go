@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/models"
+	vm "fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
@@ -147,7 +148,7 @@ func makeCoachDetails(coach *models.Coach, navigate NavigateWithParamFunc, showS
 		)
 	} else {
 		details.Add(
-			widget.NewButton("Chat", func() { navigate(Chat, ChatParams{Coach: coach, IsChat: true}) }),
+			widget.NewButton("Chat", func() { navigate(Chat, vm.ChatParams{Coach: coach, IsChat: true}) }),
 		)
 	}
 
