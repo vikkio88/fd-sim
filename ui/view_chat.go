@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/models"
 	"fdsim/utils"
 	"fdsim/vm"
 	"fmt"
@@ -8,10 +9,12 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
 
 func chatView(ctx *AppContext) *fyne.Container {
+	game, _ := ctx.GetGameState()
 	params := ctx.RouteParam.(vm.ChatParams)
 	if params.IsSimpleChat() {
 		return simpleChat(params, ctx)
@@ -29,6 +32,8 @@ func chatView(ctx *AppContext) *fyne.Container {
 
 	value := params.ValueF
 	bv := binding.BindFloat(&value)
+	var contractYrsV binding.Float
+
 	money := binding.NewString()
 	moneySlider := widget.NewSliderWithData(value-(value*.5), 2*params.ValueF1, bv)
 	moneySlider.Step = value * .1
@@ -65,13 +70,13 @@ func chatView(ctx *AppContext) *fyne.Container {
 	if params.ValueI != nil {
 		cYearsStr := binding.NewString()
 		y := float64(*params.ValueI)
-		cyV := binding.BindFloat(&y)
-		yearsSlider := widget.NewSliderWithData(float64(1), float64(5), cyV)
+		contractYrsV = binding.BindFloat(&y)
+		yearsSlider := widget.NewSliderWithData(float64(1), float64(5), contractYrsV)
 		yearsSlider.Step = 1
 
-		cyV.AddListener(binding.NewDataListener(
+		contractYrsV.AddListener(binding.NewDataListener(
 			func() {
-				v, _ := cyV.Get()
+				v, _ := contractYrsV.Get()
 				cYearsStr.Set(fmt.Sprintf("%.0f", v))
 			},
 		))
@@ -87,10 +92,59 @@ func chatView(ctx *AppContext) *fyne.Container {
 				Left(topNavBar(ctx)).
 				Get(centered(h1(title))),
 		).
+		Bottom(rightAligned(widget.NewButton("Offer", func() {
+			offer, _ := bv.Get()
+			var decision *models.Decision
+			if hasTeam {
+				decision = makePlayerOfferDecision(game, params, offer)
+			} else {
+				yf, _ := contractYrsV.Get()
+				decision = makePlayerContractOfferDecision(game, params, offer, int(yf))
+			}
+
+			dialog.ShowConfirm("Making Offer", "Are you sure?", func(b bool) {
+				if !b {
+					ctx.Pop()
+					return
+				}
+				// Queue and persist decision
+				game.QueueDecision(decision)
+				ctx.Db.GameR().Update(game)
+				ctx.BackToMain()
+
+			}, ctx.GetWindow())
+		}))).
 		Get(
 			offerContent,
 		)
 
+}
+
+func makePlayerOfferDecision(game *models.Game, params vm.ChatParams, offer float64) *models.Decision {
+	return models.NewDecision(
+		game.Date,
+		models.ActionPlayerOffer.Choosable(
+			models.EventParams{
+				TeamId:   params.Team.Id,
+				TeamName: params.Team.Name,
+				PlayerId: params.Player.Id,
+				ValueF:   offer,
+			},
+		),
+	)
+}
+
+func makePlayerContractOfferDecision(game *models.Game, params vm.ChatParams, offer float64, ycontract int) *models.Decision {
+	return models.NewDecision(
+		game.Date,
+		models.ActionPlayerOffer.Choosable(
+			models.EventParams{
+				PlayerId: params.Player.Id,
+				ValueF:   offer,
+				ValueInt: ycontract,
+			},
+		),
+	)
 }
 
 func simpleChat(params vm.ChatParams, ctx *AppContext) *fyne.Container {

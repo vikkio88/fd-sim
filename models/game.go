@@ -65,6 +65,7 @@ type Game struct {
 	BaseCountry enums.Country
 
 	EmailDecisions map[string]*Decision
+	Decisions      []*Decision
 	Flags          Flags
 	ActionsExps    []time.Time
 
@@ -109,6 +110,7 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 		LeagueId: leagueId,
 
 		EmailDecisions: map[string]*Decision{},
+		Decisions:      []*Decision{},
 		Flags:          Flags{},
 
 		OnEmployed:   func() {},
@@ -125,6 +127,7 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 		Age:      age,
 
 		EmailDecisions: map[string]*Decision{},
+		Decisions:      []*Decision{},
 
 		OnEmployed:   func() {},
 		OnUnEmployed: func() {},
@@ -136,7 +139,11 @@ func (g *Game) FreeDecisionQueue() {
 }
 
 func (g *Game) QueueDecision(decision *Decision) {
-	g.EmailDecisions[decision.EmailId] = decision
+	if decision.EmailId != "" {
+		g.EmailDecisions[decision.EmailId] = decision
+	} else {
+		g.Decisions = append(g.Decisions, decision)
+	}
 }
 
 func (g *Game) IsFDTeam(teamId string) bool {

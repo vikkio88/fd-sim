@@ -5,33 +5,6 @@ import (
 	"time"
 )
 
-func MakeActionableFromType(at models.ActionType, date time.Time, params models.EventParams) *models.Actionable {
-	switch at {
-	case models.ActionRespondContract:
-		var yn bool
-		return models.NewActionable("Contract Offer", models.Choosable{
-			ActionType: at,
-			YN:         &yn,
-			Params:     params,
-		},
-			at,
-		)
-
-		//TODO: Remove Testing Action
-	case models.ActionTest:
-		var yn bool
-		return models.NewActionable("Testing Actionables", models.Choosable{
-			ActionType: at,
-			YN:         &yn,
-			Params:     params,
-		},
-			at,
-		)
-	}
-
-	return nil
-}
-
 // can return nil
 func ParseDecision(date time.Time, decision *models.Choosable) *Event {
 	switch decision.ActionType {

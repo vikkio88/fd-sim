@@ -33,6 +33,7 @@ type GameDto struct {
 
 	Flags          string
 	EmailDecisions *string
+	Decisions      *string
 }
 
 func serialiseFlags(f models.Flags) string {
@@ -66,6 +67,17 @@ func serialiseEmailDecisions(decisions map[string]*models.Decision) *string {
 	return &result
 }
 
+func serialiseDecisions(decisions []*models.Decision) *string {
+	if decisions == nil || len(decisions) == 0 {
+		return nil
+	}
+	var result string
+	data, _ := json.Marshal(decisions)
+	result = string(data)
+
+	return &result
+}
+
 func unserialiseEmailDecisions(decisions *string) map[string]*models.Decision {
 	if decisions == nil {
 		return map[string]*models.Decision{}
@@ -75,8 +87,24 @@ func unserialiseEmailDecisions(decisions *string) map[string]*models.Decision {
 
 	err := json.Unmarshal([]byte(*decisions), &result)
 	if err != nil {
-		fmt.Println("Error while getting flags")
+		fmt.Println("Error while getting email decisions")
 		return map[string]*models.Decision{}
+	}
+
+	return result
+}
+
+func unserialiseDecisions(decisions *string) []*models.Decision {
+	if decisions == nil {
+		return []*models.Decision{}
+	}
+
+	var result []*models.Decision
+
+	err := json.Unmarshal([]byte(*decisions), &result)
+	if err != nil {
+		fmt.Println("Error while getting decisions")
+		return []*models.Decision{}
 	}
 
 	return result
@@ -95,6 +123,7 @@ func DtoFromGame(game *models.Game) GameDto {
 		LeagueID:       &game.LeagueId,
 		Flags:          serialiseFlags(game.Flags),
 		EmailDecisions: serialiseEmailDecisions(game.EmailDecisions),
+		Decisions:      serialiseDecisions(game.Decisions),
 		BaseCountry:    game.BaseCountry,
 	}
 
@@ -121,6 +150,7 @@ func (g *GameDto) Game() *models.Game {
 	game.StartDate = g.StartDate
 	game.Flags = unserialiseFlags(g.Flags)
 	game.EmailDecisions = unserialiseEmailDecisions(g.EmailDecisions)
+	game.Decisions = unserialiseDecisions(g.Decisions)
 
 	if g.Team != nil {
 		teamPh := g.Team.Team().PH()

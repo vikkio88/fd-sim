@@ -240,8 +240,7 @@ func contractOffered(params models.EventParams, date time.Time) *Event {
 		[]models.Link{
 			teamLink(teamName, teamId),
 		},
-		MakeActionableFromType(
-			models.ActionRespondContract,
+		models.ActionRespondContract.Actionable(
 			date,
 			params,
 		),
