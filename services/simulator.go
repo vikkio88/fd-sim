@@ -154,6 +154,13 @@ func (sim *Simulator) applyDecisions(newDate time.Time, events []*Event) []*Even
 			events = append(events, decisionEvent)
 		}
 	}
+
+	for _, d := range sim.game.Decisions {
+		decisionEvent := ParseDecision(newDate, &d.Choice)
+		if decisionEvent != nil {
+			events = append(events, decisionEvent)
+		}
+	}
 	sim.game.FreeDecisionQueue()
 	return events
 }
