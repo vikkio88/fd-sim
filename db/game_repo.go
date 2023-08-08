@@ -192,6 +192,10 @@ func (*GameRepo) StoreEvents([]DbEventDto) {
 
 }
 
+func (repo *GameRepo) StoreEvent(ev DbEventDto) {
+	repo.g.Model(&DbEventDto{}).Create(&ev)
+}
+
 func (repo *GameRepo) GetTransferMarketInfo() (*models.TransferMarketInfo, bool) {
 	var dto transfMkInfoDto
 	repo.g.Raw("select td.id as team_id, td.balance, td.transfer_ratio from game_dtos gd left join team_dtos td on gd.team_id = td.id;").Find(&dto)

@@ -3,6 +3,7 @@ package libs
 import (
 	"fdsim/utils"
 	"math/rand"
+	"time"
 )
 
 const (
@@ -15,6 +16,15 @@ const (
 type Rng struct {
 	seed int64
 	rand *rand.Rand
+}
+
+func NewRngAutoSeeded() *Rng {
+	seed := time.Now().Unix()
+	r := rand.New(rand.NewSource(seed))
+	return &Rng{
+		seed,
+		r,
+	}
 }
 
 func NewRng(seed int64) *Rng {

@@ -42,6 +42,7 @@ type IGameRepo interface {
 	GetFDHistory() []*models.FDHistoryRow
 
 	GetEvents(time.Time) []DbEventDto
+	StoreEvent(DbEventDto)
 	StoreEvents([]DbEventDto)
 
 	GetTransferMarketInfo() (*models.TransferMarketInfo, bool)

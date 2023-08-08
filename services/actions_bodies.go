@@ -1,7 +1,9 @@
 package services
 
 import (
-	"fdsim/db"
+	d "fdsim/db"
+	"fdsim/enums"
+	"fdsim/libs"
 	"fdsim/models"
 	"time"
 )
@@ -21,14 +23,44 @@ func decisionRespondedToContractOffer(decision *models.Choosable, date time.Time
 }
 
 func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Event {
-
-	// 	teamId := decision.Params.TeamId
-	// 	playerId := decision.Params.PlayerId
-	// 	offerVal := decision.Params.ValueF
+	teamId := decision.Params.TeamId
+	playerId := decision.Params.PlayerId
+	offerVal := decision.Params.ValueF
 	event := NewEmptyEvent()
 
-	event.TriggerChanges = func(game *models.Game, db db.IDb) {
-		// maybe here actually find a way to choose whether offer is ok
+	event.TriggerChanges = func(game *models.Game, db d.IDb) {
+		t, ok := db.TeamR().ById(teamId)
+		if !ok {
+			return
+		}
+
+		player, ok := t.Roster.Player(playerId)
+		if !ok {
+			return
+		}
+
+		rng := libs.NewRngAutoSeeded()
+
+		//TODO: check if player is on the market
+
+		chance := 50
+		if offerVal >= player.Value.Value() {
+			chance += 30
+		} else {
+			chance -= 10
+		}
+
+		//TODO: check if team is skint/ need that player
+
+		var ev d.DbEventDto
+		if rng.ChanceI(chance) {
+			ev = d.NewDbEventDto(d.DbEvTeamAcceptedOffer, game.BaseCountry, "", decision.Params, game.Date.Add(enums.A_day*2))
+		} else {
+			ev = d.NewDbEventDto(d.DbEvTeamRefusedOffer, game.BaseCountry, "", decision.Params, game.Date.Add(enums.A_day*2))
+		}
+
+		db.GameR().StoreEvent(ev)
+
 	}
 	return event
 }

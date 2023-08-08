@@ -125,16 +125,16 @@ func dbEvIndividualAwards(dbe db.DbEventDto, event *Event, params models.EventPa
 		models.NewLink(topScorer.Team.Name, enums.TeamDetails, &topScorer.TeamId),
 	}
 	body := fmt.Sprintf(`The individual Awards for %s were assigned.
-
-
-MVP
-%s %s
- With an average score of %2.f in %d matches.
-
-
-Top Scorer
-%s %s
- With %d goals in %d matches.`,
+	
+	
+	MVP
+	%s %s
+	With an average score of %2.f in %d matches.
+	
+	
+	Top Scorer
+	%s %s
+	With %d goals in %d matches.`,
 		params.LeagueName,
 		conf.LinkBodyPH, //mvp link
 		conf.LinkBodyPH, // mvp team
@@ -153,4 +153,8 @@ Top Scorer
 		links,
 	)
 	return event
+}
+
+func dbEvTeamAcceptedOffer(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	return nil
 }
