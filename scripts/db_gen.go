@@ -37,6 +37,7 @@ func (DBGen) Run(seed int64, teams int) {
 	game.YContract = 2
 	game.OnEmployed = func() {}
 	game.OnUnEmployed = func() {}
+	game.Flags = models.NewFlags()
 
 	db := d.NewDb("test.db")
 	db.TruncateAll()

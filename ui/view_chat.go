@@ -107,6 +107,10 @@ func chatView(ctx *AppContext) *fyne.Container {
 					ctx.Pop()
 					return
 				}
+
+				//TODO: make sure you move this to a util
+				game.Flags.OfferedPlayers[decision.Choice.Params.PlayerId] = decision.Choice.Params.TeamId
+
 				// Queue and persist decision
 				game.QueueDecision(decision)
 				ctx.Db.GameR().Update(game)

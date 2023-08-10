@@ -405,6 +405,12 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 }
 
 func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDetails bool) fyne.CanvasObject {
+	g, _ := ctx.GetGameState()
+
+	if _, ok := g.Flags.OfferedPlayers[player.Id]; ok {
+		return centered(h1("Your already made an offer for this player."))
+	}
+
 	tInfo, ok := ctx.Db.GameR().GetTransferMarketInfo()
 
 	if !ok {

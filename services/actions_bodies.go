@@ -43,6 +43,8 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 
 		//TODO: check if team is skint/ need that player
 
+		game.Flags.OfferedPlayers[playerId] = teamId
+
 		var ev d.DbEventDto
 		if rng.Chance(chance) {
 			ev = d.NewDbEventDto(d.DbEvTeamAcceptedOffer, game.BaseCountry, "", decision.Params, game.Date.Add(enums.A_day*2))

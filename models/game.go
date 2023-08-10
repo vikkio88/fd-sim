@@ -76,6 +76,9 @@ type Game struct {
 
 type Flags struct {
 	HasAContractOffer bool
+
+	// [PlayerId]TeamId
+	OfferedPlayers map[string]string
 }
 
 func (g *Game) Update(name, surname string, age int, startDate time.Time) {
@@ -111,10 +114,17 @@ func NewGameWithLeagueId(leagueId, saveName, name, surname string, age int, date
 
 		EmailDecisions: map[string]*Decision{},
 		Decisions:      []*Decision{},
-		Flags:          Flags{},
+		Flags:          NewFlags(),
 
 		OnEmployed:   func() {},
 		OnUnEmployed: func() {},
+	}
+}
+
+func NewFlags() Flags {
+	return Flags{
+		HasAContractOffer: false,
+		OfferedPlayers:    map[string]string{},
 	}
 }
 
