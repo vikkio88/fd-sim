@@ -5,6 +5,7 @@ import (
 	"fdsim/enums"
 	"fdsim/libs"
 	"fdsim/models"
+	"fdsim/utils"
 	"time"
 )
 
@@ -33,27 +34,17 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 		if !ok {
 			return
 		}
-
-		player, ok := t.Roster.Player(playerId)
-		if !ok {
-			return
-		}
-
-		rng := libs.NewRngAutoSeeded()
+		// getting rng tied in with offer so it will always be the same
+		rng := libs.NewRng(int64(offerVal))
 
 		//TODO: check if player is on the market
 
-		chance := 50
-		if offerVal >= player.Value.Value() {
-			chance += 30
-		} else {
-			chance -= 10
-		}
+		chance := t.OfferAcceptanceChance(utils.NewEurosFromF(offerVal), playerId)
 
 		//TODO: check if team is skint/ need that player
 
 		var ev d.DbEventDto
-		if rng.ChanceI(chance) {
+		if rng.Chance(chance) {
 			ev = d.NewDbEventDto(d.DbEvTeamAcceptedOffer, game.BaseCountry, "", decision.Params, game.Date.Add(enums.A_day*2))
 		} else {
 			ev = d.NewDbEventDto(d.DbEvTeamRefusedOffer, game.BaseCountry, "", decision.Params, game.Date.Add(enums.A_day*2))

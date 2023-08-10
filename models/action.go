@@ -9,7 +9,10 @@ const (
 	ActionOutTranfer
 	ActionInTranfer
 	ActionPlayerContract
+
+	// FD Offered Contract to Player
 	ActionPlayerContractOffer
+	// FD Offered Money for a Player to a Team
 	ActionPlayerOffer
 
 	// maybe not needed

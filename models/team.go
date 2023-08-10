@@ -51,29 +51,48 @@ func NewTeam(name, city string, country enums.Country) *Team {
 	}
 }
 
-func (t *Team) AcceptsOffer(offer utils.Money, playerId string) utils.Perc {
+func (t *Team) OfferAcceptanceChance(offer utils.Money, playerId string) utils.Perc {
 	p, ok := t.Roster.Player(playerId)
 	if !ok {
 		//TODO: log error no player in this team
 		return utils.NewPerc(0)
 	}
 
-	offerWeight := 0.3
-	valueWeight := 0.3
-	contractWeight := 0.2
-	balanceWageWeight := 0.2
+	offerVal := offer.Value()
+	value := p.Value.Value()
+	//TODO: check if player is in transferable
+	acceptancePercentage := 40.0
 
-	normalizedOffer := offer.Value()
-	normalizedValue := p.Value.Value()
-	normalizedContract := float64(p.YContract) / 10
-	normalizedBalanceWage := t.Balance.Value() - t.Wages().Value()
+	if t.Balance.Value()-t.Wages().Value() < 0 {
+		acceptancePercentage += 30.0
+	}
 
-	weightedSum := (offerWeight * normalizedOffer) +
-		(valueWeight * normalizedValue) +
-		(contractWeight * normalizedContract) +
-		(balanceWageWeight * normalizedBalanceWage)
+	if math.Abs(offerVal-value) < 0.05*value || offerVal > value {
+		acceptancePercentage += 45.0
+	}
 
-	return utils.NewPerc(int(math.Round(weightedSum * 100)))
+	if offerVal < value {
+		exponentialDecrease := math.Pow(2, (value-offerVal)/value)
+		acceptancePercentage -= 3.0 * exponentialDecrease
+	} else {
+		exponentialIncrease := math.Pow(2, (offerVal-value)/value)
+		acceptancePercentage += 3.0 * exponentialIncrease
+	}
+
+	if p.Age < 25 {
+		acceptancePercentage -= float64(p.Age) / 2
+	} else if p.Age > 29 {
+		acceptancePercentage += float64(p.Age) / 3
+	}
+
+	ycontractDifference := math.Abs(float64(p.YContract - 1))
+	if ycontractDifference <= 1 {
+		acceptancePercentage += 25.0
+	} else if ycontractDifference <= 2 {
+		acceptancePercentage += 2.0
+	}
+
+	return utils.NewPerc(int(acceptancePercentage))
 }
 
 func (t *Team) Wages() utils.Money {

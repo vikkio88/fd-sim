@@ -28,7 +28,57 @@ func TestTeamAcceptingOffer(t *testing.T) {
 
 	p := team.Roster.Players()[0]
 	pVal := p.Value.Value()
+	p.YContract = 5
+	p.Age = 20
 
-	acceptedPerc := team.AcceptsOffer(utils.NewEurosFromF(pVal-(pVal/2)), p.Id)
-	assert.Equal(t, 90, acceptedPerc.Val())
+	acceptedPerc := team.OfferAcceptanceChance(utils.NewEurosFromF(pVal-(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 50)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal-(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 60)
+	assert.GreaterOrEqual(t, acceptedPerc.Val(), 50)
+
+	p.YContract = 5
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 90)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
+
+	p.YContract = 5
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal+(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 90)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal+(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
+
+	//making player older
+	p.Age = 30
+	p.YContract = 5
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal-(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 50)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal-(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 75)
+	assert.GreaterOrEqual(t, acceptedPerc.Val(), 50)
+
+	p.YContract = 5
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
+
+	p.YContract = 5
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal+(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
+
+	p.YContract = 1
+	acceptedPerc = team.OfferAcceptanceChance(utils.NewEurosFromF(pVal+(pVal/2)), p.Id)
+	assert.LessOrEqual(t, acceptedPerc.Val(), 100)
 }

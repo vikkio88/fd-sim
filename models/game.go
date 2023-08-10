@@ -136,6 +136,7 @@ func NewGameWithId(id, saveName, name, surname string, age int) *Game {
 
 func (g *Game) FreeDecisionQueue() {
 	g.EmailDecisions = map[string]*Decision{}
+	g.Decisions = []*Decision{}
 }
 
 func (g *Game) QueueDecision(decision *Decision) {
