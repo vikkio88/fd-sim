@@ -33,6 +33,26 @@ func (repo *MarketRepo) AddOffer(offer OfferDto) {
 	repo.g.Create(&offer)
 }
 
+func (repo *MarketRepo) SaveOffer(offer *models.Offer) {
+	playerId := offer.Player.Id
+	offeringTeamId := offer.OfferingTeam.Id
+
+	dto := DtoFromOffer(offer)
+
+	repo.g.Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).Save(&dto)
+}
+
+func (repo *MarketRepo) GetOffersByPlayerTeamId(playerId, offeringTeamId string) (*models.Offer, bool) {
+	var offer OfferDto
+
+	trx := repo.g.Model(&OfferDto{}).Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).Find(&offer)
+	if trx.RowsAffected != 1 {
+		return nil, false
+	}
+
+	return offer.Offer(), true
+}
+
 func (repo *MarketRepo) GetOffersByOfferingTeamId(string) []*models.Offer {
 	// var offers []OfferDto
 

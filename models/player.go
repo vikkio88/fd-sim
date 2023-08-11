@@ -31,17 +31,19 @@ type PlayerDetailed struct {
 	Offers   []Offer
 }
 
-func (p *PlayerDetailed) HasOfferFromTeamId(teamId string) bool {
+func (p *PlayerDetailed) GetOfferFromTeamId(teamId string) (*Offer, bool) {
 	if p.Offers == nil || len(p.Offers) < 1 {
-		return false
+		return nil, false
 	}
 
 	idx := slices.IndexFunc(p.Offers, func(o Offer) bool {
 		return o.OfferingTeam.Id == teamId
 	})
 
-	return idx != -1
-
+	if idx != -1 {
+		return &p.Offers[idx], true
+	}
+	return nil, false
 }
 
 type PlayerHistorical struct {

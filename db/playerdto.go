@@ -86,10 +86,6 @@ func (p PlayerDto) Player() *models.Player {
 	return player
 }
 
-func (p PlayerDto) PlayerDetailedNoAwards() *models.PlayerDetailed {
-	return p.PlayerDetailed([]LHistoryDto{}, []TrophyDto{})
-}
-
 func (p PlayerDto) PlayerDetailed(awardsRows []LHistoryDto, trophiesRows []TrophyDto) *models.PlayerDetailed {
 	player := models.Player{
 		Role: p.Role,
@@ -132,11 +128,20 @@ func (p PlayerDto) PlayerDetailed(awardsRows []LHistoryDto, trophiesRows []Troph
 		}
 	}
 
+	// add offers
+	offers := []models.Offer{}
+	if p.Offers != nil && len(p.Offers) > 0 {
+		for _, o := range p.Offers {
+			offers = append(offers, *o.Offer())
+		}
+	}
+
 	return &models.PlayerDetailed{
 		Player:   player,
 		History:  history,
 		Team:     team,
 		Awards:   awards,
 		Trophies: trophies,
+		Offers:   offers,
 	}
 }

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fdsim/conf"
 	"fdsim/models"
 	"fdsim/utils"
 	"fdsim/vm"
@@ -407,8 +408,18 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDetails bool) fyne.CanvasObject {
 	g, _ := ctx.GetGameState()
 
-	if player.HasOfferFromTeamId(g.Team.Id) {
-		return centered(h1("Your already made an offer for this player."))
+	if offer, ok := player.GetOfferFromTeamId(g.Team.Id); ok {
+		if !offer.IsFreeAgent && !offer.TeamAccepted {
+			return centered(h2(
+				fmt.Sprintf("Your already made an offer for this player on %s (%s). Waiting for response.", offer.OfferDate.Format(conf.DateFormatShort), offer.BidValue.StringKMB()),
+			))
+		} else if !offer.IsFreeAgent && offer.TeamAccepted {
+			return centered(h2("Team accepted the offer. Now you can discuss contract."))
+		} else if !offer.IsFreeAgent && offer.PlayerAccepted {
+			return centered(h2("Player and Team accepted your offer."))
+		} else {
+			return centered(h2("Player and Team accepted your offer."))
+		}
 	}
 
 	tInfo, ok := ctx.Db.MarketR().GetTransferMarketInfo()

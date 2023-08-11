@@ -178,6 +178,9 @@ You are not allowed to offer him a contract.`, offerM.StringKMB(), conf.LinkBody
 
 	event.TriggerChanges = func(game *models.Game, db db.IDb) {
 		// TODO: move offer status to can offer contract
+		of, _ := db.MarketR().GetOffersByPlayerTeamId(playerId, params.FdTeamId)
+		of.TeamAccepted = true
+		db.MarketR().SaveOffer(of)
 	}
 
 	return event

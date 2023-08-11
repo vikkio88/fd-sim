@@ -48,7 +48,12 @@ func (pr *PlayerRepo) RetiredById(id string) (*models.RetiredPlayer, bool) {
 
 func (pr *PlayerRepo) ById(id string) (*models.PlayerDetailed, bool) {
 	var p PlayerDto
-	trx := pr.g.Model(&PlayerDto{}).Preload(teamRel).Preload("History").Find(&p, "Id = ?", id)
+	trx := pr.g.Model(&PlayerDto{}).
+		Preload(teamRel).
+		Preload("History").
+		Preload("Offers").
+		Preload("Offers.OfferingTeam").
+		Find(&p, "Id = ?", id)
 	if trx.RowsAffected != 1 {
 		return nil, false
 	}
