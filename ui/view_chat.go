@@ -21,7 +21,7 @@ func chatView(ctx *AppContext) *fyne.Container {
 	}
 
 	hasTeam := params.Team != nil
-	mI, _ := ctx.Db.GameR().GetTransferMarketInfo()
+	mI, _ := ctx.Db.MarketR().GetTransferMarketInfo()
 
 	title := "Contract Offer"
 	moneyLabel := "Yearly Wage:"
@@ -108,9 +108,6 @@ func chatView(ctx *AppContext) *fyne.Container {
 					return
 				}
 
-				//TODO: make sure you move this to a util
-				game.Flags.OfferedPlayers[decision.Choice.Params.PlayerId] = decision.Choice.Params.TeamId
-
 				// Queue and persist decision
 				game.QueueDecision(decision)
 				ctx.Db.GameR().Update(game)
@@ -129,10 +126,12 @@ func makePlayerOfferDecision(game *models.Game, params vm.ChatParams, offer floa
 		game.Date,
 		models.ActionPlayerOffer.Choosable(
 			models.EventParams{
-				TeamId:   params.Team.Id,
-				TeamName: params.Team.Name,
-				PlayerId: params.Player.Id,
-				ValueF:   offer,
+				TeamId:     params.Team.Id,
+				TeamName:   params.Team.Name,
+				PlayerId:   params.Player.Id,
+				PlayerName: params.Player.String(),
+				ValueF:     offer,
+				FdTeamId:   game.Team.Id,
 			},
 		),
 	)
@@ -146,6 +145,7 @@ func makePlayerContractOfferDecision(game *models.Game, params vm.ChatParams, of
 				PlayerId: params.Player.Id,
 				ValueF:   offer,
 				ValueInt: ycontract,
+				FdTeamId: game.Team.Id,
 			},
 		),
 	)

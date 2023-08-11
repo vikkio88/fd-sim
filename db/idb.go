@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// IDb ...
+// IDb
 type IDb interface {
 	TruncateAll()
 	GameR() IGameRepo
@@ -14,9 +14,18 @@ type IDb interface {
 	TeamR() ITeamRepo
 	PlayerR() IPlayerRepo
 	CoachR() ICoachRepo
+
+	MarketR() IMarketRepo
 }
 
-// IGameRepo ...
+type IMarketRepo interface {
+	Truncate()
+	GetTransferMarketInfo() (*models.TransferMarketInfo, bool)
+	AddOffer(OfferDto)
+	GetOffersByOfferingTeamId(string) []*models.Offer
+	GetOffersByPlayerId(string) []*models.Offer
+}
+
 type IGameRepo interface {
 	Truncate()
 	TruncateNotifications()
@@ -44,8 +53,6 @@ type IGameRepo interface {
 	GetEvents(time.Time) []DbEventDto
 	StoreEvent(DbEventDto)
 	StoreEvents([]DbEventDto)
-
-	GetTransferMarketInfo() (*models.TransferMarketInfo, bool)
 }
 
 // ILeagueRepo ...

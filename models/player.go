@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/oklog/ulid/v2"
+	"golang.org/x/exp/slices"
 )
 
 const playerInMemoryId = "pmId"
@@ -27,6 +28,20 @@ type PlayerDetailed struct {
 	Team     *TPH
 	Awards   []Award
 	Trophies []Trophy
+	Offers   []Offer
+}
+
+func (p *PlayerDetailed) HasOfferFromTeamId(teamId string) bool {
+	if p.Offers == nil || len(p.Offers) < 1 {
+		return false
+	}
+
+	idx := slices.IndexFunc(p.Offers, func(o Offer) bool {
+		return o.OfferingTeam.Id == teamId
+	})
+
+	return idx != -1
+
 }
 
 type PlayerHistorical struct {

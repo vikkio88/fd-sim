@@ -59,6 +59,9 @@ func (d *MockDb) PlayerR() db.IPlayerRepo {
 func (d *MockDb) CoachR() db.ICoachRepo {
 	panic("not implemented")
 }
+func (d *MockDb) MarketR() db.IMarketRepo {
+	panic("not implemented")
+}
 
 type MockGameR struct{}
 

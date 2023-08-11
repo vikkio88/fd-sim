@@ -10,6 +10,6 @@ func migrate(g *gorm.DB) {
 		&StatRowDto{}, &NewsDto{}, &EmailDto{},
 		&PHistoryDto{}, &THistoryDto{}, &FDStatRowDto{},
 		&RetiredPlayerDto{}, &FDHistoryDto{}, &LHistoryDto{},
-		&DbEventDto{}, &TrophyDto{},
+		&DbEventDto{}, &TrophyDto{}, &OfferDto{},
 	)
 }

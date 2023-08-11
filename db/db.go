@@ -14,6 +14,7 @@ const (
 
 	gameRepoCacheKey   = "db_GR"
 	leagueRepoCacheKey = "db_LR"
+	marketRepoCacheKey = "db_MKR"
 )
 
 type Db struct {
@@ -39,6 +40,7 @@ func (db *Db) TruncateAll() {
 	db.TeamR().Truncate()
 	db.PlayerR().Truncate()
 	db.CoachR().Truncate()
+	db.MarketR().Truncate()
 }
 
 func (db *Db) GameR() IGameRepo {
@@ -87,6 +89,16 @@ func (db *Db) CoachR() ICoachRepo {
 	}
 	repo := NewCoachRepo(db.g)
 	db.cache[coachRepoCacheKey] = repo
+
+	return repo
+}
+
+func (db *Db) MarketR() IMarketRepo {
+	if repo, ok := db.cache[marketRepoCacheKey]; ok {
+		return repo.(*MarketRepo)
+	}
+	repo := NewMarketRepo(db.g)
+	db.cache[marketRepoCacheKey] = repo
 
 	return repo
 }

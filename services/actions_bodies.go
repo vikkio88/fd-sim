@@ -27,6 +27,7 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 	teamId := decision.Params.TeamId
 	playerId := decision.Params.PlayerId
 	offerVal := decision.Params.ValueF
+	fdTeamId := decision.Params.FdTeamId
 	event := NewEmptyEvent()
 
 	event.TriggerChanges = func(game *models.Game, db d.IDb) {
@@ -43,7 +44,14 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 
 		//TODO: check if team is skint/ need that player
 
-		game.Flags.OfferedPlayers[playerId] = teamId
+		// Persist Offer on Db
+		db.MarketR().AddOffer(d.OfferDto{
+			PlayerId:       playerId,
+			TeamId:         &teamId,
+			OfferingTeamId: fdTeamId,
+			BidValue:       &offerVal,
+			OfferDate:      game.Date,
+		})
 
 		var ev d.DbEventDto
 		if rng.Chance(chance) {

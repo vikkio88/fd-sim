@@ -27,6 +27,7 @@ type PlayerDto struct {
 
 	Team    *TeamDto     `gorm:"foreignKey:team_id"`
 	History *PHistoryDto `gorm:"foreignKey:player_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Offers  []OfferDto   `gorm:"foreignKey:player_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func DtoFromPlayer(player *models.Player) PlayerDto {
@@ -83,6 +84,10 @@ func (p PlayerDto) Player() *models.Player {
 	player.YContract = p.YContract
 
 	return player
+}
+
+func (p PlayerDto) PlayerDetailedNoAwards() *models.PlayerDetailed {
+	return p.PlayerDetailed([]LHistoryDto{}, []TrophyDto{})
 }
 
 func (p PlayerDto) PlayerDetailed(awardsRows []LHistoryDto, trophiesRows []TrophyDto) *models.PlayerDetailed {

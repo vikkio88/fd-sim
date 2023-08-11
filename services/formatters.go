@@ -18,3 +18,7 @@ func emailAddrFromTeamName(teamName string, department string) string {
 func teamLink(name, id string) models.Link {
 	return models.NewLink(name, enums.TeamDetails, &id)
 }
+
+func playerLink(name, id string) models.Link {
+	return models.NewLink(name, enums.PlayerDetails, &id)
+}

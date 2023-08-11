@@ -7,6 +7,7 @@ import (
 	"fdsim/db"
 	"fdsim/enums"
 	"fdsim/models"
+	"fdsim/utils"
 	"fmt"
 )
 
@@ -156,5 +157,28 @@ func dbEvIndividualAwards(dbe db.DbEventDto, event *Event, params models.EventPa
 }
 
 func dbEvTeamAcceptedOffer(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
-	return nil
+	teamName := params.TeamName
+	playerId := params.PlayerId
+	playerName := params.PlayerName
+	offer := params.ValueF
+	offerM := utils.NewEurosFromF(offer)
+
+	event.TriggerEmail = models.NewEmail(
+		emailAddrFromTeamName(teamName, "hr"),
+		fmt.Sprintf("Your offer for %s was accepted.", playerName),
+		fmt.Sprintf(`Your offer of %s for the player:
+		 %s
+was accepted by our board.
+You are not allowed to offer him a contract.`, offerM.StringKMB(), conf.LinkBodyPH),
+		dbe.TriggerDate,
+		[]models.Link{
+			playerLink(playerName, playerId),
+		},
+	)
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		// TODO: move offer status to can offer contract
+	}
+
+	return event
 }
