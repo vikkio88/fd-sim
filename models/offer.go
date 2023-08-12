@@ -39,3 +39,48 @@ func NewOffer(
 		TransferDate:    transferDate,
 	}
 }
+
+func (offer Offer) Stage() OfferStage {
+	if offer.IsFreeAgent &&
+		offer.YContract != nil &&
+		offer.WageValue != nil &&
+		!offer.PlayerAccepted {
+		return OfstContractOffered
+	}
+
+	if offer.IsFreeAgent &&
+		offer.YContract != nil &&
+		offer.WageValue != nil &&
+		!offer.PlayerAccepted {
+		return OfstReady
+	}
+
+	if !offer.TeamAccepted {
+		return OfstOffered
+	}
+
+	if offer.TeamAccepted && !offer.PlayerAccepted {
+		return OfstTeamAccepted
+	}
+
+	if offer.TeamAccepted && offer.PlayerAccepted {
+		return OfstReadyTP
+	}
+
+	return OfstNone
+}
+
+type OfferStage uint8
+
+const (
+	OfstNone OfferStage = iota
+	OfstOffered
+	OfstTeamAccepted
+	OfstContractOffered
+	// Ready Team and Player
+	OfstReadyTP
+
+	// Ready Player (When Free agent)
+	OfstReady
+	OfstFinalised
+)

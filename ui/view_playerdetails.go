@@ -409,15 +409,14 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 	g, _ := ctx.GetGameState()
 
 	if offer, ok := player.GetOfferFromTeamId(g.Team.Id); ok {
-		if !offer.IsFreeAgent && !offer.TeamAccepted {
+		switch offer.Stage() {
+		case models.OfstOffered:
 			return centered(h2(
 				fmt.Sprintf("Your already made an offer for this player on %s (%s). Waiting for response.", offer.OfferDate.Format(conf.DateFormatShort), offer.BidValue.StringKMB()),
 			))
-		} else if !offer.IsFreeAgent && offer.TeamAccepted {
+		case models.OfstTeamAccepted:
 			return centered(h2("Team accepted the offer. Now you can discuss contract."))
-		} else if !offer.IsFreeAgent && offer.PlayerAccepted {
-			return centered(h2("Player and Team accepted your offer."))
-		} else {
+		case models.OfstReadyTP:
 			return centered(h2("Player and Team accepted your offer."))
 		}
 	}
@@ -426,7 +425,6 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 
 	if !ok {
 		// this should not happen as it wont appear if you have no team
-		//maybe panic
 		panic("you should not see this if you are hired")
 	}
 
