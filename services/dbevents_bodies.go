@@ -185,3 +185,30 @@ You are not allowed to offer him a contract.`, offerM.StringKMB(), conf.LinkBody
 
 	return event
 }
+
+func dbEvTeamRefusedOffer(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	teamName := params.TeamName
+	playerId := params.PlayerId
+	playerName := params.PlayerName
+	offer := params.ValueF
+	offerM := utils.NewEurosFromF(offer)
+
+	event.TriggerEmail = models.NewEmail(
+		emailAddrFromTeamName(teamName, "hr"),
+		fmt.Sprintf("Your offer for %s was rejected.", playerName),
+		fmt.Sprintf(`Your offer of %s for the player:
+		 %s
+was rejected.`, offerM.StringKMB(), conf.LinkBodyPH),
+		dbe.TriggerDate,
+		[]models.Link{
+			playerLink(playerName, playerId),
+		},
+	)
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		of, _ := db.MarketR().GetOffersByPlayerTeamId(playerId, params.FdTeamId)
+		db.MarketR().DeleteOffer(of)
+	}
+
+	return event
+}

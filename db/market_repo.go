@@ -39,13 +39,26 @@ func (repo *MarketRepo) SaveOffer(offer *models.Offer) {
 
 	dto := DtoFromOffer(offer)
 
-	repo.g.Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).Save(&dto)
+	repo.g.Model(&OfferDto{}).
+		Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).
+		Updates(dto)
+}
+
+func (repo *MarketRepo) DeleteOffer(o *models.Offer) {
+	trx := repo.g.Where("player_id = ? and offering_team_id = ?", o.Player.Id, o.OfferingTeam.Id).Delete(&OfferDto{})
+	if trx.Error != nil {
+		panic("ERROR")
+	}
 }
 
 func (repo *MarketRepo) GetOffersByPlayerTeamId(playerId, offeringTeamId string) (*models.Offer, bool) {
 	var offer OfferDto
 
-	trx := repo.g.Model(&OfferDto{}).Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).Find(&offer)
+	trx := repo.g.Model(&OfferDto{}).Where("player_id = ? and offering_team_id = ?", playerId, offeringTeamId).
+		Preload(teamRel).
+		Preload(playerRel).
+		Preload("OfferingTeam").
+		Find(&offer)
 	if trx.RowsAffected != 1 {
 		return nil, false
 	}
@@ -53,13 +66,24 @@ func (repo *MarketRepo) GetOffersByPlayerTeamId(playerId, offeringTeamId string)
 	return offer.Offer(), true
 }
 
-func (repo *MarketRepo) GetOffersByOfferingTeamId(string) []*models.Offer {
-	// var offers []OfferDto
+func (repo *MarketRepo) GetOffersByOfferingTeamId(offeringTeamId string) []*models.Offer {
+	var dtos []OfferDto
 
-	panic("not implemented")
+	repo.g.Model(&OfferDto{}).Where("offering_team_id = ?", offeringTeamId).
+		Preload(teamRel).
+		Preload(playerRel).
+		Preload("OfferingTeam").
+		Find(&dtos)
+
+	offers := make([]*models.Offer, len(dtos))
+	for i, o := range dtos {
+		offers[i] = o.Offer()
+	}
+
+	return offers
 }
 
-// GetOffersByPlayerId implements IMarketRepo.
 func (*MarketRepo) GetOffersByPlayerId(string) []*models.Offer {
+	//TODO: remove if not used (I seem to load it from the player itself)
 	panic("unimplemented")
 }

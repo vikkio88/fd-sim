@@ -38,21 +38,45 @@ func teamMgmtView(ctx *AppContext) *fyne.Container {
 				container.NewTabItemWithIcon("Roster", widgets.Icon("team").Resource, makeRosterManagement(team, trow, ctx.PushWithParam)),
 				container.NewTabItemWithIcon("Finance", widgets.Icon("money").Resource, centered(widget.NewLabel("Finance"))),
 				container.NewTabItemWithIcon("Board/Supporters", theme.AccountIcon(), centered(widget.NewLabel("Board/Supporters"))),
-				container.NewTabItemWithIcon("Transfer Market", widgets.Icon("transfers").Resource, makeMarketMgMtTab(game, ctx.PushWithParam)),
+				container.NewTabItemWithIcon("Transfer Market", widgets.Icon("transfers").Resource, makeMarketMgMtTab(ctx)),
 				container.NewTabItemWithIcon("Misc", theme.SettingsIcon(), centered(widget.NewLabel("Misc"))),
 			),
 		)
 }
 
-func makeMarketMgMtTab(game *models.Game, navigate NavigateWithParamFunc) fyne.CanvasObject {
+func makeMarketMgMtTab(ctx *AppContext) fyne.CanvasObject {
+	game, _ := ctx.GetGameState()
 	isWindowOpen, _ := game.IsTransferWindowOpen()
+
+	offers := ctx.Db.MarketR().GetOffersByOfferingTeamId(game.GetTeamIdOrEmpty())
+
 	trsf := "CLOSED"
 	if isWindowOpen {
 		trsf = "OPEN"
 	}
 	return NewFborder().Top(
 		centered(widget.NewLabel(fmt.Sprintf("Transfer window is %s.", trsf))),
-	).Get()
+	).Get(
+		makeOffersList(offers, ctx.PushWithParam),
+	)
+}
+
+func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	list := widget.NewList(
+		func() int {
+			return len(offers)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("")
+		},
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			offer := offers[lii]
+			lbl := co.(*widget.Label)
+			lbl.SetText(offer.Player.String())
+		},
+	)
+
+	return list
 }
 
 func makeRosterManagement(team *models.TeamDetailed, trow *models.TPHRow, navigate NavigateWithParamFunc) fyne.CanvasObject {

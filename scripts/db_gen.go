@@ -34,7 +34,14 @@ func (DBGen) Run(seed int64, teams int) {
 	game.Surname = "Mc Test"
 	game.SaveName = "TestSave"
 	game.Fame = utils.NewPerc(80)
-	game.YContract = 2
+
+	// if you want to have 1 year empty
+	// game.YContract = 2
+	// if you want to handle the end of contract phase
+	// game.YContract = 3
+	// if you want to be still employed
+	game.YContract = 4
+
 	game.OnEmployed = func() {}
 	game.OnUnEmployed = func() {}
 	game.Flags = models.NewFlags()

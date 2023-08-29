@@ -54,6 +54,10 @@ func DtoFromOffer(offer *models.Offer) OfferDto {
 		o.YContract = c
 	}
 
+	if offer.Team != nil {
+		o.TeamId = &offer.Team.Id
+	}
+
 	return o
 }
 
@@ -84,6 +88,10 @@ func (o *OfferDto) Offer() *models.Offer {
 	if o.YContract != nil {
 		c := o.YContract
 		offer.YContract = c
+	}
+
+	if o.Team != nil {
+		offer.Team = o.Team.TeamPH()
 	}
 
 	return offer

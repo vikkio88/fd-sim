@@ -23,6 +23,7 @@ type IMarketRepo interface {
 	GetTransferMarketInfo() (*models.TransferMarketInfo, bool)
 	AddOffer(OfferDto)
 	SaveOffer(*models.Offer)
+	DeleteOffer(*models.Offer)
 	GetOffersByPlayerTeamId(playerId string, offeringTeamId string) (*models.Offer, bool)
 	GetOffersByOfferingTeamId(string) []*models.Offer
 	GetOffersByPlayerId(string) []*models.Offer
