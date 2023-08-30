@@ -84,3 +84,19 @@ const (
 	OfstReady
 	OfstFinalised
 )
+
+func (o OfferStage) String() string {
+	switch o {
+	case OfstOffered:
+		return "Offer sent"
+	case OfstTeamAccepted:
+		return "Team Accepted"
+	case OfstContractOffered:
+		return "Contract Offered"
+	case OfstReady:
+	case OfstReadyTP:
+		return "Ready"
+	}
+
+	return "-"
+}

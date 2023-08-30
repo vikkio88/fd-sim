@@ -133,3 +133,13 @@ func getApproxMoney(money utils.Money) string {
 	valueLow, valueHigh := utils.GetApproxRangeM(money)
 	return fmt.Sprintf("Value: %s - %s", valueLow.StringKMB(), valueHigh.StringKMB())
 }
+
+// handle subtab navigation
+func handleSubtabs(subtabIndex int, tabContainer *container.AppTabs) {
+	if subtabIndex != -1 {
+		if subtabIndex > len(tabContainer.Items) {
+			return
+		}
+		tabContainer.SelectIndex(subtabIndex)
+	}
+}

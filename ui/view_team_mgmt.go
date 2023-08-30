@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fdsim/models"
+	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
@@ -62,21 +63,69 @@ func makeMarketMgMtTab(ctx *AppContext) fyne.CanvasObject {
 }
 
 func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne.CanvasObject {
+	columns := widgets.NewColumnsLayout([]float32{-1, 100, 150, 100, 100})
+	header := widgets.NewListHeader(
+		[]widgets.ListColumn{
+			widgets.NewListCol("", fyne.TextAlignCenter),
+			widgets.NewListCol("Team", fyne.TextAlignLeading),
+			widgets.NewListCol("Stage", fyne.TextAlignLeading),
+			widgets.NewListCol("Bid", fyne.TextAlignLeading),
+			widgets.NewListCol("Wage", fyne.TextAlignLeading),
+		},
+		columns,
+	)
 	list := widget.NewList(
 		func() int {
 			return len(offers)
 		},
 		func() fyne.CanvasObject {
-			return widget.NewLabel("")
+			return container.New(
+				columns,
+				hL("", func() {}),
+				widget.NewLabel("Team"),
+				widget.NewLabel("Stage"),
+				widget.NewLabel("Offer"),
+				widget.NewLabel("Wage"),
+			)
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
 			offer := offers[lii]
-			lbl := co.(*widget.Label)
-			lbl.SetText(offer.Player.String())
+			ctr := co.(*fyne.Container)
+			hlP := getCenteredHL(ctr.Objects[0])
+			hlP.SetText(offer.Player.String())
+			hlP.OnTapped = func() {
+				navigate(
+					PlayerDetails,
+					vm.SubTabIdParam{
+						Id: offer.Player.Id,
+						// SUBTAB MARKET
+						//TODO: maybe move this to a const
+						SubtabIndex: 3,
+					},
+				)
+			}
+
+			tlbl := ctr.Objects[1].(*widget.Label)
+			bidlbl := ctr.Objects[3].(*widget.Label)
+			tlbl.SetText("-")
+			if offer.Team != nil {
+				tlbl.SetText(offer.Team.Name)
+				bidlbl.SetText(offer.BidValue.StringKMB())
+			}
+
+			ofStlbl := ctr.Objects[2].(*widget.Label)
+			ofStlbl.SetText(offer.Stage().String())
+
+			wagelbl := ctr.Objects[4].(*widget.Label)
+			wagelbl.SetText("-")
+			if offer.WageValue != nil {
+				wagelbl.SetText(offer.WageValue.StringKMB())
+			}
+
 		},
 	)
 
-	return list
+	return NewFborder().Top(header).Get(list)
 }
 
 func makeRosterManagement(team *models.TeamDetailed, trow *models.TPHRow, navigate NavigateWithParamFunc) fyne.CanvasObject {

@@ -15,7 +15,17 @@ import (
 )
 
 func playerDetailsView(ctx *AppContext) *fyne.Container {
-	id := ctx.RouteParam.(string)
+	id := ""
+	subTab := -1
+
+	switch v := ctx.RouteParam.(type) {
+	case string:
+		id = v
+	case vm.SubTabIdParam:
+		id = v.Id
+		subTab = v.SubtabIndex
+	}
+
 	g, isGameInit := ctx.GetGameState()
 	player, exists := ctx.Db.PlayerR().ById(id)
 
@@ -62,6 +72,7 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 			makePTransferTab(ctx, player, canSeeDetails),
 		))
 	}
+	handleSubtabs(subTab, main)
 
 	return NewFborder().
 		Top(
