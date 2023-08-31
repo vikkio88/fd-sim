@@ -85,5 +85,6 @@ func (repo *MarketRepo) GetOffersByOfferingTeamId(offeringTeamId string) []*mode
 
 func (*MarketRepo) GetOffersByPlayerId(string) []*models.Offer {
 	//TODO: remove if not used (I seem to load it from the player itself)
+
 	panic("unimplemented")
 }

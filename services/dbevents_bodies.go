@@ -212,3 +212,29 @@ was rejected.`, offerM.StringKMB(), conf.LinkBodyPH),
 
 	return event
 }
+
+func dbEvPlayerRefusedContract(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	playerId := params.PlayerId
+	playerName := params.PlayerName
+	wageOffer := params.ValueF
+	wageOfferM := utils.NewEurosFromF(wageOffer)
+
+	event.TriggerEmail = models.NewEmail(
+		"agent@footballers.com",
+		fmt.Sprintf("%s rejected your contract offer.", playerName),
+		fmt.Sprintf(`Your offer of %s for the player:
+		 %s
+was rejected.`, wageOfferM.StringKMB(), conf.LinkBodyPH),
+		dbe.TriggerDate,
+		[]models.Link{
+			playerLink(playerName, playerId),
+		},
+	)
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		of, _ := db.MarketR().GetOffersByPlayerTeamId(playerId, params.FdTeamId)
+		db.MarketR().DeleteOffer(of)
+	}
+
+	return event
+}

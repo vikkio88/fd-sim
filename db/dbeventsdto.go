@@ -29,6 +29,9 @@ const (
 
 	DbEvTeamAcceptedOffer
 	DbEvTeamRefusedOffer
+
+	DbEvPlayerAcceptedContract
+	DbEvPlayerRefusedContract
 )
 
 func NewDbEventDto(kind DbEventType, country enums.Country, payload string, evParams models.EventParams, triggerDate time.Time) DbEventDto {

@@ -11,7 +11,7 @@ func ParseDecision(date time.Time, decision *models.Choosable) *Event {
 	case models.ActionRespondContract:
 		return decisionRespondedToContractOffer(decision, date)
 	case models.ActionPlayerContractOffer:
-		return decisionOfferedForAPlayer(decision, date)
+		return decisionOfferedContractToAPlayer(decision, date)
 	case models.ActionPlayerOffer:
 		return decisionOfferedForAPlayer(decision, date)
 

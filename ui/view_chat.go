@@ -140,12 +140,13 @@ func makePlayerOfferDecision(game *models.Game, params vm.ChatParams, offer floa
 func makePlayerContractOfferDecision(game *models.Game, params vm.ChatParams, offer float64, ycontract int) *models.Decision {
 	return models.NewDecision(
 		game.Date,
-		models.ActionPlayerOffer.Choosable(
+		models.ActionPlayerContractOffer.Choosable(
 			models.EventParams{
-				PlayerId: params.Player.Id,
-				ValueF:   offer,
-				ValueInt: ycontract,
-				FdTeamId: game.Team.Id,
+				PlayerId:   params.Player.Id,
+				PlayerName: params.Player.String(),
+				ValueF:     offer,
+				ValueInt:   ycontract,
+				FdTeamId:   game.Team.Id,
 			},
 		),
 	)

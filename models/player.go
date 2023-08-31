@@ -31,6 +31,10 @@ type PlayerDetailed struct {
 	Offers   []Offer
 }
 
+func (p *PlayerDetailed) WageAcceptanceChance(offer utils.Money, offeringTeamId string) utils.Perc {
+	return utils.NewPerc(0)
+}
+
 func (p *PlayerDetailed) GetOfferFromTeamId(teamId string) (*Offer, bool) {
 	if p.Offers == nil || len(p.Offers) < 1 {
 		return nil, false

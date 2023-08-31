@@ -421,6 +421,7 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 
 	if offer, ok := player.GetOfferFromTeamId(g.Team.Id); ok {
 		switch offer.Stage() {
+
 		case models.OfstOffered:
 			return centered(h2(
 				fmt.Sprintf("Your already made an offer for this player on %s (%s). Waiting for response.", offer.OfferDate.Format(conf.DateFormatShort), offer.BidValue.StringKMB()),
