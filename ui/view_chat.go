@@ -95,6 +95,7 @@ func chatView(ctx *AppContext) *fyne.Container {
 		Bottom(rightAligned(widget.NewButton("Offer", func() {
 			offer, _ := bv.Get()
 			var decision *models.Decision
+			// TODO: here you can also make offer contract if team accepted
 			if hasTeam {
 				decision = makePlayerOfferDecision(game, params, offer)
 			} else {

@@ -15,7 +15,6 @@ type OfferDto struct {
 	BidValue       *float64
 	WageValue      *float64
 	YContract      *int
-	IsFreeAgent    bool
 
 	TeamAccepted    bool
 	PlayerAccepted  bool
@@ -33,7 +32,6 @@ func DtoFromOffer(offer *models.Offer) OfferDto {
 		PlayerId:       offer.Player.Id,
 		OfferingTeamId: offer.OfferingTeam.Id,
 		OfferDate:      offer.OfferDate,
-		IsFreeAgent:    offer.IsFreeAgent,
 
 		TeamAccepted:    offer.TeamAccepted,
 		PlayerAccepted:  offer.PlayerAccepted,
@@ -72,7 +70,7 @@ func (o *OfferDto) Offer() *models.Offer {
 		offer.Team = o.Team.TeamPH()
 	} else {
 		// this is maybe not needed
-		offer.IsFreeAgent = o.IsFreeAgent
+		offer.IsFreeAgent = true
 	}
 
 	if o.BidValue != nil {

@@ -70,6 +70,7 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 
 func decisionOfferedContractToAPlayer(decision *models.Choosable, date time.Time) *Event {
 	playerId := decision.Params.PlayerId
+	yContract := decision.Params.ValueInt
 	wageVal := decision.Params.ValueF
 	fdTeamId := decision.Params.FdTeamId
 	event := NewEmptyEvent()
@@ -93,11 +94,13 @@ func decisionOfferedContractToAPlayer(decision *models.Choosable, date time.Time
 				PlayerId:       playerId,
 				OfferingTeamId: fdTeamId,
 				WageValue:      &wageVal,
+				YContract:      &yContract,
 				OfferDate:      game.Date,
 			}
 			db.MarketR().AddOffer(newOffer)
 		} else {
 			o.WageValue = &offeredWage
+			o.YContract = &yContract
 			db.MarketR().SaveOffer(o)
 		}
 		// Persist Offer on Db or Update if is there already

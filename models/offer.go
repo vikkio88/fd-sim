@@ -74,8 +74,10 @@ type OfferStage uint8
 
 const (
 	OfstNone OfferStage = iota
+	// An Offer has been made to the Team
 	OfstOffered
 	OfstTeamAccepted
+	// An Offer has been made to the Player
 	OfstContractOffered
 	// Ready Team and Player
 	OfstReadyTP

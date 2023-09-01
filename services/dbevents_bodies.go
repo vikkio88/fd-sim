@@ -220,7 +220,7 @@ func dbEvPlayerRefusedContract(dbe db.DbEventDto, event *Event, params models.Ev
 	wageOfferM := utils.NewEurosFromF(wageOffer)
 
 	event.TriggerEmail = models.NewEmail(
-		"agent@footballers.com",
+		getPlayerEmail(playerName, dbe.Country),
 		fmt.Sprintf("%s rejected your contract offer.", playerName),
 		fmt.Sprintf(`Your offer of %s for the player:
 		 %s
