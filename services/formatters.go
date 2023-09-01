@@ -1,7 +1,9 @@
 package services
 
 import (
+	"fdsim/data"
 	"fdsim/enums"
+	"fdsim/generators"
 	"fdsim/models"
 	"fmt"
 	"strings"
@@ -9,9 +11,18 @@ import (
 
 // Utils formatters
 func emailAddrFromTeamName(teamName string, department string) string {
-	website := strings.ToLower(teamName)
-	website = strings.ReplaceAll(website, " ", "")
+	website := cleanNameSpaces(teamName, "")
 	return fmt.Sprintf("hr@%s.com", website)
+}
+
+func getPlayerEmail(playerName string, country enums.Country) string {
+	return fmt.Sprintf("%s@%s%s", cleanNameSpaces(playerName, "."), generators.EmailDomains.One(), data.GetDomain(country))
+}
+
+func cleanNameSpaces(name string, replace string) string {
+	result := strings.ToLower(name)
+	result = strings.ReplaceAll(result, " ", replace)
+	return result
 }
 
 // Link Generators
