@@ -53,6 +53,7 @@ func (pr *PlayerRepo) ById(id string) (*models.PlayerDetailed, bool) {
 		Preload("History").
 		Preload("Offers").
 		Preload("Offers.OfferingTeam").
+		Preload("Offers.Team").
 		Find(&p, "Id = ?", id)
 	if trx.RowsAffected != 1 {
 		return nil, false

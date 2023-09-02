@@ -54,9 +54,9 @@ func chatView(ctx *AppContext) *fyne.Container {
 	playerInfo.Add(
 		valueLabel("Role", widget.NewLabel(params.Player.Role.StringShort())))
 	playerInfo.Add(
-		valueLabel("Value", widget.NewLabel(getApproxMoney(params.Player.Value))))
+		valueLabel("Value", widget.NewLabel(vm.GetApproxMoney(params.Player.Value))))
 	playerInfo.Add(
-		valueLabel("Ideal Wage", widget.NewLabel(getApproxMoney(params.Player.IdealWage))))
+		valueLabel("Ideal Wage", widget.NewLabel(vm.GetApproxMoney(params.Player.IdealWage))))
 
 	offerContent := container.NewVBox(
 		makePlayerHeader(params.Player),

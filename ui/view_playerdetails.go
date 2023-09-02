@@ -1,9 +1,7 @@
 package ui
 
 import (
-	"fdsim/conf"
 	"fdsim/models"
-	"fdsim/utils"
 	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
@@ -414,79 +412,4 @@ func makePlayerMainDetailsView(player *models.PlayerDetailed, canSeeDetails bool
 		main.Add(statsWrapper)
 	}
 	return main
-}
-
-func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDetails bool) fyne.CanvasObject {
-	g, _ := ctx.GetGameState()
-
-	if offer, ok := player.GetOfferFromTeamId(g.Team.Id); ok {
-		switch offer.Stage() {
-		case models.OfstOffered:
-			return centered(h2(
-				fmt.Sprintf("Your already made an offer for this player on %s (%s). Waiting for response.", offer.OfferDate.Format(conf.DateFormatShort), offer.BidValue.StringKMB()),
-			))
-		case models.OfstContractOffered:
-			return centered(h2(
-				fmt.Sprintf("Your made a contract offer for this player (%s / %d years). Waiting for response.", offer.WageValue.StringKMB(), *offer.YContract),
-			))
-		case models.OfstTeamAccepted:
-			return centered(h2("Team accepted the offer. Now you can discuss contract."))
-		case models.OfstReadyTP:
-			return centered(h2("Player and Team accepted your offer."))
-		}
-	}
-
-	tInfo, ok := ctx.Db.MarketR().GetTransferMarketInfo()
-
-	if !ok {
-		// this should not happen as it wont appear if you have no team
-		panic("you should not see this if you are hired")
-	}
-
-	iWage := getApproxMoney(player.IdealWage)
-	wage := getApproxMoney(player.Wage)
-	value := getApproxMoney(player.Value)
-
-	lowerV, higherV := utils.GetApproxRangeF(player.Value.Value())
-	lowerW, higherW := utils.GetApproxRangeF(player.IdealWage.Value())
-
-	isFreeAgent := player.Team == nil
-	actionBtn := widget.NewButton("Offer Contract", func() {
-		contractY := 1
-		ctx.PushWithParam(Chat, vm.ChatParams{
-			IsPlayerOffer: true,
-			Player:        player,
-			ValueF:        lowerW,
-			ValueF1:       higherW,
-			ValueI:        &contractY,
-		})
-	})
-	if !isFreeAgent {
-		actionBtn = widget.NewButton("Make an Offer", func() {
-			ctx.PushWithParam(Chat, vm.ChatParams{
-				IsPlayerOffer: true,
-				Player:        player,
-				Team:          player.Team,
-				ValueF:        lowerV,
-				ValueF1:       higherV,
-			})
-		})
-	}
-
-	contractInfo := valueLabel("Contract", widget.NewLabel("-"))
-	if !isFreeAgent {
-		contractInfo = valueLabel("Contract", widget.NewLabel(fmt.Sprintf("%s / %d yrs", wage, player.YContract)))
-	}
-
-	return NewFborder().Top(
-		centered(h2(fmt.Sprintf("Transfer Budget: %s", tInfo.TransferBudget.StringKMB()))),
-	).
-		Bottom(rightAligned(actionBtn)).
-		Get(container.NewVBox(
-			valueLabel("Value: ", widget.NewLabel(value)),
-			valueLabel("Ideal Wage: ", widget.NewLabel(iWage)),
-			contractInfo,
-		),
-		)
-
 }

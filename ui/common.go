@@ -128,12 +128,6 @@ func hL(label string, onTapped func()) fyne.CanvasObject {
 	return centered(hl)
 }
 
-// return an approximation of money
-func getApproxMoney(money utils.Money) string {
-	valueLow, valueHigh := utils.GetApproxRangeM(money)
-	return fmt.Sprintf("Value: %s - %s", valueLow.StringKMB(), valueHigh.StringKMB())
-}
-
 // handle subtab navigation
 func handleSubtabs(subtabIndex int, tabContainer *container.AppTabs) {
 	if subtabIndex != -1 {
