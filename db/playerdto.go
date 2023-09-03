@@ -132,7 +132,11 @@ func (p PlayerDto) PlayerDetailed(awardsRows []LHistoryDto, trophiesRows []Troph
 	offers := []models.Offer{}
 	if p.Offers != nil && len(p.Offers) > 0 {
 		for _, o := range p.Offers {
-			offers = append(offers, *o.Offer())
+			offer := *o.Offer()
+			if offer.Player.Id == "" {
+				offer.Player = *p.PlayerPH()
+			}
+			offers = append(offers, offer)
 		}
 	}
 
