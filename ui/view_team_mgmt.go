@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fdsim/models"
-	"fdsim/vm"
+	vm "fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
@@ -63,7 +63,7 @@ func makeMarketMgMtTab(ctx *AppContext) fyne.CanvasObject {
 }
 
 func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne.CanvasObject {
-	columns := widgets.NewColumnsLayout([]float32{-1, 100, 150, 100, 100})
+	columns := widgets.NewColumnsLayout([]float32{-1, 100, 150, 100, 100, 100})
 	header := widgets.NewListHeader(
 		[]widgets.ListColumn{
 			widgets.NewListCol("", fyne.TextAlignCenter),
@@ -71,6 +71,7 @@ func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne
 			widgets.NewListCol("Stage", fyne.TextAlignLeading),
 			widgets.NewListCol("Bid", fyne.TextAlignLeading),
 			widgets.NewListCol("Wage", fyne.TextAlignLeading),
+			widgets.NewListCol("", fyne.TextAlignLeading),
 		},
 		columns,
 	)
@@ -82,10 +83,11 @@ func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne
 			return container.New(
 				columns,
 				hL("", func() {}),
-				widget.NewLabel("Team"),
+				hL("Team", func() {}),
 				widget.NewLabel("Stage"),
 				widget.NewLabel("Offer"),
 				widget.NewLabel("Wage"),
+				widget.NewButtonWithIcon("", theme.ZoomInIcon(), func() {}),
 			)
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
@@ -96,20 +98,16 @@ func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne
 			hlP.OnTapped = func() {
 				navigate(
 					PlayerDetails,
-					vm.SubTabIdParam{
-						Id: offer.Player.Id,
-						// SUBTAB MARKET
-						//TODO: maybe move this to a const
-						SubtabIndex: 3,
-					},
+					offer.Player.Id,
 				)
 			}
 
-			tlbl := ctr.Objects[1].(*widget.Label)
+			tlHl := getCenteredHL(ctr.Objects[1])
 			bidlbl := ctr.Objects[3].(*widget.Label)
-			tlbl.SetText("-")
+			tlHl.SetText("-")
 			if offer.Team != nil {
-				tlbl.SetText(offer.Team.Name)
+				tlHl.SetText(offer.Team.Name)
+				tlHl.OnTapped = func() { navigate(TeamDetails, offer.Team.Id) }
 				bidlbl.SetText(offer.BidValue.StringKMB())
 			}
 
@@ -120,6 +118,17 @@ func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne
 			wagelbl.SetText("-")
 			if offer.WageValue != nil {
 				wagelbl.SetText(offer.WageValue.StringKMB())
+			}
+
+			goBtn := ctr.Objects[5].(*widget.Button)
+			goBtn.OnTapped = func() {
+				navigate(PlayerDetails,
+					vm.SubTabIdParam{
+						Id: offer.Player.Id,
+						// SUBTAB MARKET
+						//TODO: maybe move this to a const
+						SubtabIndex: 3,
+					})
 			}
 
 		},
