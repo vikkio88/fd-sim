@@ -41,26 +41,38 @@ func NewOffer(
 }
 
 func (offer Offer) Stage() OfferStage {
+	hasContractOffer := offer.YContract != nil && offer.WageValue != nil
+
+	// Free Agent and Contract offered
 	if offer.IsFreeAgent &&
-		offer.YContract != nil &&
-		offer.WageValue != nil &&
+		hasContractOffer &&
 		!offer.PlayerAccepted {
 		return OfstContractOffered
 	}
 
+	// Free Agent and Accepted
 	if offer.IsFreeAgent &&
-		offer.YContract != nil &&
-		offer.WageValue != nil &&
-		!offer.PlayerAccepted {
+		hasContractOffer &&
+		offer.PlayerAccepted {
 		return OfstReady
 	}
 
+	// Not Free Agent and team has not Accepted
 	if !offer.TeamAccepted {
 		return OfstOffered
 	}
 
-	if offer.TeamAccepted && !offer.PlayerAccepted {
+	// Team Accepted, Player hasnt Accepted and No Contract offer
+	if offer.TeamAccepted &&
+		!hasContractOffer &&
+		!offer.PlayerAccepted {
 		return OfstTeamAccepted
+	}
+
+	if offer.TeamAccepted &&
+		hasContractOffer &&
+		!offer.PlayerAccepted {
+		return OfstContractOffered
 	}
 
 	if offer.TeamAccepted && offer.PlayerAccepted {

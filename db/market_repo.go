@@ -45,6 +45,10 @@ func (repo *MarketRepo) SaveOffer(offer *models.Offer) {
 }
 
 func (repo *MarketRepo) DeleteOffer(o *models.Offer) {
+	if o == nil {
+		//TODO: this is for a double deleting offer, try to prevent this
+		return
+	}
 	trx := repo.g.Where("player_id = ? and offering_team_id = ?", o.Player.Id, o.OfferingTeam.Id).Delete(&OfferDto{})
 	if trx.Error != nil {
 		panic("ERROR")

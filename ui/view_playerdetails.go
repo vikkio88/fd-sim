@@ -13,6 +13,7 @@ import (
 )
 
 func playerDetailsView(ctx *AppContext) *fyne.Container {
+	g, isGameInit := ctx.GetGameState()
 	id := ""
 	subTab := -1
 
@@ -21,10 +22,12 @@ func playerDetailsView(ctx *AppContext) *fyne.Container {
 		id = v
 	case vm.SubTabIdParam:
 		id = v.Id
-		subTab = v.SubtabIndex
+		if g.IsEmployed() {
+			//TODO: maybe check what the index is, this is to prevent to access market tab whilst unemployed
+			subTab = v.SubtabIndex
+		}
 	}
 
-	g, isGameInit := ctx.GetGameState()
 	player, exists := ctx.Db.PlayerR().ById(id)
 
 	if !exists {

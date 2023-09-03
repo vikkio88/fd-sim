@@ -172,7 +172,7 @@ was accepted by our board.
 You are not allowed to offer him a contract.`, offerM.StringKMB(), conf.LinkBodyPH),
 		dbe.TriggerDate,
 		[]models.Link{
-			playerLink(playerName, playerId),
+			playerSubLink(playerName, playerId, enums.PlayerDTransferTab),
 		},
 	)
 
@@ -218,13 +218,14 @@ func dbEvPlayerRefusedContract(dbe db.DbEventDto, event *Event, params models.Ev
 	playerName := params.PlayerName
 	wageOffer := params.ValueF
 	wageOfferM := utils.NewEurosFromF(wageOffer)
+	yContract := params.ValueInt
 
 	event.TriggerEmail = models.NewEmail(
 		getPlayerEmail(playerName, dbe.Country),
 		fmt.Sprintf("%s rejected your contract offer.", playerName),
-		fmt.Sprintf(`Your offer of %s for the player:
+		fmt.Sprintf(`You offered a wage of %s for %d year(s) for the player:
 		 %s
-was rejected.`, wageOfferM.StringKMB(), conf.LinkBodyPH),
+was rejected.`, wageOfferM.StringKMB(), yContract, conf.LinkBodyPH),
 		dbe.TriggerDate,
 		[]models.Link{
 			playerLink(playerName, playerId),

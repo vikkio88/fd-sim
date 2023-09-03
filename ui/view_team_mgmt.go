@@ -1,8 +1,9 @@
 package ui
 
 import (
+	"fdsim/enums"
 	"fdsim/models"
-	vm "fdsim/vm"
+	"fdsim/vm"
 	"fdsim/widgets"
 	"fmt"
 
@@ -56,7 +57,7 @@ func makeMarketMgMtTab(ctx *AppContext) fyne.CanvasObject {
 		trsf = "OPEN"
 	}
 	return NewFborder().Top(
-		centered(widget.NewLabel(fmt.Sprintf("Transfer window is %s.", trsf))),
+		rightAligned(widget.NewLabel(fmt.Sprintf("Transfer window is %s.", trsf))),
 	).Get(
 		makeOffersList(offers, ctx.PushWithParam),
 	)
@@ -126,8 +127,7 @@ func makeOffersList(offers []*models.Offer, navigate NavigateWithParamFunc) fyne
 					vm.SubTabIdParam{
 						Id: offer.Player.Id,
 						// SUBTAB MARKET
-						//TODO: maybe move this to a const
-						SubtabIndex: 3,
+						SubtabIndex: enums.PlayerDTransferTab,
 					})
 			}
 

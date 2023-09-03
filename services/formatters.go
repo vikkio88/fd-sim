@@ -33,3 +33,7 @@ func teamLink(name, id string) models.Link {
 func playerLink(name, id string) models.Link {
 	return models.NewLink(name, enums.PlayerDetails, &id)
 }
+
+func playerSubLink(name, id string, tabIndex int) models.Link {
+	return models.NewLinkSubTab(name, enums.PlayerDetails, &id, &tabIndex)
+}

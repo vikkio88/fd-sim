@@ -175,8 +175,10 @@ func parseBody(body string, links []models.Link, ctx *AppContext) *widget.RichTe
 		if len(links) > i {
 			link := links[i]
 			hL := widgets.NewHyperlinkSegment(link.Label, func() {
-				if link.Id != nil {
+				if link.Id != nil && link.SubtabIndex == nil {
 					ctx.PushWithParam(RouteFromString(link.Route), *link.Id)
+				} else if link.Id != nil && link.SubtabIndex != nil {
+					ctx.PushWithParam(RouteFromString(link.Route), vm.SubTabIdParam{Id: *link.Id, SubtabIndex: *link.SubtabIndex})
 				} else {
 					ctx.Push(RouteFromString(link.Route))
 				}

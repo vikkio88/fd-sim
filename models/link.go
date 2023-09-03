@@ -1,9 +1,10 @@
 package models
 
 type Link struct {
-	Label string
-	Id    *string
-	Route string
+	Label       string
+	Route       string
+	Id          *string
+	SubtabIndex *int
 }
 
 func NewLink(label, route string, id *string) Link {
@@ -11,5 +12,14 @@ func NewLink(label, route string, id *string) Link {
 		Label: label,
 		Route: route,
 		Id:    id,
+	}
+}
+
+func NewLinkSubTab(label, route string, id *string, subTabIndex *int) Link {
+	return Link{
+		Label:       label,
+		Route:       route,
+		Id:          id,
+		SubtabIndex: subTabIndex,
 	}
 }
