@@ -135,7 +135,7 @@ func (t *TeamGen) Team(country enums.Country) *models.Team {
 	wages := team.Roster.Wages().Value()
 	wages += team.Coach.Wage.Value()
 	balance := utils.NewEurosFromF(wages)
-	balance.Modify(t.rng.PercR(90, 150))
+	balance.Modify(float64(t.rng.PlusMinus(55)) * t.rng.PercR(0, 20))
 	team.Balance = balance
 	team.TransferRatio = t.rng.PercR(30, 50)
 	return team
