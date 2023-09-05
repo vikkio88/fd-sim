@@ -35,8 +35,13 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 			status = centered(h2(
 				fmt.Sprintf("%s accepted your %s offer.", offer.Team.Name, offer.BidValue.StringKMB()),
 			))
+			//TODO: add info here
+		case models.OfstReady:
 		case models.OfstReadyTP:
 			readyToTransfer = true
+			status = centered(h2(
+				fmt.Sprintf("Player Accepted the contract."),
+			))
 		}
 	}
 
@@ -49,11 +54,14 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 
 	tV := vm.NewApproxTransferVals(player)
 	var actionBtn *widget.Button
-	if waitingForResponse {
+	if readyToTransfer {
+		actionBtn = widget.NewButton("Confirm", func() {
+			// make decision
+		})
+	} else if waitingForResponse {
 		actionBtn = widget.NewButton("Waiting...", func() {})
 		actionBtn.Disable()
 	} else if !tV.IsFreeAgent && !teamAcceptedOffer {
-		fmt.Println("printing just to avoid issues on compile", readyToTransfer)
 		actionBtn = widget.NewButton("Make an Offer", func() {
 			ctx.PushWithParam(Chat, vm.ChatParams{
 				IsPlayerOffer: true,
