@@ -6,19 +6,15 @@ type ActionType uint8
 
 const (
 	ActionRespondContract ActionType = iota
-	ActionOutTranfer
-	ActionInTranfer
+	ActionConfirmOutTranfer
 	ActionPlayerContract
 
 	// FD Offered Contract to Player
 	ActionPlayerContractOffer
 	// FD Offered Money for a Player to a Team
 	ActionPlayerOffer
-
-	// maybe not needed
-	ActionPlayerOfferResponse
-	// maybe not needed
-	ActionPlayerContractOfferResponse
+	// FD confirmed the Transfer
+	ActionConfirmInTranfer
 
 	ActionTest
 
