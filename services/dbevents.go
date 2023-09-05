@@ -43,6 +43,7 @@ func getEventFromDbEvent(dbe db.DbEventDto) *Event {
 	case db.DbEvTeamRefusedOffer:
 		return dbEvTeamRefusedOffer(dbe, event, params)
 	case db.DbEvPlayerAcceptedContract:
+		return dbEvPlayerAcceptedContract(dbe, event, params)
 	case db.DbEvPlayerRefusedContract:
 		return dbEvPlayerRefusedContract(dbe, event, params)
 	}

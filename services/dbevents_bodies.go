@@ -213,6 +213,33 @@ was rejected.`, offerM.StringKMB(), conf.LinkBodyPH),
 	return event
 }
 
+func dbEvPlayerAcceptedContract(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	playerId := params.PlayerId
+	playerName := params.PlayerName
+	wageOffer := params.ValueF
+	wageOfferM := utils.NewEurosFromF(wageOffer)
+	yContract := params.ValueInt
+
+	event.TriggerEmail = models.NewEmail(
+		getPlayerEmail(playerName, dbe.Country),
+		fmt.Sprintf("%s accepted your contract offer.", playerName),
+		fmt.Sprintf(`You offered a wage of %s for %d year(s) for the player:
+		 %s
+was accepted.`, wageOfferM.StringKMB(), yContract, conf.LinkBodyPH),
+		dbe.TriggerDate,
+		[]models.Link{
+			playerSubLink(playerName, playerId, enums.PlayerDTransferTab),
+		},
+	)
+
+	event.TriggerChanges = func(game *models.Game, db db.IDb) {
+		of, _ := db.MarketR().GetOffersByPlayerTeamId(playerId, params.FdTeamId)
+		of.PlayerAccepted = true
+		db.MarketR().SaveOffer(of)
+	}
+
+	return event
+}
 func dbEvPlayerRefusedContract(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
 	playerId := params.PlayerId
 	playerName := params.PlayerName

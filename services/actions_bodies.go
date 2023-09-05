@@ -83,7 +83,11 @@ func decisionOfferedContractToAPlayer(decision *models.Choosable, date time.Time
 		// getting rng tied in with offer so it will always be the same
 		rng := libs.NewRng(int64(wageVal))
 		offeredWage := utils.NewEurosFromF(wageVal)
-		chance := p.WageAcceptanceChance(offeredWage, fdTeamId)
+		fdTeam, ok := db.TeamR().ById(fdTeamId)
+		if !ok {
+			return
+		}
+		chance := p.WageAcceptanceChance(offeredWage, yContract, fdTeam)
 
 		// get offer if exists (this means it was offered a bid to the team)
 		o, exists := p.GetOfferFromTeamId(fdTeamId)
