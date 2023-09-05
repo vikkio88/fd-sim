@@ -4,6 +4,7 @@ import (
 	"fdsim/enums"
 	"fdsim/utils"
 	"fmt"
+	"math"
 
 	"github.com/oklog/ulid/v2"
 	"golang.org/x/exp/slices"
@@ -31,8 +32,32 @@ type PlayerDetailed struct {
 	Offers   []Offer
 }
 
-func (p *PlayerDetailed) WageAcceptanceChance(offer utils.Money, offeringTeamId string) utils.Perc {
-	return utils.NewPerc(0)
+func (p *PlayerDetailed) WageAcceptanceChance(offer utils.Money, yContract int, offeringTeam *TeamDetailed) utils.Perc {
+	perc := 0.0
+	if p.Morale.LessThan(50) {
+		perc = 50
+	}
+
+	perc += utils.ExpFactor(offeringTeam.Roster.AvgSkill(), 100, 100)
+
+	if offer.Cmp(p.IdealWage) >= 0 {
+		// perc += 40
+		factor := math.Pow(2, (p.IdealWage.Value()-offer.Value())/p.IdealWage.Value())
+		perc += 3.0 * factor
+	} else {
+
+		if offer.Cmp(p.Wage) > 0 {
+			factor := math.Pow(2, (offer.Value()-p.Wage.Value())/p.IdealWage.Value())
+			perc += 2 * factor
+		}
+
+		if offer.Cmp(p.Wage) < 0 {
+			factor := math.Pow(2, (offer.Value()-p.Wage.Value())/p.IdealWage.Value())
+			perc -= 4 * factor
+		}
+	}
+
+	return utils.NewPerc(int(perc))
 }
 
 func (p *PlayerDetailed) GetOfferFromTeamId(teamId string) (*Offer, bool) {

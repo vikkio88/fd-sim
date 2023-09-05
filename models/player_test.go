@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"fdsim/enums"
+	"fdsim/generators"
 	"fdsim/models"
 	"fdsim/utils"
 	"testing"
@@ -36,4 +37,67 @@ func TestPlayerIsSkillable(t *testing.T) {
 	assert.Equal(t, 50, p.Skill.Val())
 	assert.Equal(t, 99, p.Morale.Val())
 	assert.Equal(t, 10, p.Fame.Val())
+}
+
+func TestPlayerConctractDecision(t *testing.T) {
+	pd := buildPlayerDetailed()
+	td := buildTeamDetailed()
+
+	money := utils.NewEuros(1)
+	yContract := 1
+
+	chance := pd.WageAcceptanceChance(money, yContract, td)
+	assert.LessOrEqual(t, 5, chance.Val())
+
+	// if matching ideal wage and morale is low
+	money = pd.IdealWage
+	yContract = 1
+	pd.Morale = utils.NewPerc(0)
+	chance = pd.WageAcceptanceChance(money, yContract, td)
+	assert.LessOrEqual(t, 95, chance.Val())
+
+	// if wage higher than current
+	money = pd.Wage
+	money.Modify(.1)
+	yContract = 1
+	pd.Morale = utils.NewPerc(60)
+	chance = pd.WageAcceptanceChance(money, yContract, td)
+	assert.GreaterOrEqual(t, 90, chance.Val())
+
+	// if team is better but same wage
+	money = pd.Wage
+	gtd := buildGreatTeam()
+	pd.Morale.SetVal(60)
+	yContract = 1
+	chance = pd.WageAcceptanceChance(money, yContract, gtd)
+	assert.GreaterOrEqual(t, chance.Val(), 60)
+
+}
+
+func buildGreatTeam() *models.TeamDetailed {
+	tg := generators.NewTeamGen(0)
+	team := tg.Team(enums.EN)
+	pg := generators.NewPeopleGen(0)
+
+	ps := pg.Players(20)
+
+	for _, p := range ps {
+		p.Skill = utils.NewPerc(100)
+	}
+	td := &models.TeamDetailed{Team: *team}
+	return td
+}
+
+func buildTeamDetailed() *models.TeamDetailed {
+	tg := generators.NewTeamGen(0)
+	team := tg.Team(enums.EN)
+	td := &models.TeamDetailed{Team: *team}
+	return td
+}
+
+func buildPlayerDetailed() models.PlayerDetailed {
+	g := generators.NewPeopleGen(0)
+	p := g.Player(enums.EN)
+	pd := models.PlayerDetailed{Player: *p}
+	return pd
 }
