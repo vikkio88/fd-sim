@@ -33,7 +33,11 @@ func (p *Perc) Val() int {
 }
 
 func (p Perc) Less(o Perc) bool {
-	return p.val < o.val
+	return p.LessThan(o.val)
+}
+
+func (p Perc) LessThan(o int) bool {
+	return p.val < o
 }
 
 func (p Perc) String() string {
