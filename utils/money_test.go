@@ -110,12 +110,34 @@ func TestCurrencyFromString(t *testing.T) {
 func TestModifyMoney(t *testing.T) {
 	m := u.NewDollars(100)
 
-	m.Modify(0.5)
+	m.Modify(-0.5)
 	assert.Equal(t, "50.00 $", m.String())
 
 	m.Modify(1.0)
-	assert.Equal(t, "50.00 $", m.String())
+	assert.Equal(t, "100.00 $", m.String())
 
 	m.Modify(2.0)
-	assert.Equal(t, "100.00 $", m.String())
+	assert.Equal(t, "300.00 $", m.String())
+}
+
+func TestCloneModifyMoney(t *testing.T) {
+	m := u.NewDollars(100)
+
+	m.Modify(-.5)
+	assert.Equal(t, m.Value(), 50.0)
+
+	m1 := m
+	m1.Modify(-0.5)
+	assert.Equal(t, 25.0, m1.Value())
+	assert.Equal(t, 50.0, m.Value())
+
+	m.Modify(1)
+	assert.Equal(t, 100.0, m.Value())
+	assert.Equal(t, 25.0, m1.Value())
+
+	m.Modify(-.5)
+	assert.Equal(t, 50.0, m.Value())
+
+	m.Modify(.5)
+	assert.Equal(t, 75.0, m.Value())
 }

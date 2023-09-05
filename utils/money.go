@@ -80,7 +80,7 @@ func (m Money) Value() float64 {
 func (m *Money) Modify(perc float64) {
 	val := m.Value()
 
-	val = val * perc
+	val = val * (1 + perc)
 	m.Val = int64(val * MULTIPLIERF_100)
 }
 
