@@ -50,7 +50,7 @@ func decisionOfferedForAPlayer(decision *models.Choosable, date time.Time) *Even
 			TeamId:         &teamId,
 			OfferingTeamId: fdTeamId,
 			BidValue:       &offerVal,
-			OfferDate:      game.Date,
+			LastUpdate:     game.Date,
 		})
 
 		waitingDays := time.Duration(rng.UInt(0, 2))
@@ -99,7 +99,7 @@ func decisionOfferedContractToAPlayer(decision *models.Choosable, date time.Time
 				OfferingTeamId: fdTeamId,
 				WageValue:      &wageVal,
 				YContract:      &yContract,
-				OfferDate:      game.Date,
+				LastUpdate:     game.Date,
 			}
 			db.MarketR().AddOffer(newOffer)
 		} else {

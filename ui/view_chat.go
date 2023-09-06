@@ -97,10 +97,10 @@ func chatView(ctx *AppContext) *fyne.Container {
 			var decision *models.Decision
 			// TODO: here you can also make offer contract if team accepted
 			if hasTeam {
-				decision = makePlayerOfferDecision(game, params, offer)
+				decision = vm.MakePlayerOfferDecision(game, params, offer)
 			} else {
 				yf, _ := contractYrsV.Get()
-				decision = makePlayerContractOfferDecision(game, params, offer, int(yf))
+				decision = vm.MakePlayerContractOfferDecision(game, params, offer, int(yf))
 			}
 
 			dialog.ShowConfirm("Making Offer", "Are you sure?", func(b bool) {
@@ -111,6 +111,7 @@ func chatView(ctx *AppContext) *fyne.Container {
 
 				// Queue and persist decision
 				game.QueueDecision(decision)
+				addPendingDecision(decision.Choice.ActionType, fmt.Sprintf("%s.%s", decision.Choice.Params.PlayerId, decision.Choice.Params.FdTeamId))
 				ctx.Db.GameR().Update(game)
 				ctx.BackToMain()
 
@@ -120,37 +121,6 @@ func chatView(ctx *AppContext) *fyne.Container {
 			offerContent,
 		)
 
-}
-
-func makePlayerOfferDecision(game *models.Game, params vm.ChatParams, offer float64) *models.Decision {
-	return models.NewDecision(
-		game.Date,
-		models.ActionPlayerOffer.Choosable(
-			models.EventParams{
-				TeamId:     params.Team.Id,
-				TeamName:   params.Team.Name,
-				PlayerId:   params.Player.Id,
-				PlayerName: params.Player.String(),
-				ValueF:     offer,
-				FdTeamId:   game.Team.Id,
-			},
-		),
-	)
-}
-
-func makePlayerContractOfferDecision(game *models.Game, params vm.ChatParams, offer float64, ycontract int) *models.Decision {
-	return models.NewDecision(
-		game.Date,
-		models.ActionPlayerContractOffer.Choosable(
-			models.EventParams{
-				PlayerId:   params.Player.Id,
-				PlayerName: params.Player.String(),
-				ValueF:     offer,
-				ValueInt:   ycontract,
-				FdTeamId:   game.Team.Id,
-			},
-		),
-	)
 }
 
 func simpleChat(params vm.ChatParams, ctx *AppContext) *fyne.Container {

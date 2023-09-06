@@ -2,6 +2,7 @@ package ui
 
 import (
 	d "fdsim/db"
+	"fdsim/models"
 	vm "fdsim/vm"
 
 	"fyne.io/fyne/v2/data/binding"
@@ -11,8 +12,16 @@ import (
 var news, emails binding.UntypedList
 var dateStr binding.String
 var fdTeamId string = ""
+var hasPendingDecisions binding.Bool
+var pendingDecision *vm.PendingDecisions
 
 // I made them globals to this package as Simulation needs to update the content of the Dashboard
+
+func loadGlobals(db d.IDb) {
+	loadNotifications(db)
+	pendingDecision = vm.NewPendingDecisions()
+	hasPendingDecisions = binding.NewBool()
+}
 
 func loadNotifications(db d.IDb) {
 	loadEmails(db)
@@ -54,4 +63,22 @@ func IsFDTeam(teamId string) bool {
 	}
 
 	return fdTeamId == teamId
+}
+
+func addPendingDecision(at models.ActionType, objectIds string) {
+	pendingDecision.Add(at, objectIds)
+	if p, _ := hasPendingDecisions.Get(); p {
+		return
+	}
+
+	hasPendingDecisions.Set(true)
+}
+
+func freePendingDecisions() {
+	pendingDecision.Free()
+	if p, _ := hasPendingDecisions.Get(); !p {
+		return
+	}
+
+	hasPendingDecisions.Set(false)
 }

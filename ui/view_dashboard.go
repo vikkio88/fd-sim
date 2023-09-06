@@ -18,9 +18,23 @@ import (
 func dashboardView(ctx *AppContext) *fyne.Container {
 	gameId := ctx.RouteParam.(string)
 	game := ctx.InitGameState(gameId)
-	loadNotifications(ctx.Db)
+	loadGlobals(ctx.Db)
+
 	dateStr = binding.NewString()
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
+
+	pendingDecisionIndicator := widget.NewIcon(theme.WarningIcon())
+	pendingDecisionIndicator.Hide()
+	hasPendingDecisions.AddListener(binding.NewDataListener(func() {
+		if has, err := hasPendingDecisions.Get(); err == nil {
+			if has {
+				pendingDecisionIndicator.Show()
+			} else {
+				pendingDecisionIndicator.Hide()
+			}
+		}
+
+	}))
 
 	fd := game.FootDirector()
 	saveBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {})
@@ -96,10 +110,10 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 		events, simulated := sim.Simulate(1)
 		if simulated {
 			simTriggers(dateStr, news, emails, game, sim, events)
+			freePendingDecisions()
 		} else {
 			checkForEmailDialog(ctx.GetWindow())
 		}
-
 	})
 
 	return NewFborder().
@@ -128,13 +142,14 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 				Get(),
 		).
 		Bottom(
-			NewFborder().Right(
-				container.NewHBox(
-					trigEm,
-					trigTest,
-					nextDay,
-					startSim,
-				)).Get(),
+			NewFborder().
+				Right(
+					container.NewHBox(
+						trigEm,
+						trigTest,
+						nextDay,
+						startSim,
+					)).Get(pendingDecisionIndicator),
 		).
 		Get(
 			main,

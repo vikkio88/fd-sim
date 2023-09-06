@@ -92,6 +92,8 @@ func makeAction(email *models.Email, content *fyne.Container, body *Fborder, gam
 
 		// this forces the emails bind list to reload
 		loadEmails(db)
+		// this reports pending decisions
+		addPendingDecision(dec.Choice.ActionType, dec.EmailId)
 	})
 
 	if !answered {

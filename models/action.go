@@ -15,6 +15,8 @@ const (
 	ActionPlayerOffer
 	// FD confirmed the Transfer
 	ActionConfirmInTranfer
+	// FD Cancels Transfer
+	ActionCancelTransfer
 
 	ActionTest
 
@@ -29,13 +31,6 @@ func (at ActionType) Choosable(params EventParams) Choosable {
 			return Choosable{
 				ActionType: at,
 				YN:         &yn,
-				Params:     params,
-			}
-		}
-	case ActionPlayerOffer:
-		{
-			return Choosable{
-				ActionType: at,
 				Params:     params,
 			}
 		}

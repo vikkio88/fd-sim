@@ -53,6 +53,7 @@ func simulationView(ctx *AppContext) *fyne.Container {
 	stopBtn := widget.NewButtonWithIcon("Stop", theme.MediaStopIcon(), func() {
 		state.Set("Stopping...")
 		stop <- 1
+		freePendingDecisions()
 		ctx.Pop()
 	})
 	stopBtn.Disable()

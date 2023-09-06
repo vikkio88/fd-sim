@@ -38,3 +38,7 @@ type EventParams struct {
 	FdTeamId      string
 	FdTeamName    string
 }
+
+func EP() EventParams {
+	return EventParams{}
+}

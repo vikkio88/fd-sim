@@ -10,10 +10,10 @@ type Offer struct {
 	Team         *TPH
 	OfferingTeam TPH
 
-	OfferDate time.Time
-	BidValue  *utils.Money
-	WageValue *utils.Money
-	YContract *int
+	LastUpdate time.Time
+	BidValue   *utils.Money
+	WageValue  *utils.Money
+	YContract  *int
 
 	IsFreeAgent     bool
 	TeamAccepted    bool
@@ -31,7 +31,7 @@ func NewOffer(
 	return &Offer{
 		Player:       *player,
 		OfferingTeam: *offeringTeam,
-		OfferDate:    offerDate,
+		LastUpdate:   offerDate,
 
 		TeamAccepted:    teamAccepted,
 		PlayerAccepted:  playerAccepted,
