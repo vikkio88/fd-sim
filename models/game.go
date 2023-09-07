@@ -214,6 +214,14 @@ func (g *Game) IsEmployed() bool {
 	return g.Team != nil
 }
 
+func (g *Game) GetTeamOrEmpty() *TPH {
+	if g.Team != nil {
+		return g.Team
+	}
+
+	return nil
+}
+
 func (g *Game) GetTeamIdOrEmpty() string {
 	if g.Team != nil {
 		return g.Team.Id

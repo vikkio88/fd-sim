@@ -46,6 +46,8 @@ func getEventFromDbEvent(dbe db.DbEventDto) *Event {
 		return dbEvPlayerAcceptedContract(dbe, event, params)
 	case db.DbEvPlayerRefusedContract:
 		return dbEvPlayerRefusedContract(dbe, event, params)
+	case db.DbEvTransferConfirmed:
+		return dbEvTransferConfirmed(dbe, event, params)
 	}
 
 	return nil

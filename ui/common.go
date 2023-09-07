@@ -41,6 +41,12 @@ func h2(text string) *canvas.Text {
 	return txt
 }
 
+func h3(text string) *canvas.Text {
+	txt := canvas.NewText(text, theme.ForegroundColor())
+	txt.TextSize = 16
+	return txt
+}
+
 func small(text string) *canvas.Text {
 	txt := canvas.NewText(text, theme.ForegroundColor())
 	txt.TextSize = 10

@@ -23,7 +23,7 @@ const (
 	TransferMarketOpen
 	TransferMarketClose
 
-	// Offered Contract to User
+	// Offered Contract to FD User
 	ContractOffer
 	ContractAccepted
 	// Getting Sacked

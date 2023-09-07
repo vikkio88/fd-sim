@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"fdsim/models"
+	"fdsim/services"
 	"fdsim/utils"
 	"fdsim/vm"
 	"fmt"
@@ -94,24 +94,20 @@ func chatView(ctx *AppContext) *fyne.Container {
 		).
 		Bottom(rightAligned(widget.NewButton("Offer", func() {
 			offer, _ := bv.Get()
-			var decision *models.Decision
-			// TODO: here you can also make offer contract if team accepted
-			if hasTeam {
-				decision = vm.MakePlayerOfferDecision(game, params, offer)
-			} else {
-				yf, _ := contractYrsV.Get()
-				decision = vm.MakePlayerContractOfferDecision(game, params, offer, int(yf))
-			}
-
 			dialog.ShowConfirm("Making Offer", "Are you sure?", func(b bool) {
 				if !b {
 					ctx.Pop()
 					return
 				}
 
-				// Queue and persist decision
-				game.QueueDecision(decision)
-				addPendingDecision(decision.Choice.ActionType, fmt.Sprintf("%s.%s", decision.Choice.Params.PlayerId, decision.Choice.Params.FdTeamId))
+				// Offer
+				if hasTeam {
+					services.InstantDecisionBidForAPlayer(vm.MakeBidForPlayerParams(fdTeamId, params, offer), game, ctx.Db)
+				} else {
+					yf, _ := contractYrsV.Get()
+					services.InstantDecisionOfferedContractToAPlayer(vm.MakePlayerContractOfferParams(fdTeamId, params, offer, int(yf)), game, ctx.Db)
+				}
+
 				ctx.Db.GameR().Update(game)
 				ctx.BackToMain()
 

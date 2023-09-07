@@ -10,10 +10,8 @@ func ParseDecision(date time.Time, decision *models.Choosable) *Event {
 	switch decision.ActionType {
 	case models.ActionRespondContract:
 		return decisionRespondedToContractOffer(decision, date)
-	case models.ActionPlayerContractOffer:
-		return decisionOfferedContractToAPlayer(decision, date)
-	case models.ActionPlayerOffer:
-		return decisionOfferedForAPlayer(decision, date)
+	case models.ActionConfirmInTranfer:
+		return decisionConfirmInTransfer(decision, date)
 
 	//Testing action
 	case models.ActionTest:

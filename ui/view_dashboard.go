@@ -23,7 +23,7 @@ func dashboardView(ctx *AppContext) *fyne.Container {
 	dateStr = binding.NewString()
 	dateStr.Set(game.Date.Format(conf.DateFormatGame))
 
-	pendingDecisionIndicator := widget.NewIcon(theme.WarningIcon())
+	pendingDecisionIndicator := container.NewHBox(widget.NewIcon(theme.WarningIcon()), widget.NewLabel("Some actions are pending"))
 	pendingDecisionIndicator.Hide()
 	hasPendingDecisions.AddListener(binding.NewDataListener(func() {
 		if has, err := hasPendingDecisions.Get(); err == nil {

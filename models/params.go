@@ -1,6 +1,8 @@
 package models
 
-import "fdsim/enums"
+import (
+	"fdsim/enums"
+)
 
 type EventParams struct {
 	Country       enums.Country

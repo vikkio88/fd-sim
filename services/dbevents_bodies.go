@@ -242,6 +242,7 @@ was accepted.`, wageOfferM.StringKMB(), yContract, conf.LinkBodyPH),
 
 	return event
 }
+
 func dbEvPlayerRefusedContract(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
 	playerId := params.PlayerId
 	playerName := params.PlayerName
@@ -267,4 +268,10 @@ was rejected.`, wageOfferM.StringKMB(), yContract, conf.LinkBodyPH),
 	}
 
 	return event
+}
+
+func dbEvTransferConfirmed(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+	ev := NewEmptyEvent()
+
+	return ev
 }

@@ -9,14 +9,8 @@ const (
 	ActionConfirmOutTranfer
 	ActionPlayerContract
 
-	// FD Offered Contract to Player
-	ActionPlayerContractOffer
-	// FD Offered Money for a Player to a Team
-	ActionPlayerOffer
-	// FD confirmed the Transfer
+	// FD confirmed the Transfer In
 	ActionConfirmInTranfer
-	// FD Cancels Transfer
-	ActionCancelTransfer
 
 	ActionTest
 
