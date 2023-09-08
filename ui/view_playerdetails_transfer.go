@@ -16,6 +16,7 @@ import (
 func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDetails bool) fyne.CanvasObject {
 	g, _ := ctx.GetGameState()
 	tInfo, ok := ctx.Db.MarketR().GetTransferMarketInfo()
+	var offer *models.Offer
 
 	if !ok {
 		// this should not happen as it wont appear if you have no team
@@ -35,56 +36,57 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 	cancelBtn := widget.NewButton("Cancel", func() {})
 	cancelBtn.Disable()
 
-	if offer, ok := player.GetOfferFromTeamId(fdTeam.Id); ok {
-		decisionKey = fmt.Sprintf("%s.%s", decisionKey, offer.OfferingTeam.Id)
+	if o, ok := player.GetOfferFromTeamId(fdTeam.Id); ok {
+		decisionKey = fmt.Sprintf("%s.%s", decisionKey, o.OfferingTeam.Id)
+		offer = o
 		cancelBtn.OnTapped = func() {
 			dialog.ShowConfirm("Withdraw Offer", "Are you sure?", func(b bool) {
 				if !b {
 					return
 				}
-				services.InstantDecisionCancelOffer(offer, ctx.Db)
+				services.InstantDecisionCancelOffer(o, ctx.Db)
 				ctx.BackToMain()
 			}, ctx.GetWindow())
 		}
 
-		offerDateStr := offer.LastUpdate.Format(conf.DateFormatShort)
+		offerDateStr := o.LastUpdate.Format(conf.DateFormatShort)
 
-		switch offer.Stage() {
+		switch o.Stage() {
 		case models.OfstOffered:
 			waitingForResponse = true
 			canCancel = true
 			status = centered(h3(
-				fmt.Sprintf("Your made an offer for this player on %s (%s).", offerDateStr, offer.BidValue.StringKMB()),
+				fmt.Sprintf("Your made an offer for this player on %s (%s).", offerDateStr, o.BidValue.StringKMB()),
 			))
 		case models.OfstContractOffered:
 			waitingForResponse = true
 			canCancel = true
 			status = centered(h3(
-				fmt.Sprintf("Your made a contract offer for this player on %s (%s / %d years).", offerDateStr, offer.WageValue.StringKMB(), *offer.YContract),
+				fmt.Sprintf("Your made a contract offer for this player on %s (%s / %d years).", offerDateStr, o.WageValue.StringKMB(), *o.YContract),
 			))
 		case models.OfstTeamAccepted:
 			teamAcceptedOffer = true
 			canCancel = true
 			status = centered(h3(
-				fmt.Sprintf("%s accepted your %s offer on %s.", offer.Team.Name, offer.BidValue.StringKMB(), offerDateStr),
+				fmt.Sprintf("%s accepted your %s offer on %s.", o.Team.Name, o.BidValue.StringKMB(), offerDateStr),
 			))
 			//TODO: add info here
 		case models.OfstReady:
 			readyToTransfer = true
 			canCancel = true
 			status = centered(h3(
-				fmt.Sprintf("This player accepted your contract offer on %s (%s / %d years).", offerDateStr, offer.WageValue.StringKMB(), *offer.YContract),
+				fmt.Sprintf("This player accepted your contract offer on %s (%s / %d years).", offerDateStr, o.WageValue.StringKMB(), *o.YContract),
 			))
 		case models.OfstReadyTP:
 			readyToTransfer = true
 			canCancel = true
 			status = centered(container.NewVBox(
-				h3(fmt.Sprintf("%s accepted your %s offer.", offer.Team.Name, offer.BidValue.StringKMB())),
+				h3(fmt.Sprintf("%s accepted your %s offer.", o.Team.Name, o.BidValue.StringKMB())),
 				h3(
 					fmt.Sprintf(
 						"This player accepted your contract offer of %s for %d years on the %s",
-						offer.WageValue.StringKMB(),
-						*offer.YContract,
+						o.WageValue.StringKMB(),
+						*o.YContract,
 						offerDateStr,
 					),
 				)))
@@ -94,14 +96,14 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 
 	if readyToTransfer {
 		actionBtn = widget.NewButton("Confirm", func() {
-			ep := models.EP()
-			ep.PlayerId = player.Id
-			ep.PlayerName = player.String()
-			ep.FdTeamId = fdTeam.Id
-			ep.FdTeamName = fdTeam.Name
-			decision := vm.MakeAcceptTransferDecision(g, ep)
-			g.QueueDecision(decision)
-			addPendingDecision(decision.Choice.ActionType, decisionKey)
+			dialog.NewConfirm("Confirming Transfer", "Are you sure?", func(b bool) {
+				if !b {
+					return
+				}
+				services.InstantDecisionConfirmInTransfer(offer, g, ctx.Db)
+				ctx.BackToMain()
+
+			}, ctx.GetWindow())
 		})
 	} else if waitingForResponse {
 		actionBtn = widget.NewButton("Waiting...", func() {})
@@ -131,12 +133,6 @@ func makePTransferTab(ctx *AppContext, player *models.PlayerDetailed, canSeeDeta
 
 	if canCancel {
 		cancelBtn.Enable()
-	}
-
-	if pendingDecision.Has(models.ActionConfirmInTranfer, decisionKey) {
-		actionBtn.Disable()
-		actionBtn.SetText("Accepted")
-		cancelBtn.Disable()
 	}
 
 	contractInfo := valueLabel("Contract", widget.NewLabel("-"))

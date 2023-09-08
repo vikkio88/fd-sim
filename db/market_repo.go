@@ -87,8 +87,30 @@ func (repo *MarketRepo) GetOffersByOfferingTeamId(offeringTeamId string) []*mode
 	return offers
 }
 
-func (*MarketRepo) GetOffersByPlayerId(string) []*models.Offer {
-	//TODO: remove if not used (I seem to load it from the player itself)
+func (repo *MarketRepo) ApplyTransfer(o *models.Offer) {
+	var player PlayerDto
+	var offeringTeam TeamDto
+	repo.g.Model(&PlayerDto{}).Preload(teamRel).Find(&player, o.Player.Id)
+	repo.g.Model(&TeamDto{}).Find(&offeringTeam, o.OfferingTeam.Id)
 
-	panic("unimplemented")
+	var playerPreviousTeam *TeamDto
+	if player.Team != nil {
+		playerPreviousTeam = player.Team
+	}
+
+	player.TeamId = &o.OfferingTeam.Id
+	player.Wage = o.WageValue.Val
+	player.YContract = *o.YContract
+
+	if playerPreviousTeam != nil {
+		playerPreviousTeam.Balance += o.BidValue.Value()
+		offeringTeam.Balance -= o.BidValue.Value()
+	}
+
+	//TODO: check if balances are ok now
+
+	//TODO: check if the transfer is between seasons or after seasons
+	// in case it is inbetween drop half season log in history
+	// o.TransferDate
+
 }

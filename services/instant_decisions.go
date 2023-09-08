@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	d "fdsim/db"
 	"fdsim/enums"
 	"fdsim/libs"
@@ -103,6 +104,33 @@ func InstantDecisionOfferedContractToAPlayer(params models.EventParams, game *mo
 	} else {
 		ev = d.NewDbEventDto(d.DbEvPlayerRefusedContract, game.BaseCountry, "", params, game.Date.Add(enums.A_day*waitingDays))
 	}
+
+	db.GameR().StoreEvent(ev)
+}
+
+func InstantDecisionConfirmInTransfer(offer *models.Offer, game *models.Game, db d.IDb) {
+	//TODO: calculate the Transfer date
+	transferDate := game.Date
+	offer.TransferDate = transferDate.Add(enums.A_day * 7)
+
+	db.MarketR().SaveOffer(offer)
+
+	ep := models.EP()
+	ep.PlayerId = offer.Player.Id
+	ep.PlayerName = offer.Player.String()
+	ep.FdTeamId = offer.OfferingTeam.Id
+	ep.FdTeamName = offer.OfferingTeam.Name
+
+	res, _ := json.Marshal(offer)
+	ofjson := string(res)
+
+	ev := d.NewDbEventDto(
+		d.DbEvTransferHappening,
+		game.BaseCountry,
+		ofjson,
+		ep,
+		offer.TransferDate,
+	)
 
 	db.GameR().StoreEvent(ev)
 }

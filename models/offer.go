@@ -15,17 +15,16 @@ type Offer struct {
 	WageValue  *utils.Money
 	YContract  *int
 
-	IsFreeAgent     bool
-	TeamAccepted    bool
-	PlayerAccepted  bool
-	MoneyTransfered bool
-	TransferDate    time.Time
+	IsFreeAgent    bool
+	TeamAccepted   bool
+	PlayerAccepted bool
+	TransferDate   time.Time
 }
 
 func NewOffer(
 	player *PNPH,
 	offeringTeam *TPH,
-	teamAccepted, playerAccepted, moneyTransfered bool,
+	teamAccepted, playerAccepted bool,
 	offerDate, transferDate time.Time,
 ) *Offer {
 	return &Offer{
@@ -33,10 +32,9 @@ func NewOffer(
 		OfferingTeam: *offeringTeam,
 		LastUpdate:   offerDate,
 
-		TeamAccepted:    teamAccepted,
-		PlayerAccepted:  playerAccepted,
-		MoneyTransfered: moneyTransfered,
-		TransferDate:    transferDate,
+		TeamAccepted:   teamAccepted,
+		PlayerAccepted: playerAccepted,
+		TransferDate:   transferDate,
 	}
 }
 

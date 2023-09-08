@@ -6,11 +6,6 @@ type ActionType uint8
 
 const (
 	ActionRespondContract ActionType = iota
-	ActionConfirmOutTranfer
-	ActionPlayerContract
-
-	// FD confirmed the Transfer In
-	ActionConfirmInTranfer
 
 	ActionTest
 

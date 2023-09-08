@@ -26,7 +26,8 @@ type IMarketRepo interface {
 	DeleteOffer(*models.Offer)
 	GetOffersByPlayerTeamId(playerId string, offeringTeamId string) (*models.Offer, bool)
 	GetOffersByOfferingTeamId(string) []*models.Offer
-	GetOffersByPlayerId(string) []*models.Offer
+
+	ApplyTransfer(*models.Offer)
 }
 
 type IGameRepo interface {

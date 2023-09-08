@@ -16,10 +16,9 @@ type OfferDto struct {
 	WageValue      *float64
 	YContract      *int
 
-	TeamAccepted    bool
-	PlayerAccepted  bool
-	MoneyTransfered bool
-	TransferDate    time.Time
+	TeamAccepted   bool
+	PlayerAccepted bool
+	TransferDate   time.Time
 
 	Player PlayerDto
 	Team   *TeamDto
@@ -33,10 +32,9 @@ func DtoFromOffer(offer *models.Offer) OfferDto {
 		OfferingTeamId: offer.OfferingTeam.Id,
 		LastUpdate:     offer.LastUpdate,
 
-		TeamAccepted:    offer.TeamAccepted,
-		PlayerAccepted:  offer.PlayerAccepted,
-		MoneyTransfered: offer.MoneyTransfered,
-		TransferDate:    offer.TransferDate,
+		TeamAccepted:   offer.TeamAccepted,
+		PlayerAccepted: offer.PlayerAccepted,
+		TransferDate:   offer.TransferDate,
 	}
 
 	if offer.BidValue != nil {
@@ -63,7 +61,7 @@ func (o *OfferDto) Offer() *models.Offer {
 	offer := models.NewOffer(
 		o.Player.PlayerPH(),
 		o.OfferingTeam.TeamPH(),
-		o.TeamAccepted, o.PlayerAccepted, o.MoneyTransfered,
+		o.TeamAccepted, o.PlayerAccepted,
 		o.LastUpdate, o.TransferDate,
 	)
 	if o.Team != nil {

@@ -270,8 +270,12 @@ was rejected.`, wageOfferM.StringKMB(), yContract, conf.LinkBodyPH),
 	return event
 }
 
-func dbEvTransferConfirmed(dbe db.DbEventDto, event *Event, params models.EventParams) *Event {
+func dbEvTransferHappening(dbe db.DbEventDto, event *Event, params models.EventParams, d db.IDb) *Event {
 	ev := NewEmptyEvent()
+	var offer *models.Offer
+	json.Unmarshal([]byte(dbe.Payload), &offer)
+
+	// Perform transfer
 
 	return ev
 }

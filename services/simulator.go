@@ -86,7 +86,7 @@ func (sim *Simulator) simulateDate(events []*Event, newDate time.Time) []*Event 
 }
 
 func (sim *Simulator) dbTriggeredEvents(events []*Event, newDate time.Time) []*Event {
-	newEvents := parseDbEvents(sim.db.GameR().GetEvents(newDate))
+	newEvents := parseDbEvents(sim.db.GameR().GetEvents(newDate), sim.db)
 	events = append(events, newEvents...)
 	return events
 }

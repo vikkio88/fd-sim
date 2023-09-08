@@ -33,8 +33,7 @@ const (
 	DbEvPlayerAcceptedContract
 	DbEvPlayerRefusedContract
 
-	DbEvTransferConfirmed
-	DbEvTransferHappened
+	DbEvTransferHappening
 )
 
 func NewDbEventDto(kind DbEventType, country enums.Country, payload string, evParams models.EventParams, triggerDate time.Time) DbEventDto {

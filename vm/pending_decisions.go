@@ -6,13 +6,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func MakeAcceptTransferDecision(game *models.Game, params models.EventParams) *models.Decision {
-	return models.NewDecision(
-		game.Date,
-		models.ActionConfirmInTranfer.Choosable(params),
-	)
-}
-
 type PendingDecisions struct {
 	queue map[models.ActionType][]string
 }

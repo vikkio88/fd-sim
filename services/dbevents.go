@@ -23,7 +23,7 @@ func parseEventParams(ep string) models.EventParams {
 	return result
 }
 
-func getEventFromDbEvent(dbe db.DbEventDto) *Event {
+func triggerEventFromDbEvent(dbe db.DbEventDto, d db.IDb) *Event {
 	event := NewEvent(dbe.TriggerDate, "db_event")
 	params := parseEventParams(dbe.EventParams)
 
@@ -46,8 +46,8 @@ func getEventFromDbEvent(dbe db.DbEventDto) *Event {
 		return dbEvPlayerAcceptedContract(dbe, event, params)
 	case db.DbEvPlayerRefusedContract:
 		return dbEvPlayerRefusedContract(dbe, event, params)
-	case db.DbEvTransferConfirmed:
-		return dbEvTransferConfirmed(dbe, event, params)
+	case db.DbEvTransferHappening:
+		return dbEvTransferHappening(dbe, event, params, d)
 	}
 
 	return nil

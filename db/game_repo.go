@@ -188,8 +188,8 @@ func (repo *GameRepo) GetEvents(currentDate time.Time) []DbEventDto {
 	return ev
 }
 
+// TODO: remove if not used
 func (*GameRepo) StoreEvents([]DbEventDto) {
-
 }
 
 func (repo *GameRepo) StoreEvent(ev DbEventDto) {
