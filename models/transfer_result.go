@@ -16,8 +16,9 @@ const (
 type TransferResult struct {
 	Success      bool
 	Player       PNPH
-	PreviousTeam *TPH
+	PlayerSkill  utils.Perc
 	Team         TPH
+	PreviousTeam *TPH
 	Bid          utils.Money
 	Wage         utils.Money
 	YContract    int

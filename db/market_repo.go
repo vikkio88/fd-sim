@@ -2,6 +2,7 @@ package db
 
 import (
 	"fdsim/models"
+	"fdsim/utils"
 
 	"gorm.io/gorm"
 )
@@ -120,6 +121,7 @@ func (repo *MarketRepo) ApplyTransfer(o *models.Offer) *models.TransferResult {
 	repo.g.Save(player)
 
 	result := models.NewTransferSuccess(o.Player, o.OfferingTeam, *o.WageValue, *o.YContract, o.TransferDate)
+	result.PlayerSkill = utils.NewPerc(player.Skill)
 	if playerPreviousTeam != nil {
 		result.AddTeam(*playerPreviousTeam.TeamPH(), *o.BidValue)
 	}

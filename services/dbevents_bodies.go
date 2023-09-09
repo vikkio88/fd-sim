@@ -6,6 +6,7 @@ import (
 	"fdsim/data"
 	"fdsim/db"
 	"fdsim/enums"
+	"fdsim/libs"
 	"fdsim/models"
 	"fdsim/utils"
 	"fmt"
@@ -279,11 +280,61 @@ func dbEvTransferHappening(dbe db.DbEventDto, event *Event, params models.EventP
 	result := d.MarketR().ApplyTransfer(offer)
 
 	if !result.Success {
-		// failed
+		ev.TriggerEmail = models.NewEmail(
+			emailAddrFromTeamName(result.Team.Name, "finance"),
+			fmt.Sprintf("We blocked the transfer of %s", result.Player.String()),
+			fmt.Sprintf(
+				`Finance department blocked the transfer of the player:
+%s
+as the offer of %s would go over the budget allocated for transfer market.`,
+				conf.LinkBodyPH, result.Bid.StringKMB()),
+			offer.TransferDate,
+			[]models.Link{
+				playerLink(result.Player.String(), result.Player.Id),
+			})
+		ev.TriggerChanges = func(game *models.Game, db db.IDb) {
+			rng := libs.NewRngAutoSeeded()
+			// made board trust you less
+			game.Board.SetVal(game.Board.Val() - rng.UInt(2, 5))
+			db.GameR().Update(game)
+		}
 		return ev
 	}
 
+	links := []models.Link{
+		playerLink(result.Player.String(), result.Player.Id),
+	}
+
+	teamBodyPart := "He was previously free agent. So he was signed for free."
+	if result.PreviousTeam != nil {
+		teamBodyPart = fmt.Sprintf("He previously played for %s, and they accepted an offer of %s.", conf.LinkBodyPH, result.Bid.StringKMB())
+		links = append(links, teamLink(result.PreviousTeam.Name, result.PreviousTeam.Id))
+	}
+
 	// success
+	ev.TriggerEmail = models.NewEmail(
+		emailAddrFromTeamName(result.Team.Name, "hr"),
+		fmt.Sprintf("Welcome %s to our team.", result.Player.String()),
+		fmt.Sprintf(
+			`We welcome the player:
+%s
+to our team.
+%s`,
+			conf.LinkBodyPH, teamBodyPart),
+		offer.TransferDate,
+		links,
+	)
+
+	ev.TriggerChanges = func(game *models.Game, db db.IDb) {
+		rng := libs.NewRngAutoSeeded()
+
+		if rng.Chance(result.PlayerSkill) {
+			game.Board.SetVal(game.Board.Val() + rng.UInt(1, 5))
+			game.Fame.SetVal(game.Board.Val() + rng.UInt(1, 2))
+		}
+
+		//TODO: add to FD History/Stats
+	}
 
 	return ev
 }
