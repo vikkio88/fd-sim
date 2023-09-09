@@ -276,6 +276,14 @@ func dbEvTransferHappening(dbe db.DbEventDto, event *Event, params models.EventP
 	json.Unmarshal([]byte(dbe.Payload), &offer)
 
 	// Perform transfer
+	result := d.MarketR().ApplyTransfer(offer)
+
+	if !result.Success {
+		// failed
+		return ev
+	}
+
+	// success
 
 	return ev
 }

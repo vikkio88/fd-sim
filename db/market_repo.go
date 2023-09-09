@@ -87,7 +87,7 @@ func (repo *MarketRepo) GetOffersByOfferingTeamId(offeringTeamId string) []*mode
 	return offers
 }
 
-func (repo *MarketRepo) ApplyTransfer(o *models.Offer) {
+func (repo *MarketRepo) ApplyTransfer(o *models.Offer) *models.TransferResult {
 	var player PlayerDto
 	var offeringTeam TeamDto
 	repo.g.Model(&PlayerDto{}).Preload(teamRel).Find(&player, o.Player.Id)
@@ -98,19 +98,31 @@ func (repo *MarketRepo) ApplyTransfer(o *models.Offer) {
 		playerPreviousTeam = player.Team
 	}
 
-	player.TeamId = &o.OfferingTeam.Id
-	player.Wage = o.WageValue.Val
-	player.YContract = *o.YContract
-
 	if playerPreviousTeam != nil {
+		//TODO: check if balances are ok now
+		balanceAfterTransaction := offeringTeam.Balance - o.BidValue.Value()
+		if balanceAfterTransaction < 0 {
+			result := models.NewTransferFail(o.Player, o.OfferingTeam)
+			result.PreviousTeam = playerPreviousTeam.TeamPH()
+			return result
+		}
 		playerPreviousTeam.Balance += o.BidValue.Value()
 		offeringTeam.Balance -= o.BidValue.Value()
 	}
 
-	//TODO: check if balances are ok now
+	player.TeamId = &o.OfferingTeam.Id
+	player.Wage = o.WageValue.Val
+	player.YContract = *o.YContract
 
 	//TODO: check if the transfer is between seasons or after seasons
 	// in case it is inbetween drop half season log in history
 	// o.TransferDate
+	repo.g.Save(player)
 
+	result := models.NewTransferSuccess(o.Player, o.OfferingTeam, *o.WageValue, *o.YContract, o.TransferDate)
+	if playerPreviousTeam != nil {
+		result.AddTeam(*playerPreviousTeam.TeamPH(), *o.BidValue)
+	}
+
+	return result
 }
