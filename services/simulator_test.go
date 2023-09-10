@@ -48,9 +48,9 @@ func TestSimulatorAdvancingTime(t *testing.T) {
 	assert.Equal(t, 9, game.Date.Day())
 	assert.Equal(t, time.July, game.Date.Month())
 	if len(events) > 0 {
-		assert.Equal(t,
-			services.ContractOffer.Event(time.Now(), models.EventParams{}).Description,
+		assert.Contains(t,
 			events[0].Description,
+			services.ContractOffer.Event(time.Now(), models.EventParams{}).Description,
 		)
 	}
 

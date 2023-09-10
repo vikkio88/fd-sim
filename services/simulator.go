@@ -119,26 +119,26 @@ func (sim *Simulator) stateTriggeredEvents(events []*Event, newDate time.Time) [
 }
 
 func (sim *Simulator) marketEvents(events []*Event, mc models.MarketCheck, newDate time.Time) []*Event {
-	if mc.OpeningDate {
+	if mc.IsOpeningDate {
 		events = append(
 			events,
 			TransferMarketOpen.Event(newDate, models.EventParams{
 				Country:  sim.game.BaseCountry,
 				BoolFlag: mc.Summer,
-				Label1:   mc.Opening,
-				Label2:   mc.Closing,
+				Label1:   mc.OpeningDate.Format(conf.DateFormatShort),
+				Label2:   mc.ClosingDate.Format(conf.DateFormatShort),
 			}),
 		)
 	}
 
-	if mc.ClosingDate {
+	if mc.IsClosingDate {
 		events = append(
 			events,
 			TransferMarketClose.Event(newDate, models.EventParams{
 				Country:  sim.game.BaseCountry,
 				BoolFlag: mc.Summer,
-				Label1:   mc.Opening,
-				Label2:   mc.Closing,
+				Label1:   mc.OpeningDate.Format(conf.DateFormatShort),
+				Label2:   mc.ClosingDate.Format(conf.DateFormatShort),
 			}),
 		)
 	}

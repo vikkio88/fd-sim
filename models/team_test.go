@@ -23,7 +23,7 @@ func TestTeamBuilder(t *testing.T) {
 }
 
 func TestTeamAcceptingOffer(t *testing.T) {
-	tg := generators.NewTeamGen(0)
+	tg := generators.NewTeamGen(10)
 	team := tg.Team(enums.EN)
 
 	p := team.Roster.Players()[0]

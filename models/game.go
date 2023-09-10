@@ -237,16 +237,16 @@ func (g *Game) IsUnemployedAndNoOfferPending() bool {
 }
 
 type MarketCheck struct {
-	OpeningDate bool
-	ClosingDate bool
-	Summer      bool
-	Winter      bool
-	Opening     string
-	Closing     string
+	IsOpeningDate bool
+	IsClosingDate bool
+	Summer        bool
+	Winter        bool
+	OpeningDate   time.Time
+	ClosingDate   time.Time
 }
 
 func (m MarketCheck) IsOpen() bool {
-	return m.OpeningDate || (m.Summer || m.Winter)
+	return m.IsOpeningDate || (m.Summer || m.Winter)
 }
 
 func MakeMarketWindows(date time.Time) []time.Time {
@@ -265,36 +265,38 @@ func CalculateTransferWindowDates(date time.Time) MarketCheck {
 
 	if date.Equal(dates[0]) {
 		return MarketCheck{
-			OpeningDate: true, Summer: true,
-			Opening: dates[0].Format(conf.DateFormatShort),
-			Closing: dates[1].Format(conf.DateFormatShort),
+			IsOpeningDate: true, Summer: true,
+			OpeningDate: dates[0],
+			ClosingDate: dates[1],
 		}
 	}
 
 	if date.Equal(dates[1]) {
-		return MarketCheck{ClosingDate: true, Summer: true,
-			Opening: dates[0].Format(conf.DateFormatShort),
-			Closing: dates[1].Format(conf.DateFormatShort),
+		return MarketCheck{IsClosingDate: true, Summer: true,
+			OpeningDate: dates[0],
+			ClosingDate: dates[1],
 		}
 	}
 
 	if date.Equal(dates[2]) {
-		return MarketCheck{OpeningDate: true, Winter: true,
-			Opening: dates[2].Format(conf.DateFormatShort),
-			Closing: dates[3].Format(conf.DateFormatShort)}
+		return MarketCheck{IsOpeningDate: true, Winter: true,
+			OpeningDate: dates[2],
+			ClosingDate: dates[3],
+		}
 	}
 
 	if date.Equal(dates[3]) {
-		return MarketCheck{ClosingDate: true, Winter: true,
-			Opening: dates[2].Format(conf.DateFormatShort),
-			Closing: dates[3].Format(conf.DateFormatShort),
+		return MarketCheck{IsClosingDate: true, Winter: true,
+			OpeningDate: dates[2],
+			ClosingDate: dates[3],
 		}
 	}
 
 	if date.After(dates[0]) && date.Before(dates[1]) {
 		return MarketCheck{Summer: true,
-			Opening: dates[2].Format(conf.DateFormatShort),
-			Closing: dates[3].Format(conf.DateFormatShort)}
+			OpeningDate: dates[2],
+			ClosingDate: dates[3],
+		}
 	}
 
 	if date.After(dates[2]) && date.Before(dates[3]) {
