@@ -111,6 +111,7 @@ func InstantDecisionOfferedContractToAPlayer(params models.EventParams, game *mo
 func InstantDecisionConfirmInTransfer(offer *models.Offer, game *models.Game, db d.IDb) {
 	//TODO: calculate the Transfer date
 	transferDate := game.Date
+	// open, mc := game.IsTransferWindowOpen()
 	offer.TransferDate = transferDate.Add(enums.A_day * 7)
 
 	db.MarketR().SaveOffer(offer)
