@@ -10,6 +10,7 @@ import (
 	"fdsim/models"
 	"fdsim/utils"
 	"fmt"
+	"strings"
 )
 
 func parsePNPH(dbe db.DbEventDto) []*models.PNPH {
@@ -22,16 +23,17 @@ func dbEvYoungPlayers(dbe db.DbEventDto, event *Event, params models.EventParams
 	youngs := parsePNPH(dbe)
 
 	links := make([]models.Link, len(youngs))
-	body := "The following players joined your team from youth squad:"
+	var body strings.Builder
+	body.WriteString("The following players joined your team from youth squad:")
 	for i, rp := range youngs {
 		links[i] = models.NewLink(rp.String(), enums.PlayerDetails, &rp.Id)
-		body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+		body.WriteString(fmt.Sprintf(" %s", conf.LinkBodyPH))
 	}
 
 	event.TriggerEmail = models.NewEmail(
 		emailAddrFromTeamName(params.TeamName, "hr"),
 		fmt.Sprintf("%d players promoted to first team.", len(youngs)),
-		body,
+		body.String(),
 		dbe.TriggerDate,
 		links,
 	)
@@ -42,16 +44,17 @@ func dbEvRetiredPlayers(dbe db.DbEventDto, event *Event, params models.EventPara
 	retired := parsePNPH(dbe)
 
 	links := make([]models.Link, len(retired))
-	body := "The following players retired this year"
+	var body strings.Builder
+	body.WriteString("The following players retired this year")
 	for i, rp := range retired {
 		links[i] = models.NewLink(rp.String(), enums.PlayerDetails, &rp.Id)
-		body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+		body.WriteString(fmt.Sprintf(" %s", conf.LinkBodyPH))
 	}
 
 	event.TriggerEmail = models.NewEmail(
 		emailAddrFromTeamName(params.TeamName, "hr"),
 		fmt.Sprintf("Goodbye! %d Players retired.", len(retired)),
-		body,
+		body.String(),
 		dbe.TriggerDate,
 		links,
 	)
@@ -66,26 +69,27 @@ func dbEvSkillChangePlayers(dbe db.DbEventDto, event *Event, params models.Event
 
 	links := []models.Link{}
 
-	body := "Few players this year showcased a significant change in their skills."
+	var body strings.Builder
+	body.WriteString("Few players this year showcased a significant change in their skills.")
 	if len(improved) > 0 {
-		body += "\nThe following players improved quite a lot:"
+		body.WriteString("\nThe following players improved quite a lot:")
 		for _, v := range improved {
 			links = append(links, models.NewLink(fmt.Sprintf("%s : +%d%%", v.String(), v.ValueI), enums.PlayerDetails, &v.Id))
-			body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+			body.WriteString(fmt.Sprintf(" %s", conf.LinkBodyPH))
 		}
 	}
 	if len(worsened) > 0 {
-		body += "\nThose players skills appear to be worse:"
+		body.WriteString("\nThose players skills appear to be worse:")
 		for _, v := range worsened {
 			links = append(links, models.NewLink(fmt.Sprintf("%s : -%d%%", v.String(), v.ValueI), enums.PlayerDetails, &v.Id))
-			body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+			body.WriteString(fmt.Sprintf(" %s", conf.LinkBodyPH))
 		}
 	}
 
 	event.TriggerEmail = models.NewEmail(
 		emailAddrFromTeamName(params.TeamName, "training"),
 		"Report of your player skill change.",
-		body,
+		body.String(),
 		dbe.TriggerDate,
 		links,
 	)
@@ -97,16 +101,17 @@ func dbEvFreeAgent(dbe db.DbEventDto, event *Event, params models.EventParams) *
 	freeagents := parsePNPH(dbe)
 
 	links := make([]models.Link, len(freeagents))
-	body := "The following players contracts were not renewed and they are now free agents:"
+	var body strings.Builder
+	body.WriteString("The following players contracts were not renewed and they are now free agents:")
 	for i, rp := range freeagents {
 		links[i] = models.NewLink(rp.String(), enums.PlayerDetails, &rp.Id)
-		body += fmt.Sprintf(" %s", conf.LinkBodyPH)
+		body.WriteString(fmt.Sprintf(" %s", conf.LinkBodyPH))
 	}
 
 	event.TriggerEmail = models.NewEmail(
 		emailAddrFromTeamName(params.TeamName, "hr"),
 		fmt.Sprintf("Contracts expired for %d players.", len(freeagents)),
-		body,
+		body.String(),
 		dbe.TriggerDate,
 		links,
 	)

@@ -26,14 +26,14 @@ type PlayersMap map[string]*Player
 
 type Roster struct {
 	players     PlayersMap
-	cache       map[string]interface{}
+	cache       map[string]any
 	indexByRole map[Role][]PPH
 }
 
 func NewRoster() *Roster {
 	return &Roster{
 		players:     PlayersMap{},
-		cache:       map[string]interface{}{},
+		cache:       map[string]any{},
 		indexByRole: NewRolePPHMap(),
 	}
 }

@@ -19,7 +19,7 @@ const (
 
 type Db struct {
 	g     *gorm.DB
-	cache map[string]interface{}
+	cache map[string]any
 }
 
 func NewDb(fileName string) IDb {
@@ -29,7 +29,7 @@ func NewDb(fileName string) IDb {
 	}
 
 	migrate(g)
-	cache := map[string]interface{}{}
+	cache := map[string]any{}
 	return &Db{g, cache}
 }
 

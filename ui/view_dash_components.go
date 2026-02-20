@@ -47,7 +47,7 @@ func makeNotificationsTabs(ctx *AppContext, navigate func(route AppRoute, param 
 }
 
 // Functions that will count Unred Notifications
-func countUnread(notifications []interface{}, isEmail bool) int {
+func countUnread(notifications []any, isEmail bool) int {
 	c := 0
 	for _, e := range notifications {
 		//TODO: can change this to the golang type inference

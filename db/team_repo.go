@@ -108,7 +108,7 @@ func (tr *TeamRepo) Delete(ids []string) {
 func (tr *TeamRepo) Update(team *models.Team) {
 	//TODO: Implement here an update without changing Coach/Players
 	// this is used to update Balance for example
-	tr.g.Model(&TeamDto{}).Where("id = ?", team.Id).UpdateColumns(map[string]interface{}{
+	tr.g.Model(&TeamDto{}).Where("id = ?", team.Id).UpdateColumns(map[string]any{
 		"balance": team.Balance.Value(),
 	})
 }

@@ -344,10 +344,3 @@ func (c *ColumnsLayout) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 		x += w
 	}
 }
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
